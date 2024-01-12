@@ -1,14 +1,34 @@
-import React, { useEffect, useState } from 'react'
-import { Container, Table } from "react-bootstrap"
-import { ethers } from "ethers"
-import { useAccount } from 'wagmi'
-import ReactPaginate from 'react-paginate'
-import Account from './Account'
-const optimismSDK = require("@eth-optimism/sdk")
+import React, { useEffect, useState, FunctionComponent } from 'react';
+import { Container, Table } from "react-bootstrap";
+import { ethers } from "ethers";
+import { useAccount } from 'wagmi';
+import ReactPaginate from 'react-paginate';
+import Account from './Account';
+const optimismSDK = require("@eth-optimism/sdk");
 
-const DepositAccount = () => {
-    const [loader, setLoader] = useState(false)
-    const tokenList = [
+interface Token {
+    type: string | undefined;
+    tokenSymbol: string;
+    decimalValue: number;
+}
+
+interface Bridge {
+    l1Bridge: string | undefined;
+    l2Bridge: string;
+    Adapter: typeof optimismSDK.StandardBridgeAdapter | typeof optimismSDK.ETHBridgeAdapter;
+}
+
+interface PageClickEvent {
+    selected: number;
+}
+
+interface Amount {
+    _hex: string;
+}
+
+const DepositAccount: FunctionComponent = () => {
+    const [loader, setLoader] = useState<boolean>(false);
+    const tokenList: Token[] = [
         {
             type: process.env.REACT_APP_L1_DAI,
             tokenSymbol: "DAI",
@@ -29,10 +49,11 @@ const DepositAccount = () => {
             tokenSymbol: "wBTC",
             decimalValue: 8
         }
-    ]
+    ];
 
-    const { address, isConnected } = useAccount()
-    const [depositDetails, setDepositDetails] = useState([])
+    const { address, isConnected } = useAccount();
+    const [depositDetails, setDepositDetails] = useState<any[]>([]); 
+
     const getDeposit = async () => {
         const l1Provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_L1_RPC_URL);
         const l2Provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_L2_RPC_URL);
@@ -48,9 +69,9 @@ const DepositAccount = () => {
             L1StandardBridge: process.env.REACT_APP_PROXY_OVM_L1STANDARDBRIDGE,
             OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
             L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
-        }
+        };
         // console.log(l1Contracts);
-        const bridges = {
+        const bridges: { Standard: Bridge; ETH: Bridge; } = {
             Standard: {
                 l1Bridge: l1Contracts.L1StandardBridge,
                 l2Bridge: "0x4200000000000000000000000000000000000010",
@@ -83,7 +104,7 @@ const DepositAccount = () => {
             setLoader(true)
         }
     }
-    function timeConverter(timestamp) {
+    function timeConverter(timestamp: number): string {
         var a = new Date(timestamp * 1000);
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
@@ -100,22 +121,22 @@ const DepositAccount = () => {
 
      */
 
-    function retrieveEthValue(amount, givenType) {
+    function retrieveEthValue(amount: Amount, givenType: string) {
         const weiValue = parseInt(amount._hex, 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue
         console.log("dynamicDecimal", dynamicDecimal);
-        return weiValue / Number("1".padEnd(dynamicDecimal + 1, 0));
+        return weiValue / Number("1".padEnd(dynamicDecimal + 1, '0'));
     }
 
     useEffect(() => {
         if (isConnected) {
             getDeposit()
         }
-    }, [address])
+    }, [address]);
     // =============all Collections pagination start===============
-    const [currentItemsCollections, setCurrentItemsCollections] = useState([]);
-    const [pageCountCollections, setPageCountCollections] = useState(0);
-    const [itemOffsetCollections, setItemOffsetCollections] = useState(0);
+    const [currentItemsCollections, setCurrentItemsCollections] = useState<any[]>([]);
+    const [pageCountCollections, setPageCountCollections] = useState<number>(0);
+    const [itemOffsetCollections, setItemOffsetCollections] = useState<number>(0);
     const itemsPerPageCollections = 10;
 
 
@@ -129,7 +150,7 @@ const DepositAccount = () => {
         }
     }, [depositDetails, itemOffsetCollections, itemsPerPageCollections]);
 
-    const handlePageClickCollections = (event) => {
+    const handlePageClickCollections = (event: PageClickEvent) => {
         const newOffsetCollections =
             (event.selected * itemsPerPageCollections) % depositDetails.length;
         setItemOffsetCollections(newOffsetCollections);
@@ -202,4 +223,4 @@ const DepositAccount = () => {
     )
 }
 
-export default DepositAccount
+export default DepositAccount;

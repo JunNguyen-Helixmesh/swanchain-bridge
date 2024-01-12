@@ -1,17 +1,55 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, FunctionComponent } from 'react';
 import { Table, Spinner, Container } from "react-bootstrap";
-import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
-import { ethers } from "ethers"
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
+import { ethers } from "ethers";
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
-const optimismSDK = require("@eth-optimism/sdk")
-const WithdrawAccount = () => {
-    const [transactionLoader, setTransactionLoader] = useState(false)
-    const [loader, setLoader] = useState()
-    const { address, isConnected } = useAccount()
-    const [withdrawDetails, setWithdrawDetails] = useState([])
-    const { chain } = useNetwork()
-    const { switchNetwork } = useSwitchNetwork()
+const optimismSDK = require("@eth-optimism/sdk");
+
+interface Token {
+    type: string | undefined;
+    tokenSymbol: string;
+    decimalValue: number;
+}
+
+interface Bridge {
+    l1Bridge: string | undefined;
+    l2Bridge: string | undefined;
+    Adapter: typeof optimismSDK.StandardBridgeAdapter | typeof optimismSDK.ETHBridgeAdapter;
+}
+
+interface PageClickEvent {
+    selected: number;
+}
+
+interface Amount {
+    _hex: string;
+}
+
+declare global {
+    interface Window {
+        ethereum: ethers.providers.ExternalProvider;
+    }
+}
+
+interface WithdrawalDetail {
+    blockNumber: number;
+    transactionHash: string;
+    messageStatus?: number; 
+    timestamp?: number; 
+    message?: string | null; 
+    amount?: string;
+    l2Token?: string;
+}
+
+
+const WithdrawAccount: FunctionComponent = () => {
+    const [transactionLoader, setTransactionLoader] = useState<boolean>(false);
+    const [loader, setLoader] = useState<number | null>(null); 
+    const { address, isConnected } = useAccount();
+    const [withdrawDetails, setWithdrawDetails] = useState<WithdrawalDetail[]>([]);
+    const { chain } = useNetwork();
+    const { switchNetwork } = useSwitchNetwork();
     const getCrossChain = async () => {
         const l2Url = String(process.env.REACT_APP_L2_RPC_URL)
         const l1Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -29,7 +67,7 @@ const WithdrawAccount = () => {
             OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
             L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
         }
-        const bridges = {
+        const bridges: { Standard: Bridge; ETH: Bridge; } = {
             Standard: {
                 l1Bridge: l1Contracts.L1StandardBridge,
                 l2Bridge: process.env.REACT_APP_L2_BRIDGE,
@@ -59,12 +97,13 @@ const WithdrawAccount = () => {
         const getCrossChainMessenger = await getCrossChain();
         const l2Url = String(process.env.REACT_APP_L2_RPC_URL)
         const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
-        const data = await getCrossChainMessenger.getWithdrawalsByAddress(address)
+        const data: WithdrawalDetail[] = await getCrossChainMessenger.getWithdrawalsByAddress(address);
         for (let index = 0; index < data.length; index++) {
-            let timestamp = (await l2Provider.getBlock(data[index].blockNumber)).timestamp;
-            let getStatus = await getCrossChainMessenger.getMessageStatus(data[index].transactionHash)
-            data[index].messageStatus = getStatus
-            data[index].timestamp = timestamp
+            const timestamp = (await l2Provider.getBlock(data[index].blockNumber)).timestamp;
+            const getStatus = await getCrossChainMessenger.getMessageStatus(data[index].transactionHash);
+    
+            data[index].messageStatus = getStatus;
+            data[index].timestamp = timestamp;
         }
         const getNewWithdrawals = data.map(object => {
             if (object.messageStatus == 6) {
@@ -91,7 +130,10 @@ const WithdrawAccount = () => {
         }
         console.log(currentItemsCollections)
     }
-    function timeConverter(timestamp) {
+    function timeConverter(timestamp: number | undefined): string {
+        if (timestamp === undefined) {
+            return "Unknown Time";
+        }
         var a = new Date(timestamp * 1000);
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
@@ -103,8 +145,9 @@ const WithdrawAccount = () => {
         var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
         return time;
     }
+    
 
-    const handleProve = async (event, transactionHash) => {
+    const handleProve = async (event: any, transactionHash: string) => {
         try {
             const index = event.target.getAttribute('data-value')
             setLoader(index)
@@ -115,7 +158,7 @@ const WithdrawAccount = () => {
                 getWithdraw()
                 setLoader(NaN)
             }
-        } catch (error) {
+        } catch (error: any) {
             if (error.code === "ACTION_REJECTED") {
                 setLoader(NaN)
             }
@@ -123,7 +166,7 @@ const WithdrawAccount = () => {
 
     }
 
-    const handleClaim = async (event, transactionHash) => {
+    const handleClaim = async (event: any, transactionHash: string) => {
         try {
             const index = event.target.getAttribute('data-value')
             setLoader(index)
@@ -134,7 +177,7 @@ const WithdrawAccount = () => {
                 getWithdraw()
                 setLoader(NaN)
             }
-        } catch (error) {
+        } catch (error: any) {
             // if(error.code === -32603){
             //     console.log("Already claim");
             // }
@@ -156,12 +199,12 @@ const WithdrawAccount = () => {
         }
     }, [chain, address])
     // =============all Collections pagination start===============
-    const [currentItemsCollections, setCurrentItemsCollections] = useState([]);
+    const [currentItemsCollections, setCurrentItemsCollections] = useState<WithdrawalDetail[]>([]);
     const [pageCountCollections, setPageCountCollections] = useState(0);
     const [itemOffsetCollections, setItemOffsetCollections] = useState(0);
     const itemsPerPageCollections = 10;
 
-    const tokenList = [
+    const tokenList: Token[] = [
         {
             type: process.env.REACT_APP_L2_DAI,
             tokenSymbol: "DAI",
@@ -182,12 +225,13 @@ const WithdrawAccount = () => {
             tokenSymbol: "wBTC",
             decimalValue: 8
         }
-    ]
+    ];
 
-    function retrieveEthValue(amount, givenType) {
+    function retrieveEthValue(amount: Amount | undefined, givenType: string) {
+        if (!amount) return 0;
         const weiValue = parseInt(amount._hex, 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue
-        return weiValue / Number("1".padEnd(dynamicDecimal + 1, 0));
+        return weiValue / Number("1".padEnd(dynamicDecimal + 1, '0'));
     }
 
     useEffect(() => {
@@ -200,7 +244,7 @@ const WithdrawAccount = () => {
         }
     }, [withdrawDetails, itemOffsetCollections, itemsPerPageCollections]);
 
-    const handlePageClickCollections = (event) => {
+    const handlePageClickCollections = (event: PageClickEvent) => {
         const newOffsetCollections =
             (event.selected * itemsPerPageCollections) % withdrawDetails.length;
         setItemOffsetCollections(newOffsetCollections);

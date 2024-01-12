@@ -1,20 +1,23 @@
-import React, { useState } from 'react'
-import "../../assets/style/account/account.scss"
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
-import { MdContentCopy } from "react-icons/md"
-import { useAccount } from "wagmi"
+import React, { useState, FunctionComponent } from 'react';
+import "../../assets/style/account/account.scss";
+import { Tooltip, OverlayTrigger, TooltipProps } from 'react-bootstrap'; 
+import { MdContentCopy } from "react-icons/md";
+import { useAccount } from "wagmi";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { Link, useLocation } from 'react-router-dom'
-const Account = () => {
-    const [copyTextSourceCode, setCopyTextSourceCode] = useState("Copy address to clipboard")
-    const location = useLocation()
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
+
+const Account: FunctionComponent = () => {
+    const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>("Copy address to clipboard");
+    const router = useRouter();
     const { address, isConnected } = useAccount();
-    const handleSourceCopy = () => {
-        if (copyTextSourceCode === "Copy address to clipboard") {
-            setCopyTextSourceCode("Copied.")
-        }
+
+    const handleSourceCopy = (): void => {
+        setCopyTextSourceCode("Copied.");
     };
-    const renderTooltip = (props) => (
+
+    const renderTooltip = (props: TooltipProps) => (
         <Tooltip id="button-tooltip" {...props}>
             {copyTextSourceCode}
         </Tooltip>
@@ -41,12 +44,12 @@ const Account = () => {
             </div>
             <div className='account_tabs'>
                 <ul>
-                    <li><Link to="/account/deposit" className={`${location.pathname == "/account/deposit" ? "active" : ""}`}>Deposit</Link></li>
-                    <li><Link to="/account/withdraw" className={`${location.pathname == "/account/withdraw" ? "active" : ""}`}>Withdraw</Link></li>
+                    <li><Link href="/account/deposit"><a className={`${router.pathname == "/account/deposit" ? "active" : ""}`}>Deposit</a></Link></li>
+                    <li><Link href="/account/withdraw"><a className={`${router.pathname == "/account/withdraw" ? "active" : ""}`}>Withdraw</a></Link></li>
                 </ul>
             </div>
         </>
-    )
-}
+    );
+};
 
-export default Account
+export default Account;

@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import "../../assets/style/common/header.scss"
-import { Navbar, Container, Nav, Image, Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
+import React, { useEffect, useState, FunctionComponent } from 'react';
+import "../../assets/style/common/header.scss";
+import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
+import Image from 'next/image'; // Next.js Image component
+import Link from 'next/link'; // Next.js Link
 import logo from "../../assets/images/logo.png";
-import { Link } from 'react-router-dom';
-import { useAccount, useConnect, useNetwork } from 'wagmi'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { disconnect } from '@wagmi/core'
-import { FaEthereum } from "react-icons/fa"
-import { BiInfoCircle, BiPowerOff } from "react-icons/bi"
-import { MdContentCopy } from "react-icons/md"
-import { AiOutlineDownload, AiOutlineUpload } from "react-icons/ai"
-import metamask from "../../assets/images/metamask.svg"
-// import { BiPowerOff } from "react-icons/bi"
-import { useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useNetwork } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { FaEthereum } from "react-icons/fa";
+import { BiInfoCircle, BiPowerOff } from "react-icons/bi";
+import { MdContentCopy } from "react-icons/md";
+import { AiOutlineDownload, AiOutlineUpload } from "react-icons/ai";
+import metamask from "../../assets/images/metamask.svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-const HeaderNew = () => {
-    const [copyTextSourceCode, setCopyTextSourceCode] = useState("Copy address to clipboard")
+import { CreateConnectorFn, Connector, Address } from 'wagmi/packages/core/src/connectors/createconnector';
+
+const HeaderNew: FunctionComponent = () => {
+    const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>("Copy address to clipboard");
     const { address, isConnected } = useAccount();
-    const [getNetwork, setNetwork] = useState();
-    const [checkMetaMask, setCheckMetaMask] = useState("");
-    const { chain, chains } = useNetwork()
+    const [getNetwork, setNetwork] = useState<string | undefined>();
+    const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false);
+    const { chain, chains } = useNetwork();
     const { connect } = useConnect({
         connector: new InjectedConnector({ chains }),
-        onMutate(args) {
+        onMutate(args: { connector? : CreateConnectorFn | Connector}) {
             console.log('Mutate', args)
             if (args.connector.ready === true) {
                 setCheckMetaMask(false)
@@ -30,13 +30,15 @@ const HeaderNew = () => {
                 setCheckMetaMask(true)
             }
         },
-        onSettled(data, error) {
+        // wagmi docs specify ConnectError but doesn't actually export ConnectError
+        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: any) {
             console.log('Settled', { data, error })
         },
-        onSuccess(data) {
+        onSuccess(data: { accounts: readonly [Address, ...Address[]]; chainId: number }) {
             console.log('Success', data)
         },
     })
+    const { disconnect } = useDisconnect();
     const handleDisconnect = async () => {
         await disconnect()
     }
@@ -48,13 +50,13 @@ const HeaderNew = () => {
         else {
             setNetwork("Unsupported Network")
         }
-    }, [chain])
+    }, [chain]);
     const handleSourceCopy = () => {
         if (copyTextSourceCode === "Copy address to clipboard") {
             setCopyTextSourceCode("Copied.")
         }
     }
-    const renderTooltip = (props) => (
+    const renderTooltip = (props: any) => (
         <Tooltip id="button-tooltip" {...props}>
             {copyTextSourceCode}
         </Tooltip>
@@ -64,8 +66,8 @@ const HeaderNew = () => {
             <header className='app_header'>
                 <Navbar expand="lg" variant="dark">
                     <Container fluid>
-                        <Link to="/" className='app_logo'>
-                            <Image src={logo} alt="logo" fluid />
+                        <Link href="/" className='app_logo'>
+                            <Image src={logo} alt="logo"/>
                         </Link>
                         <Navbar.Toggle aria-controls="navbarScroll" />
                         <Navbar.Collapse id="navbarScroll">
@@ -95,7 +97,7 @@ const HeaderNew = () => {
                             </div> */}
 
                                 <div className='dropdown_wrap'>
-                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : address ? <Dropdown>
+                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : address ? <Dropdown>
                                         <Dropdown.Toggle variant="success" id="race_header_dropdown" >
                                             {address.slice(0, 5)}...{address.slice(-5)}
                                         </Dropdown.Toggle>

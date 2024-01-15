@@ -7,96 +7,108 @@ import { MdOutlineSecurity } from "react-icons/md"
 import { FaEthereum } from "react-icons/fa"
 import Web3 from 'web3';
 import toIcn from "../assets/images/logo.png"
-import { useAccount, useConnect, useNetwork, useSwitchNetwork, useBalance } from 'wagmi'
+import { useAccount, useConnect, useNetwork, useSwitchChain, useBalance } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { IoMdWallet } from "react-icons/io"
 import { HiSwitchHorizontal } from "react-icons/hi";
 import metamask from "../assets/images/metamask.svg"
 import TabMenu from './TabMenu';
+import { SwitchChainErrorType } from 'wagmi/packages/core/src/actions/switchChain';
+import { SwitchChainVariables, SwitchChainData } from 'wagmi/packages/core/src/exports/query';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
-const Withdraw = () => {
-  const [ethValue, setEthValue] = useState("")
-  const [sendToken, setSendToken] = useState("ETH")
-  const [errorInput, setErrorInput] = useState("")
-  const [checkMetaMask, setCheckMetaMask] = useState("");
-  const [loader, setLoader] = useState(false)
-  const { address, isConnected } = useAccount()
-  const { chain, chains } = useNetwork()
-  const [RaceBalance, setRaceBalance] = useState(0)
+
+interface BalanceOptions {
+  address: string;
+  token?: string;
+  watch: boolean;
+  chainId: number;
+}
+
+const Withdraw: React.FC = () => {
+  const [ethValue, setEthValue] = useState<string>(""); 
+  const [sendToken, setSendToken] = useState<string>("ETH"); 
+  const [errorInput, setErrorInput] = useState<string>(""); 
+  const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false); 
+  const [loader, setLoader] = useState<boolean>(false);
+  const { address, isConnected } = useAccount();
+  const { chain, chains } = useNetwork();
+  const [RaceBalance, setRaceBalance] = useState<number>(0);
+  const [metaMastError, setMetaMaskError] = useState<string>("");
+
   const { connect } = useConnect({
-    connector: new InjectedConnector({ chains }), onError(error) {
-      console.log('Error', error)
+    connector: new InjectedConnector({ chains }),
+    onError: (error: Error) => {
+      console.log('Error', error);
     },
-    onMutate(args) {
-      console.log('Mutate', args)
+    onMutate: (args: any) => {
+      console.log('Mutate', args);
       if (args.connector.ready === true) {
-        setCheckMetaMask(false)
+        setCheckMetaMask(false);
       } else {
-        setCheckMetaMask(true)
+        setCheckMetaMask(true);
       }
     },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
+    onSettled: (data: any, error: any) => {
+      console.log('Settled', { data, error });
     },
-    onSuccess(data) {
-      console.log('Success', data)
+    onSuccess: (data: any) => {
+      console.log('Success', data);
     },
-  })
-  const [metaMastError, setMetaMaskError] = useState("")
-  const { error, isLoading, pendingChainId, switchNetwork } = useSwitchNetwork({
-    // throwForSwitchChainNotSupported: true,
+  });
+
+  const { error, isLoading, pendingChainId, switchNetwork } = useSwitchChain({
     chainId: 90001,
-    onError(error) {
-      console.log('Error', error)
+    onError: (error: SwitchChainErrorType) => {
+      console.log('Error', error);
     },
-    onMutate(args) {
-      console.log('Mutate', args)
+    onMutate: (args: SwitchChainVariables) => {
+      console.log('Mutate', args);
     },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
+    onSettled: (data: SwitchChainData, error: SwitchChainErrorType) => {
+      console.log('Settled', { data, error });
       try {
         window.ethereum.request({
           method: "wallet_addEthereumChain",
           params: [{
-            chainId: process.env.REACT_APP_L2_CHAIN_ID_WITH_HEX,
-            rpcUrls: [process.env.REACT_APP_L2_RPC_URL],
-            chainName: process.env.REACT_APP_L2_NETWORK_NAME,
+            chainId: process.env.NEXT_PUBLIC_L2_CHAIN_ID_WITH_HEX,
+            rpcUrls: [process.env.NEXT_PUBLIC_L2_RPC_URL],
+            chainName: process.env.NEXT_PUBLIC_L2_NETWORK_NAME,
             nativeCurrency: {
               name: "ETHEREUM",
               symbol: "ETH",
               decimals: 18
             },
-            blockExplorerUrls: [process.env.REACT_APP_L2_EXPLORER_URL]
+            blockExplorerUrls: [process.env.NEXT_PUBLIC_L2_EXPLORER_URL]
           }]
-        }).then((data) => {
-          setMetaMaskError("")
-        }).catch((err) => {
+        }).then((data: any) => {
+          setMetaMaskError("");
+        }).catch((err: { code: number; }) => {
           if (err.code === -32002) {
-            setMetaMaskError("Request stuck in pending state")
+            setMetaMaskError("Request stuck in pending state");
           }
         });
       }
-      catch (error) {
+      catch (error: SwitchChainErrorType) {
         console.log(error);
       }
     },
-    onSuccess(data) {
-      console.log('Success', data)
-
+    onSuccess: (data: SwitchChainData) => {
+      console.log('Success', data);
     },
-  })
-  //========================================================== BALANCES =======================================================================
+  });
 
-  const { data } = useBalance({ address: address, chainId: Number(process.env.REACT_APP_L2_CHAIN_ID), watch: true })
-  const dataUSDT = useBalance({ address: address, chainId: Number(process.env.REACT_APP_L2_CHAIN_ID), token: process.env.REACT_APP_L2_USDT, watch: true });
-  const dataDAI = useBalance({ address: address, chainId: Number(process.env.REACT_APP_L2_CHAIN_ID), token: process.env.REACT_APP_L2_DAI, watch: true });
-  const dataUSDC = useBalance({ address: address, chainId: Number(process.env.REACT_APP_L2_CHAIN_ID), token: process.env.REACT_APP_L2_USDC, watch: true });
-  const datawBTC = useBalance({ address: address, chainId: Number(process.env.REACT_APP_L2_CHAIN_ID), token: process.env.REACT_APP_L2_wBTC, watch: true });
+  const balanceOptions: BalanceOptions = { address: address, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID), watch: true };
+  const { data } = useBalance(balanceOptions);
+
+  const dataUSDT = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_USDT });
+  const dataDAI = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_DAI });
+  const dataUSDC = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_USDC });
+  const datawBTC = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_wBTC });
 
   useEffect(() => {
-    console.log("dataUSDT", data)
-  }, [])
+    console.log("dataUSDT", data);
+  }, []);
 
   ////========================================================== WITHDRAW =======================================================================
 
@@ -106,7 +118,7 @@ const Withdraw = () => {
         setErrorInput("Please enter the amount");
       }
       else {
-        if (!parseFloat(ethValue) > 0) {
+        if (parseFloat(ethValue) <= 0) {
           setErrorInput("Invalid Amount Entered!");
         } else {
           setErrorInput("");
@@ -175,7 +187,7 @@ const Withdraw = () => {
             }
 
             if (sendToken == "USDT") {
-              var usdtValue = parseInt(ethValue * 1000000)
+              var usdtValue = parseInt(ethValue) * 1000000
               setLoader(true);
               var receiptUSDT = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_USDT, process.env.REACT_APP_L2_USDT, usdtValue)
               var getReceiptUSDT = await receiptUSDT.wait();
@@ -185,7 +197,7 @@ const Withdraw = () => {
               }
             }
             if (sendToken == "wBTC") {
-              var wBTCValue = parseInt(ethValue * 100000000)
+              var wBTCValue = parseInt(ethValue) * 100000000
               setLoader(true);
               var receiptwBTC = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_wBTC, process.env.REACT_APP_L2_wBTC, wBTCValue)
               var getReceiptwBTC = await receiptwBTC.wait();
@@ -195,7 +207,7 @@ const Withdraw = () => {
               }
             }
             if (sendToken == "USDC") {
-              var usdcValue = parseInt(ethValue * 1000000)
+              var usdcValue = parseInt(ethValue) * 1000000
               setLoader(true);
               var receiptUSDC = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_USDC, process.env.REACT_APP_L2_USDC, usdcValue)
               var getReceiptUSDC = await receiptUSDC.wait();
@@ -207,14 +219,14 @@ const Withdraw = () => {
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
             updateWallet()
           }
-          catch (error) {
+          catch (error: any) {
             setLoader(false);
             console.log({ error }, 98);
           }
         }
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
     }
   }
@@ -224,14 +236,14 @@ const Withdraw = () => {
 
       switchNetwork(process.env.REACT_APP_L2_CHAIN_ID)
     }
-    catch (error) {
+    catch (error: any) {
       console.log(error);
     }
   }
   ////========================================================== HANDLE CHANGE =======================================================================
   const [checkDisabled, setCheckDisabled] = useState(false)
 
-  const handleChange = (e) => {
+  const handleChange = (e: Number | React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == "ETH") {
       if (Number(data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
@@ -285,7 +297,7 @@ const Withdraw = () => {
   }
 
   // ============= For Format balance =========================
-  const formatBalance = (rawBalance) => {
+  const formatBalance = (rawBalance: string) => {
     const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6)
     return balance
   }
@@ -295,7 +307,7 @@ const Withdraw = () => {
       method: "eth_getBalance",
       params: [address, "latest"]
     }))
-    setRaceBalance(balance)
+    setRaceBalance(Number(balance));
   }
 
   useEffect(() => {

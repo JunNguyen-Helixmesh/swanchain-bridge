@@ -1,6 +1,6 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import "../../assets/style/common/header.scss";
-import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
 import Image from 'next/image'; // Next.js Image component
 import Link from 'next/link'; // Next.js Link
 import logo from "../../assets/images/logo.png";
@@ -13,6 +13,7 @@ import { AiOutlineDownload, AiOutlineUpload } from "react-icons/ai";
 import metamask from "../../assets/images/metamask.svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { CreateConnectorFn, Connector, Address } from 'wagmi/packages/core/src/connectors/createconnector';
+import { ConnectErrorType } from 'wagmi/packages/core/src/actions/connect';
 
 const HeaderNew: FunctionComponent = () => {
     const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>("Copy address to clipboard");
@@ -30,8 +31,7 @@ const HeaderNew: FunctionComponent = () => {
                 setCheckMetaMask(true)
             }
         },
-        // wagmi docs specify ConnectError but doesn't actually export ConnectError
-        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: any) {
+        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: ConnectErrorType) {
             console.log('Settled', { data, error })
         },
         onSuccess(data: { accounts: readonly [Address, ...Address[]]; chainId: number }) {
@@ -56,7 +56,7 @@ const HeaderNew: FunctionComponent = () => {
             setCopyTextSourceCode("Copied.")
         }
     }
-    const renderTooltip = (props: any) => (
+    const renderTooltip = (props: TooltipProps) => (
         <Tooltip id="button-tooltip" {...props}>
             {copyTextSourceCode}
         </Tooltip>

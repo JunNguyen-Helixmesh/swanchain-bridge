@@ -1,74 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import "../assets/style/deposit.scss";
-import { Form, Spinner, Image } from "react-bootstrap"
+import { Form, Spinner } from "react-bootstrap"
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons';
+import Image from 'next/image';
 import toIcn from "../assets/images/logo.png"
 import { IoMdWallet } from "react-icons/io"
 import { FaEthereum } from "react-icons/fa"
-import { useAccount, useConnect, useNetwork, useSwitchNetwork, useBalance, useToken } from 'wagmi'
+import { useAccount, useConnect, useNetwork, useSwitchChain, useBalance, useToken } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import TabMenu from './TabMenu';
 import { HiSwitchHorizontal } from "react-icons/hi"
 import metamask from "../assets/images/metamask.svg"
 import Web3 from 'web3';
+import { FC } from 'react';
+import { ConnectorOptions, ConnectorUpdate } from 'wagmi';
+import { CreateConnectorFn, Connector, Address } from 'wagmi/packages/core/src/connectors/createconnector';
+import { SwitchChainErrorType } from 'wagmi/packages/core/src/actions/switchChain';
+import { SwitchChainVariables, SwitchChainData } from 'wagmi/packages/core/src/exports/query';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
 
-const Deposit = () => {
-    const [ethValue, setEthValue] = useState("")
-    const [sendToken, setSendToken] = useState("ETH")
+interface BalanceOptions {
+    address: string;
+    token?: string;
+    watch: boolean;
+    chainId: number;
+  }
+
+const Deposit: React.FC = () => {
+    const [ethValue, setEthValue] = useState<string>("")
+    const [sendToken, setSendToken] = useState<string>("ETH")
     const { data: accountData, address, isConnected } = useAccount()
-    const [errorInput, setErrorInput] = useState("")
-    const [loader, setLoader] = useState(false)
+    const [errorInput, setErrorInput] = useState<string>("")
+    const [loader, setLoader] = useState<boolean>(false)
     const { chain, chains } = useNetwork()
-    const [checkMetaMask, setCheckMetaMask] = useState("");
+    const [checkMetaMask, setCheckMetaMask] = useState<string>("");
 
     const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-        connector: new InjectedConnector({ chains }), onError(error) {
+        connector: new InjectedConnector({ chains }), onError(error: Error) {
             console.log('Error', error)
         },
-        onMutate(args) {
+        onMutate(args: CreateConnectorFn |Connector) {
             console.log('Mutate', args)
             if (args.connector.ready === true) {
-                setCheckMetaMask(false)
+                setCheckMetaMask("false")
             } else {
-                setCheckMetaMask(true)
+                setCheckMetaMask("true")
             }
         },
-        onSettled(data, error) {
+        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: any) {
             console.log('Settled', { data, error })
         },
-        onSuccess(data) {
+        onSuccess(data: { accounts: readonly [Address, ...Address[]]; chainId: number }) {
             console.log('Success', data)
         },
     })
-    const { switchNetwork } = useSwitchNetwork({
+    const { switchChain } = useSwitchChain({
         throwForSwitchChainNotSupported: true,
-        onError(error) {
+        onError(error: SwitchChainErrorType) {
             console.log('Error', error)
         },
-        onMutate(args) {
+        onMutate(args: SwitchChainVariables) {
             console.log('Mutate', args)
         },
-        onSettled(data, error) {
+        onSettled(data: SwitchChainData, error: SwitchChainErrorType) {
             console.log('Settled', { data, error })
         },
-        onSuccess(data) {
+        onSuccess(data: SwitchChainData) {
             console.log('Success', data)
         },
     })
 
 
-    const { data } = useBalance({ address: address, watch: true, chainId: Number(process.env.REACT_APP_L1_CHAIN_ID) })
+    const { data } = useBalance({ address: address, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
 
 
-    const dataUSDT = useBalance({ address: address, token: process.env.REACT_APP_L1_USDT, watch: true, chainId: Number(process.env.REACT_APP_L1_CHAIN_ID) })
-    const dataDAI = useBalance({ address: address, token: process.env.REACT_APP_L1_DAI, watch: true, chainId: Number(process.env.REACT_APP_L1_CHAIN_ID) })
-    const dataUSDC = useBalance({ address: address, token: process.env.REACT_APP_L1_USDC, watch: true, chainId: Number(process.env.REACT_APP_L1_CHAIN_ID) })
-    const datawBTC = useBalance({ address: address, token: process.env.REACT_APP_L1_wBTC, watch: true, chainId: Number(process.env.REACT_APP_L1_CHAIN_ID) })
+    const dataUSDT = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_USDT, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const dataDAI = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_DAI, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const dataUSDC = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_USDC, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const datawBTC = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_wBTC, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
 
     const handleSwitch = () => {
-        switchNetwork(process.env.REACT_APP_L1_CHAIN_ID)
+        switchChain(process.env.NEXT_PUBLIC_L1_CHAIN_ID)
     }
 
 
@@ -78,11 +91,10 @@ const Deposit = () => {
                 setErrorInput("Please enter the amount");
             }
             else {
-                if (!parseFloat(ethValue) > 0) {
+                if (!(parseFloat(ethValue) > 0)) {
                     setErrorInput("Invalid Amount Entered!");
                 } else {
-
-                    const l2Url = process.env.REACT_APP_L2_RPC_URL;
+                    const l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL;
                     const l1Provider = new ethers.providers.Web3Provider(window.ethereum);
                     const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
                     const l1Signer = l1Provider.getSigner(address)
@@ -92,21 +104,21 @@ const Deposit = () => {
                         StateCommitmentChain: zeroAddr,
                         CanonicalTransactionChain: zeroAddr,
                         BondManager: zeroAddr,
-                        AddressManager: process.env.REACT_APP_LIB_ADDRESSMANAGER,
-                        L1CrossDomainMessenger: process.env.REACT_APP_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-                        L1StandardBridge: process.env.REACT_APP_PROXY_OVM_L1STANDARDBRIDGE,
-                        OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
-                        L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
+                        AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
+                        L1CrossDomainMessenger: process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+                        L1StandardBridge: process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
+                        OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
+                        L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
                     }
                     const bridges = {
                         Standard: {
                             l1Bridge: l1Contracts.L1StandardBridge,
-                            l2Bridge: process.env.REACT_APP_L2_BRIDGE,
+                            l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
                             Adapter: optimismSDK.StandardBridgeAdapter
                         },
                         ETH: {
                             l1Bridge: l1Contracts.L1StandardBridge,
-                            l2Bridge: process.env.REACT_APP_L2_BRIDGE,
+                            l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
                             Adapter: optimismSDK.ETHBridgeAdapter
                         }
                     }
@@ -115,8 +127,8 @@ const Deposit = () => {
                             l1: l1Contracts,
                         },
                         bridges: bridges,
-                        l1ChainId: Number(process.env.REACT_APP_L1_CHAIN_ID),
-                        l2ChainId: Number(process.env.REACT_APP_L2_CHAIN_ID),
+                        l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+                        l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
                         l1SignerOrProvider: l1Signer,
                         l2SignerOrProvider: l2Signer,
                         bedrock: true,
@@ -146,7 +158,7 @@ const Deposit = () => {
                         }
                     }
                     if (sendToken === "USDT") {
-                        var usdtValue = parseInt(ethValue * 1000000)
+                        var usdtValue = parseInt(ethValue)* 1000000
                         setLoader(true);
                         var depositTxn1 = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_USDT, process.env.REACT_APP_L2_USDT, usdtValue)
                         await depositTxn1.wait()
@@ -158,7 +170,7 @@ const Deposit = () => {
                         }
                     }
                     if (sendToken === "wBTC") {
-                        var wBTCValue = parseInt(ethValue * 100000000)
+                        var wBTCValue = parseInt(ethValue) * 100000000
                         setLoader(true);
                         var depositTxnBtc = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_wBTC, process.env.REACT_APP_L2_wBTC, wBTCValue)
                         await depositTxnBtc.wait()
@@ -170,7 +182,7 @@ const Deposit = () => {
                         }
                     }
                     if (sendToken === "USDC") {
-                        var usdcValue = parseInt(ethValue * 1000000)
+                        var usdcValue = parseInt(ethValue) * 1000000
                         setLoader(true);
                         var depositTxn3 = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_USDC, process.env.REACT_APP_L2_USDC, usdcValue)
                         await depositTxn3.wait()
@@ -191,9 +203,9 @@ const Deposit = () => {
         }
     }
     const [checkDisabled, setCheckDisabled] = useState(false)
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (sendToken == 'ETH') {
-            if (Number(data?.formatted) < e.target.value) {
+            if (Number(data?.formatted) < Number(e.target.value)) {
                 setErrorInput("Insufficient ETH balance.")
                 setCheckDisabled(true)
             } else {
@@ -203,7 +215,7 @@ const Deposit = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'DAI') {
-            if (Number(dataDAI.data?.formatted) < e.target.value) {
+            if (Number(dataDAI.data?.formatted) < Number(e.target.value)) {
                 setErrorInput("Insufficient DAI balance.")
                 setCheckDisabled(true)
             } else {
@@ -213,7 +225,7 @@ const Deposit = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'USDT') {
-            if (Number(dataUSDT.data?.formatted) < e.target.value) {
+            if (Number(dataUSDT.data?.formatted) < Number(e.target.value)) {
                 setErrorInput("Insufficient USDT balance.")
                 setCheckDisabled(true)
             } else {
@@ -223,7 +235,7 @@ const Deposit = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'wBTC') {
-            if (Number(datawBTC.data?.formatted) < e.target.value) {
+            if (Number(datawBTC.data?.formatted) < Number(e.target.value)) {
                 setErrorInput("Insufficient wBTC balance.")
                 setCheckDisabled(true)
             } else {
@@ -233,7 +245,7 @@ const Deposit = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'USDC') {
-            if (Number(dataUSDC.data?.formatted) < e.target.value) {
+            if (Number(dataUSDC.data?.formatted) < Number(e.target.value)) {
                 setErrorInput("Insufficient USDC balance.")
                 setCheckDisabled(true)
             } else {
@@ -279,14 +291,14 @@ const Deposit = () => {
                     <div className='deposit_details_wrap'>
                         <div className="deposit_details">
                             <p>To</p>
-                            <h5><Image src={toIcn} alt="To icn" fluid /> Race</h5>
+                            <h5><Image src={toIcn} alt="To icn"/> Race</h5>
                         </div>
                         <div className='deposit_inner_details'>
                             {sendToken == "ETH" ? <span className='input_icn'> <Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn'> <Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn'> <Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn'> <Usdc style={{ fontSize: '1.5rem' }} /></span>}  <p> You’ll receive: {ethValue ? ethValue : "0"} {sendToken}</p>
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.REACT_APP_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.REACT_APP_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to Sepolia</button> :
                             checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
                                 <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>

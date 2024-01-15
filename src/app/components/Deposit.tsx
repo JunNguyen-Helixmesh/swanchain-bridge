@@ -147,10 +147,10 @@ const Deposit: React.FC = () => {
                     if (sendToken === "DAI") {
                         var daiValue = Web3.utils.toWei(ethValue, "ether")
                         setLoader(true);
-                        console.log("adddresssssssssss", process.env.REACT_APP_L1_DAI)
-                        var depositTxn2 = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_DAI, process.env.REACT_APP_L2_DAI, daiValue)
+                        console.log("adddresssssssssss", process.env.NEXT_PUBLIC_L1_DAI)
+                        var depositTxn2 = await crossChainMessenger.approveERC20(process.env.NEXT_PUBLIC_L1_DAI, process.env.NEXT_PUBLIC_L2_DAI, daiValue)
                         await depositTxn2.wait()
-                        var receiptDAI = await crossChainMessenger.depositERC20(process.env.REACT_APP_L1_DAI, process.env.REACT_APP_L2_DAI, daiValue)
+                        var receiptDAI = await crossChainMessenger.depositERC20(process.env.NEXT_PUBLIC_L1_DAI, process.env.NEXT_PUBLIC_L2_DAI, daiValue)
                         var getReceiptDAI = await receiptDAI.wait()
                         if (getReceiptDAI) {
                             setLoader(false);
@@ -160,9 +160,9 @@ const Deposit: React.FC = () => {
                     if (sendToken === "USDT") {
                         var usdtValue = parseInt(ethValue)* 1000000
                         setLoader(true);
-                        var depositTxn1 = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_USDT, process.env.REACT_APP_L2_USDT, usdtValue)
+                        var depositTxn1 = await crossChainMessenger.approveERC20(process.env.NEXT_PUBLIC_L1_USDT, process.env.NEXT_PUBLIC_L2_USDT, usdtValue)
                         await depositTxn1.wait()
-                        var receiptUSDT = await crossChainMessenger.depositERC20(process.env.REACT_APP_L1_USDT, process.env.REACT_APP_L2_USDT, usdtValue)
+                        var receiptUSDT = await crossChainMessenger.depositERC20(process.env.NEXT_PUBLIC_L1_USDT, process.env.NEXT_PUBLIC_L2_USDT, usdtValue)
                         var getReceiptUSDT = await receiptUSDT.wait()
                         if (getReceiptUSDT) {
                             setLoader(false);
@@ -172,9 +172,9 @@ const Deposit: React.FC = () => {
                     if (sendToken === "wBTC") {
                         var wBTCValue = parseInt(ethValue) * 100000000
                         setLoader(true);
-                        var depositTxnBtc = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_wBTC, process.env.REACT_APP_L2_wBTC, wBTCValue)
+                        var depositTxnBtc = await crossChainMessenger.approveERC20(process.env.NEXT_PUBLIC_L1_wBTC, process.env.NEXT_PUBLIC_L2_wBTC, wBTCValue)
                         await depositTxnBtc.wait()
-                        var receiptwBTC = await crossChainMessenger.depositERC20(process.env.REACT_APP_L1_wBTC, process.env.REACT_APP_L2_wBTC, wBTCValue)
+                        var receiptwBTC = await crossChainMessenger.depositERC20(process.env.NEXT_PUBLIC_L1_wBTC, process.env.NEXT_PUBLIC_L2_wBTC, wBTCValue)
                         var getReceiptwBTC = await receiptwBTC.wait()
                         if (getReceiptwBTC) {
                             setLoader(false);
@@ -184,9 +184,9 @@ const Deposit: React.FC = () => {
                     if (sendToken === "USDC") {
                         var usdcValue = parseInt(ethValue) * 1000000
                         setLoader(true);
-                        var depositTxn3 = await crossChainMessenger.approveERC20(process.env.REACT_APP_L1_USDC, process.env.REACT_APP_L2_USDC, usdcValue)
+                        var depositTxn3 = await crossChainMessenger.approveERC20(process.env.NEXT_PUBLIC_L1_USDC, process.env.NEXT_PUBLIC_L2_USDC, usdcValue)
                         await depositTxn3.wait()
-                        var receiptUSDC = await crossChainMessenger.depositERC20(process.env.REACT_APP_L1_USDC, process.env.REACT_APP_L2_USDC, usdcValue)
+                        var receiptUSDC = await crossChainMessenger.depositERC20(process.env.NEXT_PUBLIC_L1_USDC, process.env.NEXT_PUBLIC_L2_USDC, usdcValue)
                         var getReceiptUSDC = await receiptUSDC.wait()
                         if (getReceiptUSDC) {
                             setLoader(false);
@@ -298,7 +298,7 @@ const Deposit: React.FC = () => {
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.REACT_APP_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to Sepolia</button> :
                             checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
                                 <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>

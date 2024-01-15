@@ -12,7 +12,7 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 
 export const RACE = {
-    id: Number(process.env.REACT_APP_L2_CHAIN_ID),
+    id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
     name: "RACE Testnet",
     network: "RACE",
     iconUrl: "https://i.imgur.com/Q3oIdip.png",
@@ -24,11 +24,11 @@ export const RACE = {
     },
     rpcUrls: {
         default: {
-            http: [String(process.env.REACT_APP_L2_RPC_URL)]
+            http: [String(process.env.NEXT_PUBLIC_L2_RPC_URL)]
         },
     },
     blockExplorers: {
-        default: { name: "RACE Testnet Explorer", url: process.env.REACT_APP_L2_EXPLORER_URL }
+        default: { name: "RACE Testnet Explorer", url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL }
     },
     testnet: true
 

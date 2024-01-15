@@ -30,22 +30,22 @@ const DepositAccount: FunctionComponent = () => {
     const [loader, setLoader] = useState<boolean>(false);
     const tokenList: Token[] = [
         {
-            type: process.env.REACT_APP_L1_DAI,
+            type: process.env.NEXT_PUBLIC_L1_DAI,
             tokenSymbol: "DAI",
             decimalValue: 18
         },
         {
-            type: process.env.REACT_APP_L1_USDT,
+            type: process.env.NEXT_PUBLIC_L1_USDT,
             tokenSymbol: "USDT",
             decimalValue: 6
         },
         {
-            type: process.env.REACT_APP_L1_USDC,
+            type: process.env.NEXT_PUBLIC_L1_USDC,
             tokenSymbol: "USDC",
             decimalValue: 6
         },
         {
-            type: process.env.REACT_APP_L1_wBTC,
+            type: process.env.NEXT_PUBLIC_L1_wBTC,
             tokenSymbol: "wBTC",
             decimalValue: 8
         }
@@ -55,8 +55,8 @@ const DepositAccount: FunctionComponent = () => {
     const [depositDetails, setDepositDetails] = useState<any[]>([]); 
 
     const getDeposit = async () => {
-        const l1Provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_L1_RPC_URL);
-        const l2Provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_L2_RPC_URL);
+        const l1Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L1_RPC_URL);
+        const l2Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L2_RPC_URL);
         const l1Signer = l1Provider.getSigner()
         const l2Signer = l2Provider.getSigner()
         const zeroAddr = "0x".padEnd(42, "0");
@@ -64,11 +64,11 @@ const DepositAccount: FunctionComponent = () => {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.REACT_APP_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger: process.env.REACT_APP_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge: process.env.REACT_APP_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
+            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
+            L1CrossDomainMessenger: process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+            L1StandardBridge: process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
+            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
+            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
         };
         // console.log(l1Contracts);
         const bridges: { Standard: Bridge; ETH: Bridge; } = {
@@ -88,8 +88,8 @@ const DepositAccount: FunctionComponent = () => {
                 l1: l1Contracts,
             },
             bridges: bridges,
-            l1ChainId: Number(process.env.REACT_APP_L1_CHAIN_ID),
-            l2ChainId: Number(process.env.REACT_APP_L2_CHAIN_ID),
+            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
             bedrock: true,

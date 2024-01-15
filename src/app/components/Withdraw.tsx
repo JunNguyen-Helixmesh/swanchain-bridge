@@ -122,7 +122,7 @@ const Withdraw: React.FC = () => {
           setErrorInput("Invalid Amount Entered!");
         } else {
           setErrorInput("");
-          const l1Url = process.env.REACT_APP_L1_RPC_URL;
+          const l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL;
           const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, "any");
           const l2Provider = new ethers.providers.Web3Provider(window.ethereum);
           const l1Signer = l1Provider.getSigner(address)
@@ -132,11 +132,11 @@ const Withdraw: React.FC = () => {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.REACT_APP_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger: process.env.REACT_APP_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge: process.env.REACT_APP_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
+            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
+            L1CrossDomainMessenger: process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+            L1StandardBridge: process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
+            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
+            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
           }
           const bridges = {
             Standard: {
@@ -155,8 +155,8 @@ const Withdraw: React.FC = () => {
               l1: l1Contracts,
             },
             bridges: bridges,
-            l1ChainId: Number(process.env.REACT_APP_L1_CHAIN_ID),
-            l2ChainId: Number(process.env.REACT_APP_L2_CHAIN_ID),
+            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
             bedrock: true,
@@ -178,7 +178,7 @@ const Withdraw: React.FC = () => {
             if (sendToken == "DAI") {
               var daiValue = Web3.utils.toWei(ethValue, "ether")
               setLoader(true);
-              var depositTxn2 = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_DAI, process.env.REACT_APP_L2_DAI, daiValue);;
+              var depositTxn2 = await crossChainMessenger.withdrawERC20(process.env.NEXT_PUBLIC_L1_DAI, process.env.NEXT_PUBLIC_L2_DAI, daiValue);;
               var receiptDAI = await depositTxn2.wait()
               if (receiptDAI) {
                 setLoader(false);
@@ -189,7 +189,7 @@ const Withdraw: React.FC = () => {
             if (sendToken == "USDT") {
               var usdtValue = parseInt(ethValue) * 1000000
               setLoader(true);
-              var receiptUSDT = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_USDT, process.env.REACT_APP_L2_USDT, usdtValue)
+              var receiptUSDT = await crossChainMessenger.withdrawERC20(process.env.NEXT_PUBLIC_L1_USDT, process.env.NEXT_PUBLIC_L2_USDT, usdtValue)
               var getReceiptUSDT = await receiptUSDT.wait();
               if (getReceiptUSDT) {
                 setLoader(false);
@@ -199,7 +199,7 @@ const Withdraw: React.FC = () => {
             if (sendToken == "wBTC") {
               var wBTCValue = parseInt(ethValue) * 100000000
               setLoader(true);
-              var receiptwBTC = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_wBTC, process.env.REACT_APP_L2_wBTC, wBTCValue)
+              var receiptwBTC = await crossChainMessenger.withdrawERC20(process.env.NEXT_PUBLIC_L1_wBTC, process.env.NEXT_PUBLIC_L2_wBTC, wBTCValue)
               var getReceiptwBTC = await receiptwBTC.wait();
               if (getReceiptwBTC) {
                 setLoader(false);
@@ -209,7 +209,7 @@ const Withdraw: React.FC = () => {
             if (sendToken == "USDC") {
               var usdcValue = parseInt(ethValue) * 1000000
               setLoader(true);
-              var receiptUSDC = await crossChainMessenger.withdrawERC20(process.env.REACT_APP_L1_USDC, process.env.REACT_APP_L2_USDC, usdcValue)
+              var receiptUSDC = await crossChainMessenger.withdrawERC20(process.env.NEXT_PUBLIC_L1_USDC, process.env.NEXT_PUBLIC_L2_USDC, usdcValue)
               var getReceiptUSDC = await receiptUSDC.wait();
               if (getReceiptUSDC) {
                 setLoader(false);
@@ -234,7 +234,7 @@ const Withdraw: React.FC = () => {
   const handleSwitch = () => {
     try {
 
-      switchNetwork(process.env.REACT_APP_L2_CHAIN_ID)
+      switchNetwork(process.env.NEXT_PUBLIC_L2_CHAIN_ID)
     }
     catch (error: any) {
       console.log(error);
@@ -367,7 +367,7 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.REACT_APP_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to RACE Testnet</button> :
+            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to RACE Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>

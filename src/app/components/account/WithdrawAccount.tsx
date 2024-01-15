@@ -51,7 +51,7 @@ const WithdrawAccount: FunctionComponent = () => {
     const { chain } = useNetwork();
     const { switchNetwork } = useSwitchNetwork();
     const getCrossChain = async () => {
-        const l2Url = String(process.env.REACT_APP_L2_RPC_URL)
+        const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
         const l1Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
         const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
         const l1Signer = l1Provider.getSigner(address)
@@ -61,21 +61,21 @@ const WithdrawAccount: FunctionComponent = () => {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.REACT_APP_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger: process.env.REACT_APP_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge: process.env.REACT_APP_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.REACT_APP_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.REACT_APP_L2_OUTPUTORACLE_PROXY,
+            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
+            L1CrossDomainMessenger: process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+            L1StandardBridge: process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
+            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
+            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
         }
         const bridges: { Standard: Bridge; ETH: Bridge; } = {
             Standard: {
                 l1Bridge: l1Contracts.L1StandardBridge,
-                l2Bridge: process.env.REACT_APP_L2_BRIDGE,
+                l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
                 Adapter: optimismSDK.StandardBridgeAdapter
             },
             ETH: {
                 l1Bridge: l1Contracts.L1StandardBridge,
-                l2Bridge: process.env.REACT_APP_L2_BRIDGE,
+                l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
                 Adapter: optimismSDK.ETHBridgeAdapter
             }
         }
@@ -84,8 +84,8 @@ const WithdrawAccount: FunctionComponent = () => {
                 l1: l1Contracts,
             },
             bridges: bridges,
-            l1ChainId: Number(process.env.REACT_APP_L1_CHAIN_ID),
-            l2ChainId: Number(process.env.REACT_APP_L2_CHAIN_ID),
+            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
             bedrock: true,
@@ -95,7 +95,7 @@ const WithdrawAccount: FunctionComponent = () => {
     }
     const getWithdraw = async () => {
         const getCrossChainMessenger = await getCrossChain();
-        const l2Url = String(process.env.REACT_APP_L2_RPC_URL)
+        const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
         const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
         const data: WithdrawalDetail[] = await getCrossChainMessenger.getWithdrawalsByAddress(address);
         for (let index = 0; index < data.length; index++) {
@@ -192,7 +192,7 @@ const WithdrawAccount: FunctionComponent = () => {
     useEffect(() => {
         if (isConnected) {
             if (chain.id !== 11155111) {
-                switchNetwork(process.env.REACT_APP_L1_CHAIN_ID)
+                switchNetwork(process.env.NEXT_PUBLIC_L1_CHAIN_ID)
             } else {
                 getWithdraw()
             }
@@ -206,22 +206,22 @@ const WithdrawAccount: FunctionComponent = () => {
 
     const tokenList: Token[] = [
         {
-            type: process.env.REACT_APP_L2_DAI,
+            type: process.env.NEXT_PUBLIC_L2_DAI,
             tokenSymbol: "DAI",
             decimalValue: 18
         },
         {
-            type: process.env.REACT_APP_L2_USDT,
+            type: process.env.NEXT_PUBLIC_L2_USDT,
             tokenSymbol: "USDT",
             decimalValue: 6
         },
         {
-            type: process.env.REACT_APP_L2_USDC,
+            type: process.env.NEXT_PUBLIC_L2_USDC,
             tokenSymbol: "USDC",
             decimalValue: 6
         },
         {
-            type: process.env.REACT_APP_L2_wBTC,
+            type: process.env.NEXT_PUBLIC_L2_wBTC,
             tokenSymbol: "wBTC",
             decimalValue: 8
         }

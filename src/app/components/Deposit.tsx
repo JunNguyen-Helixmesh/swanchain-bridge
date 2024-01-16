@@ -6,17 +6,13 @@ import Image from 'next/image';
 import toIcn from "../assets/images/logo.png"
 import { IoMdWallet } from "react-icons/io"
 import { FaEthereum } from "react-icons/fa"
-import { useAccount, useConnect, useSwitchChain, useBalance } from 'wagmi'
+import { useAccount, useConnect, useSwitchChain, useConfig, useBalance } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import TabMenu from './TabMenu';
 import { HiSwitchHorizontal } from "react-icons/hi"
 import metamask from "../assets/images/metamask.svg"
 import Web3 from 'web3';
 import { FC } from 'react';
-import { ConnectorOptions, ConnectorUpdate } from 'wagmi';
-import { CreateConnectorFn, Connector, Address } from 'wagmi/packages/core/src/connectors/createconnector';
-import { SwitchChainErrorType } from 'wagmi/packages/core/src/actions/switchChain';
-import { SwitchChainVariables, SwitchChainData } from 'wagmi/packages/core/src/exports/query';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
 
@@ -24,59 +20,21 @@ const ethers = require("ethers")
 const Deposit: React.FC = () => {
     const [ethValue, setEthValue] = useState<string>("")
     const [sendToken, setSendToken] = useState<string>("ETH")
-    const { data: accountData, address, isConnected } = useAccount()
+    const { address, isConnected } = useAccount()
     const [errorInput, setErrorInput] = useState<string>("")
     const [loader, setLoader] = useState<boolean>(false)
-    const { chain, chains } = useNetwork()
+    const { chain } = useAccount();
     const [checkMetaMask, setCheckMetaMask] = useState<string>("");
+    const { connect } = useConnect();
+    const { chains, switchChain } = useSwitchChain()
 
-    const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
-        connector: new InjectedConnector({ chains }), onError(error: Error) {
-            console.log('Error', error)
-        },
-        onMutate(args: CreateConnectorFn |Connector) {
-            console.log('Mutate', args)
-            if (args.connector.ready === true) {
-                setCheckMetaMask("false")
-            } else {
-                setCheckMetaMask("true")
-            }
-        },
-        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: any) {
-            console.log('Settled', { data, error })
-        },
-        onSuccess(data: { accounts: readonly [Address, ...Address[]]; chainId: number }) {
-            console.log('Success', data)
-        },
-    })
-    const { switchChain } = useSwitchChain({
-        throwForSwitchChainNotSupported: true,
-        onError(error: SwitchChainErrorType) {
-            console.log('Error', error)
-        },
-        onMutate(args: SwitchChainVariables) {
-            console.log('Mutate', args)
-        },
-        onSettled(data: SwitchChainData, error: SwitchChainErrorType) {
-            console.log('Settled', { data, error })
-        },
-        onSuccess(data: SwitchChainData) {
-            console.log('Success', data)
-        },
-    })
+    const { data } = useBalance({ address: address, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
 
 
-    const { data } = useBalance({ address: address, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
-
-
-    const dataUSDT = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_USDT, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
-    const dataDAI = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_DAI, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
-    const dataUSDC = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_USDC, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
-    const datawBTC = useBalance({ address: address, token: process.env.NEXT_PUBLIC_L1_wBTC, watch: true, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
-
-    const handleSwitch = () => {
-        switchChain(process.env.NEXT_PUBLIC_L1_CHAIN_ID)
-    }
+    const dataUSDT = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L1_USDT}`, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const dataDAI = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L1_DAI}`, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const dataUSDC = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L1_USDC}`, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
+    const datawBTC = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L1_wBTC}`, chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })
 
 
     const handleDeposit = async () => {
@@ -292,7 +250,7 @@ const Deposit: React.FC = () => {
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
                             checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
                                 <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>

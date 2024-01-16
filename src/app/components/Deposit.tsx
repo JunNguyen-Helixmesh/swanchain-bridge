@@ -6,8 +6,8 @@ import Image from 'next/image';
 import toIcn from "../assets/images/logo.png"
 import { IoMdWallet } from "react-icons/io"
 import { FaEthereum } from "react-icons/fa"
-import { useAccount, useConnect, useNetwork, useSwitchChain, useBalance, useToken } from 'wagmi'
-import { InjectedConnector } from 'wagmi/connectors/injected'
+import { useAccount, useConnect, useSwitchChain, useBalance } from 'wagmi'
+import { injected } from 'wagmi/connectors'
 import TabMenu from './TabMenu';
 import { HiSwitchHorizontal } from "react-icons/hi"
 import metamask from "../assets/images/metamask.svg"

@@ -1,8 +1,8 @@
 FROM node:latest
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package*.json ./
+RUN npm install --production
 COPY . .
-RUN yarn build
-EXPOSE 3000
-CMD ["yarn", "start"]
+RUN npm run build
+ENV NODE_ENV=production
+CMD [ "npm", "start" ]

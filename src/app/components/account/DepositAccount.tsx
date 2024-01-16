@@ -1,10 +1,12 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import { Container, Table } from "react-bootstrap";
-import { ethers, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { useAccount } from 'wagmi';
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
 const optimismSDK = require("@eth-optimism/sdk");
+
+
 
 interface Token {
     type: string | undefined;
@@ -52,8 +54,8 @@ const DepositAccount: FunctionComponent = () => {
     const [depositDetails, setDepositDetails] = useState<any[]>([]); 
 
     const getDeposit = async () => {
-        const l1Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L1_RPC_URL);
-        const l2Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L2_RPC_URL);
+        const l1Provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_L1_RPC_URL);
+        const l2Provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_L2_RPC_URL);
         const l1Signer = l1Provider.getSigner()
         const l2Signer = l2Provider.getSigner()
         const zeroAddr = "0x".padEnd(42, "0");
@@ -93,7 +95,7 @@ const DepositAccount: FunctionComponent = () => {
         })
         const data = await crossChainMessenger.getDepositsByAddress(address)
         for (let index = 0; index < data.length; index++) {
-            let timestamp = (await l1Provider.getBlock(data[index].blockNumber)).timestamp;
+            let timestamp = (await l1Provider.getBlock(data[index].blockNumber))?.timestamp;
             data[index].timestamp = timestamp
         }
         setDepositDetails(data)
@@ -118,8 +120,8 @@ const DepositAccount: FunctionComponent = () => {
 
      */
 
-    function retrieveEthValue(amount: String | undefined | BigNumber, givenType: string) {
-        const weiValue = parseInt(amount._hex, 16);
+    function retrieveEthValue(amount: BigInt | undefined, givenType: string) {
+        const weiValue = parseInt((amount ?? 0).toString(16), 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue
         console.log("dynamicDecimal", dynamicDecimal);
         return weiValue / Number("1".padEnd(dynamicDecimal + 1, '0'));

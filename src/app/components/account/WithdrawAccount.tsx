@@ -1,7 +1,7 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import { Table, Spinner, Container } from "react-bootstrap";
-import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
-import { ethers, BigNumber } from "ethers";
+import { useAccount, useSwitchChain } from 'wagmi';
+import { ethers } from "ethers";
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
 const optimismSDK = require("@eth-optimism/sdk");
@@ -22,11 +22,6 @@ interface PageClickEvent {
     selected: number;
 }
 
-declare global {
-    interface Window {
-        ethereum: ethers.providers.ExternalProvider;
-    }
-}
 
 interface WithdrawalDetail {
     blockNumber: number;
@@ -34,7 +29,7 @@ interface WithdrawalDetail {
     messageStatus?: number; 
     timestamp?: number; 
     message?: string | null; 
-    amount?: string | undefined | BigNumber;
+    amount?: BigInt | undefined;
     l2Token?: string;
 }
 
@@ -44,12 +39,12 @@ const WithdrawAccount: FunctionComponent = () => {
     const [loader, setLoader] = useState<number | null>(null); 
     const { address, isConnected } = useAccount();
     const [withdrawDetails, setWithdrawDetails] = useState<WithdrawalDetail[]>([]);
-    const { chain } = useNetwork();
-    const { switchNetwork } = useSwitchNetwork();
+    const { chain } = useAccount();
+    const { switchChain } = useSwitchChain();
     const getCrossChain = async () => {
         const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
-        const l1Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-        const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
+        const l1Provider = new ethers.BrowserProvider((window as any)?.ethereum, "any");
+        const l2Provider = new ethers.JsonRpcProvider(l2Url)
         const l1Signer = l1Provider.getSigner(address)
         const l2Signer = l2Provider.getSigner(address)
         const zeroAddr = "0x".padEnd(42, "0");
@@ -92,14 +87,15 @@ const WithdrawAccount: FunctionComponent = () => {
     const getWithdraw = async () => {
         const getCrossChainMessenger = await getCrossChain();
         const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
-        const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
+        const l2Provider = new ethers.JsonRpcProvider(l2Url)
         const data: WithdrawalDetail[] = await getCrossChainMessenger.getWithdrawalsByAddress(address);
         for (let index = 0; index < data.length; index++) {
-            const timestamp = (await l2Provider.getBlock(data[index].blockNumber)).timestamp;
+            const block = await l2Provider.getBlock(data[index].blockNumber);
+            const timestamp = block ? block.timestamp : null;
             const getStatus = await getCrossChainMessenger.getMessageStatus(data[index].transactionHash);
     
             data[index].messageStatus = getStatus;
-            data[index].timestamp = timestamp;
+            data[index].timestamp = timestamp !== null ? timestamp : undefined;
         }
         const getNewWithdrawals = data.map(object => {
             if (object.messageStatus == 6) {
@@ -188,7 +184,9 @@ const WithdrawAccount: FunctionComponent = () => {
     useEffect(() => {
         if (isConnected) {
             if (chain.id !== 11155111) {
-                switchNetwork(process.env.NEXT_PUBLIC_L1_CHAIN_ID)
+                switchChain({
+                    chainId: process.env.NEXT_PUBLIC_L1_CHAIN_ID ? parseInt(process.env.NEXT_PUBLIC_L1_CHAIN_ID) : 0
+                });
             } else {
                 getWithdraw()
             }
@@ -223,9 +221,9 @@ const WithdrawAccount: FunctionComponent = () => {
         }
     ];
 
-    function retrieveEthValue(amount: string | undefined | BigNumber, givenType: string | undefined) {
+    function retrieveEthValue(amount: BigInt | undefined, givenType: string | undefined) {
         if (!amount) return 0;
-        const weiValue = parseInt(amount._hex, 16);
+        const weiValue = parseInt(amount.toString(16), 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue
         return weiValue / Number("1".padEnd(dynamicDecimal + 1, '0'));
     }

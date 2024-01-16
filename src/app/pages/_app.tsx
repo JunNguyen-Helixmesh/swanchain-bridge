@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [router]);
 
-  const reportWebVitals = useReportWebVitals((metric) => {
+  const reportWebVitals = useReportWebVitals((metric: any) => {
     console.log(metric);
   });
 

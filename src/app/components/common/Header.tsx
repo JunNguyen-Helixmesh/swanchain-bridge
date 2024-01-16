@@ -1,11 +1,11 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import "../../assets/style/common/header.scss";
 import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
-import Image from 'next/image'; // Next.js Image component
-import Link from 'next/link'; // Next.js Link
+import Image from 'next/image'; 
+import Link from 'next/link'; 
 import logo from "../../assets/images/logo.png";
-import { useAccount, useConnect, useDisconnect, useNetwork } from 'wagmi';
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import { useAccount, useConnect, useDisconnect, useConfig } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 import { FaEthereum } from "react-icons/fa";
 import { BiInfoCircle, BiPowerOff } from "react-icons/bi";
 import { MdContentCopy } from "react-icons/md";
@@ -20,9 +20,10 @@ const HeaderNew: FunctionComponent = () => {
     const { address, isConnected } = useAccount();
     const [getNetwork, setNetwork] = useState<string | undefined>();
     const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false);
-    const { chain, chains } = useNetwork();
+    const { chain } = useAccount();
+    const { chains } = useConfig();
     const { connect } = useConnect({
-        connector: new InjectedConnector({ chains }),
+        connector: new injected({ chains }),
         onMutate(args: { connector? : CreateConnectorFn | Connector}) {
             console.log('Mutate', args)
             if (args.connector.ready === true) {
@@ -117,7 +118,7 @@ const HeaderNew: FunctionComponent = () => {
                                                     </OverlayTrigger>
                                                 </h4>
                                             </div>
-                                            <Dropdown.Item as={Link} to="/account/deposit"><AiOutlineDownload /> View Deposit</Dropdown.Item>
+                                            <Dropdown.Item to="/account/deposit"><AiOutlineDownload /> View Deposit</Dropdown.Item>
                                             <Dropdown.Item as={Link} to="/account/withdraw"><AiOutlineUpload /> View Withdrawals</Dropdown.Item>
                                             <Dropdown.Item onClick={() => handleDisconnect()}><BiPowerOff /> Disconnect</Dropdown.Item>
                                         </Dropdown.Menu>

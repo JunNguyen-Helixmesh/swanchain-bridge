@@ -7,14 +7,12 @@ import { MdOutlineSecurity } from "react-icons/md"
 import { FaEthereum } from "react-icons/fa"
 import Web3 from 'web3';
 import toIcn from "../assets/images/logo.png"
-import { useAccount, useConnect, useNetwork, useSwitchChain, useBalance } from 'wagmi'
-import { InjectedConnector } from 'wagmi/connectors/injected';
+import { useAccount, useConnect, useSwitchChain, useConfig, useBalance } from 'wagmi'
+import { injected } from 'wagmi/connectors';
 import { IoMdWallet } from "react-icons/io"
 import { HiSwitchHorizontal } from "react-icons/hi";
 import metamask from "../assets/images/metamask.svg"
 import TabMenu from './TabMenu';
-import { SwitchChainErrorType } from 'wagmi/packages/core/src/actions/switchChain';
-import { SwitchChainVariables, SwitchChainData } from 'wagmi/packages/core/src/exports/query';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
 
@@ -32,31 +30,12 @@ const Withdraw: React.FC = () => {
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false); 
   const [loader, setLoader] = useState<boolean>(false);
   const { address, isConnected } = useAccount();
-  const { chain, chains } = useNetwork();
+  const { chain } = useAccount();
+  const { chains } = useConfig();
   const [SwanBalance, setSwanBalance] = useState<number>(0);
   const [metaMastError, setMetaMaskError] = useState<string>("");
 
-  const { connect } = useConnect({
-    connector: new InjectedConnector({ chains }),
-    onError: (error: Error) => {
-      console.log('Error', error);
-    },
-    onMutate: (args: any) => {
-      console.log('Mutate', args);
-      if (args.connector.ready === true) {
-        setCheckMetaMask(false);
-      } else {
-        setCheckMetaMask(true);
-      }
-    },
-    onSettled: (data: any, error: any) => {
-      console.log('Settled', { data, error });
-    },
-    onSuccess: (data: any) => {
-      console.log('Success', data);
-    },
-  });
-
+  const { connect } = useConnect();
   const { error, isLoading, pendingChainId, switchNetwork } = useSwitchChain({
     chainId: 90001,
     onError: (error: SwitchChainErrorType) => {
@@ -245,7 +224,7 @@ const Withdraw: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == "ETH") {
-      if (Number(data?.formatted) < Number(e.target.value)) {
+      if (Number(ethers.utils.formatEther(data?.formatted)) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient ETH balance.")
       } else {
@@ -255,7 +234,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "DAI") {
-      if (Number(dataDAI.data?.formatted) < Number(e.target.value)) {
+      if (Number(ethers.utils.formatEther(dataDAI.data?.value)) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient DAI balance.")
       } else {
@@ -265,7 +244,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "USDT") {
-      if (Number(dataUSDT.data?.formatted) < Number(e.target.value)) {
+      if (Number(ethers.utils.formatEther(dataUSDT.data?.value)) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient DAI balance.")
       } else {
@@ -275,7 +254,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "wBTC") {
-      if (Number(datawBTC.data?.formatted) < Number(e.target.value)) {
+      if (Number(ethers.utils.formatEther(datawBTC.data?.value)) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufuficient wBTC balance.")
       } else {
@@ -285,7 +264,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "USDC") {
-      if (Number(dataUSDC.data?.formatted) < Number(e.target.value)) {
+      if (Number(ethers.utils.formatEther(dataUSDC.data?.value)) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient USDC balance.")
       } else {
@@ -332,7 +311,7 @@ const Withdraw: React.FC = () => {
           <div className='deposit_price_wrap'>
             <div className='deposit_price_title'>
               <p>From</p>
-              <h5><Image src={toIcn} alt="To icn" fluid /> Swan</h5>
+              <h5><Image src={toIcn.toString()} alt="To icn" fluid /> Swan</h5>
             </div>
             <div className='deposit_input_wrap'>
               <Form>
@@ -367,7 +346,7 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
+            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>

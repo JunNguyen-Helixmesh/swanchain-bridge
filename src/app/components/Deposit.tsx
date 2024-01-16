@@ -157,7 +157,7 @@ const Deposit: React.FC = () => {
     const [checkDisabled, setCheckDisabled] = useState(false)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (sendToken == 'ETH') {
-            if (ethers.utils.formatEther(data?.value) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(data?.value)) < Number(e.target.value)) {
                 setErrorInput("Insufficient ETH balance.")
                 setCheckDisabled(true)
             } else {
@@ -167,7 +167,7 @@ const Deposit: React.FC = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'DAI') {
-            if (ethers.utils.formatEther(dataDAI.data?.value) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(dataDAI.data?.value)) < Number(e.target.value)) {
                 setErrorInput("Insufficient DAI balance.")
                 setCheckDisabled(true)
             } else {
@@ -177,7 +177,7 @@ const Deposit: React.FC = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'USDT') {
-            if (ethers.utils.formatEther(dataUSDT.data?.value) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(dataUSDT.data?.value)) < Number(e.target.value)) {
                 setErrorInput("Insufficient USDT balance.")
                 setCheckDisabled(true)
             } else {
@@ -187,7 +187,7 @@ const Deposit: React.FC = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'wBTC') {
-            if (ethers.utils.formatEther(datawBTC.data?.value) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(datawBTC.data?.value)) < Number(e.target.value)) {
                 setErrorInput("Insufficient wBTC balance.")
                 setCheckDisabled(true)
             } else {
@@ -197,7 +197,7 @@ const Deposit: React.FC = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'USDC') {
-            if (ethers.utils.formatEther(dataUSDC.data?.value) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(dataUSDC.data?.value)) < Number(e.target.value)) {
                 setErrorInput("Insufficient USDC balance.")
                 setCheckDisabled(true)
             } else {

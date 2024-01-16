@@ -1,15 +1,10 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './pages/_app';
 import "./assets/style/main.scss"
 import "bootstrap/dist/css/bootstrap.min.css";
-import { store } from './store'
-import { Provider } from 'react-redux'
-import { WagmiConfig, createConfig, createStorage } from 'wagmi'
-import { configureChains } from '@wagmi/core'
-import { sepolia } from '@wagmi/core/chains'
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+import { createConfig, http, createStorage } from 'wagmi'
+import { sepolia, mainnet } from 'wagmi/chains'
+import { injected } from 'wagmi/connectors'
+
 
 export const SWAN = {
     id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
@@ -28,37 +23,25 @@ export const SWAN = {
         },
     },
     blockExplorers: {
-        default: { name: "Swan Testnet Explorer", url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL }
+        default: { name: "Swan Testnet Explorer", url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL || "" }
     },
     testnet: true
 
 }
 
 
-const { chains, publicClient } = configureChains(
-    [sepolia, SWAN],
-    [
-        jsonRpcProvider({
-            rpc: (chain: { rpcUrls: { default: { http: any[]; }; }; }) => ({ http: chain.rpcUrls.default.http[0] })
-
-        })
-    ])
-
-export const connectors = [
-    new MetaMaskConnector({
-        chains,
-        options : {
-            shimDisconnect: false,
-        }
-    }),
-];
-
 export const config = createConfig({
-    autoConnect: true,
-    connectors,
-    storage: createStorage({ storage: window.localStorage }),
-    publicClient,
+    chains: [SWAN, sepolia],
+    storage: createStorage({ storage: window.localStorage}),
+    transports: {
+        [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
+        [sepolia.id]: http(sepolia.rpcUrls.default.http[0])
+    }
 })
+
+export const connector = injected({ target: 'metaMask'});
+
+
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement ? rootElement : document.createElement('div'));
 

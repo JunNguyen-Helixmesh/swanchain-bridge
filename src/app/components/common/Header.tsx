@@ -12,8 +12,7 @@ import { MdContentCopy } from "react-icons/md";
 import { AiOutlineDownload, AiOutlineUpload } from "react-icons/ai";
 import metamask from "../../assets/images/metamask.svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { CreateConnectorFn, Connector, Address } from 'wagmi/packages/core/src/connectors/createconnector';
-import { ConnectErrorType } from 'wagmi/packages/core/src/actions/connect';
+
 
 const HeaderNew: FunctionComponent = () => {
     const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>("Copy address to clipboard");
@@ -22,23 +21,16 @@ const HeaderNew: FunctionComponent = () => {
     const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false);
     const { chain } = useAccount();
     const { chains } = useConfig();
-    const { connect } = useConnect({
-        connector: new injected({ chains }),
-        onMutate(args: { connector? : CreateConnectorFn | Connector}) {
-            console.log('Mutate', args)
-            if (args.connector.ready === true) {
-                setCheckMetaMask(false)
-            } else {
-                setCheckMetaMask(true)
-            }
-        },
-        onSettled(data: { accounts: readonly [Address, ...Address[]]; chainId: number }, error: ConnectErrorType) {
-            console.log('Settled', { data, error })
-        },
-        onSuccess(data: { accounts: readonly [Address, ...Address[]]; chainId: number }) {
-            console.log('Success', data)
-        },
-    })
+    const { connect } = useConnect();
+
+    useEffect(() => {
+        if (isConnected) {
+            console.log('Success', { address, chainId: chain?.id });
+            setCheckMetaMask(false);
+        } else {
+            setCheckMetaMask(true);
+        }
+    }, [isConnected, address, chain]);
     const { disconnect } = useDisconnect();
     const handleDisconnect = async () => {
         await disconnect()
@@ -118,11 +110,15 @@ const HeaderNew: FunctionComponent = () => {
                                                     </OverlayTrigger>
                                                 </h4>
                                             </div>
-                                            <Dropdown.Item to="/account/deposit"><AiOutlineDownload /> View Deposit</Dropdown.Item>
-                                            <Dropdown.Item as={Link} to="/account/withdraw"><AiOutlineUpload /> View Withdrawals</Dropdown.Item>
+                                            <Link href="/account/deposit">
+                                                <Dropdown.Item as="a"><AiOutlineDownload /> View Deposit</Dropdown.Item>
+                                            </Link>
+                                            <Link href="/account/withdraw">
+                                                <Dropdown.Item as="a"><AiOutlineUpload /> View Withdrawals</Dropdown.Item>
+                                            </Link>
                                             <Dropdown.Item onClick={() => handleDisconnect()}><BiPowerOff /> Disconnect</Dropdown.Item>
                                         </Dropdown.Menu>
-                                    </Dropdown> : <button onClick={() => connect()} className='btn disconnect_btn header_btn'>Connect Wallet</button>}
+                                    </Dropdown> : <button onClick={() => connect({connector: injected() })} className='btn disconnect_btn header_btn'>Connect Wallet</button>}
                                 </div>
                             </div>
                         </Navbar.Collapse>

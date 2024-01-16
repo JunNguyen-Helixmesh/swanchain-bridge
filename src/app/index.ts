@@ -11,10 +11,10 @@ import { sepolia } from '@wagmi/core/chains'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 
-export const RACE = {
+export const SWAN = {
     id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-    name: "RACE Testnet",
-    network: "RACE",
+    name: "Swan Testnet",
+    network: "SWAN",
     iconUrl: "https://i.imgur.com/Q3oIdip.png",
     iconBackground: "#000000",
     nativeCurrency: {
@@ -28,7 +28,7 @@ export const RACE = {
         },
     },
     blockExplorers: {
-        default: { name: "RACE Testnet Explorer", url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL }
+        default: { name: "Swan Testnet Explorer", url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL }
     },
     testnet: true
 
@@ -36,7 +36,7 @@ export const RACE = {
 
 
 const { chains, publicClient } = configureChains(
-    [sepolia, RACE],
+    [sepolia, SWAN],
     [
         jsonRpcProvider({
             rpc: (chain: { rpcUrls: { default: { http: any[]; }; }; }) => ({ http: chain.rpcUrls.default.http[0] })

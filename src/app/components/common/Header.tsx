@@ -97,7 +97,7 @@ const HeaderNew: FunctionComponent = () => {
                             </div> */}
 
                                 <div className='dropdown_wrap'>
-                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : address ? <Dropdown>
+                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank' rel='noopener noreferrer'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : address ? <Dropdown>
                                         <Dropdown.Toggle variant="success" id="swan_header_dropdown" >
                                             {address.slice(0, 5)}...{address.slice(-5)}
                                         </Dropdown.Toggle>

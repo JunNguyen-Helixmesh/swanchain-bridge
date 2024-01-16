@@ -1,6 +1,6 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import { Container, Table } from "react-bootstrap";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { useAccount } from 'wagmi';
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
@@ -22,9 +22,6 @@ interface PageClickEvent {
     selected: number;
 }
 
-interface Amount {
-    _hex: string;
-}
 
 const DepositAccount: FunctionComponent = () => {
     const [loader, setLoader] = useState<boolean>(false);
@@ -121,7 +118,7 @@ const DepositAccount: FunctionComponent = () => {
 
      */
 
-    function retrieveEthValue(amount: Amount, givenType: string) {
+    function retrieveEthValue(amount: String | undefined | BigNumber, givenType: string) {
         const weiValue = parseInt(amount._hex, 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue
         console.log("dynamicDecimal", dynamicDecimal);

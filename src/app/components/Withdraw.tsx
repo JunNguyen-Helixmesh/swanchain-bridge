@@ -33,7 +33,7 @@ const Withdraw: React.FC = () => {
   const [loader, setLoader] = useState<boolean>(false);
   const { address, isConnected } = useAccount();
   const { chain, chains } = useNetwork();
-  const [RaceBalance, setRaceBalance] = useState<number>(0);
+  const [SwanBalance, setSwanBalance] = useState<number>(0);
   const [metaMastError, setMetaMaskError] = useState<string>("");
 
   const { connect } = useConnect({
@@ -243,7 +243,7 @@ const Withdraw: React.FC = () => {
   ////========================================================== HANDLE CHANGE =======================================================================
   const [checkDisabled, setCheckDisabled] = useState(false)
 
-  const handleChange = (e: Number | React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == "ETH") {
       if (Number(data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
@@ -255,7 +255,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "DAI") {
-      if (Number(dataDAI.data?.formatted) < e.target.value) {
+      if (Number(dataDAI.data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient DAI balance.")
       } else {
@@ -265,7 +265,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "USDT") {
-      if (Number(dataUSDT.data?.formatted) < e.target.value) {
+      if (Number(dataUSDT.data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient DAI balance.")
       } else {
@@ -275,7 +275,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "wBTC") {
-      if (Number(datawBTC.data?.formatted) < e.target.value) {
+      if (Number(datawBTC.data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufuficient wBTC balance.")
       } else {
@@ -285,7 +285,7 @@ const Withdraw: React.FC = () => {
       setEthValue(e.target.value)
     }
     if (sendToken == "USDC") {
-      if (Number(dataUSDC.data?.formatted) < e.target.value) {
+      if (Number(dataUSDC.data?.formatted) < Number(e.target.value)) {
         setCheckDisabled(true)
         setErrorInput("Insufficient USDC balance.")
       } else {
@@ -307,7 +307,7 @@ const Withdraw: React.FC = () => {
       method: "eth_getBalance",
       params: [address, "latest"]
     }))
-    setRaceBalance(Number(balance));
+    setSwanBalance(Number(balance));
   }
 
   useEffect(() => {
@@ -332,13 +332,13 @@ const Withdraw: React.FC = () => {
           <div className='deposit_price_wrap'>
             <div className='deposit_price_title'>
               <p>From</p>
-              <h5><Image src={toIcn} alt="To icn" fluid /> Race</h5>
+              <h5><Image src={toIcn} alt="To icn" fluid /> Swan</h5>
             </div>
             <div className='deposit_input_wrap'>
               <Form>
                 <div className='deposit_inner_input'>
                   <Form.Control type='number' name="eth_value" value={ethValue} onChange={handleChange} placeholder="0" min="0" step="any" />
-                  <Form.Select aria-label="Default select example" className='select_wrap' onChange={({ target }) => setSendToken(target.value)}>
+                  <Form.Select aria-label="Default select example" className='select_wrap' onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSendToken(event.target.value)}>
                     <option>ETH</option>
                     <option value="DAI">DAI</option>
                     <option value="USDT">USDT</option>
@@ -367,7 +367,7 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to RACE Testnet</button> :
+            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect()}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>

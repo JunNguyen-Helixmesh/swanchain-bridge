@@ -1,7 +1,7 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
 import { Table, Spinner, Container } from "react-bootstrap";
 import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
 const optimismSDK = require("@eth-optimism/sdk");
@@ -22,10 +22,6 @@ interface PageClickEvent {
     selected: number;
 }
 
-interface Amount {
-    _hex: string;
-}
-
 declare global {
     interface Window {
         ethereum: ethers.providers.ExternalProvider;
@@ -38,7 +34,7 @@ interface WithdrawalDetail {
     messageStatus?: number; 
     timestamp?: number; 
     message?: string | null; 
-    amount?: string;
+    amount?: string | undefined | BigNumber;
     l2Token?: string;
 }
 
@@ -227,7 +223,7 @@ const WithdrawAccount: FunctionComponent = () => {
         }
     ];
 
-    function retrieveEthValue(amount: Amount | undefined, givenType: string) {
+    function retrieveEthValue(amount: string | undefined | BigNumber, givenType: string | undefined) {
         if (!amount) return 0;
         const weiValue = parseInt(amount._hex, 16);
         const dynamicDecimal = tokenList.filter(a => a.type === givenType)[0]?.decimalValue === undefined ? 18 : tokenList.filter(a => a.type === givenType)[0]?.decimalValue

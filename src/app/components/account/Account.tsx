@@ -34,7 +34,7 @@ const Account: FunctionComponent = () => {
                             delay={{ show: 250, hide: 250 }}
                             overlay={renderTooltip}>
 
-                            <CopyToClipboard text={address}>
+                            <CopyToClipboard text={address || ''}>
                                 <span className="d-inline-block"> <MdContentCopy onClick={handleSourceCopy} /> </span>
                             </CopyToClipboard>
 

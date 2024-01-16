@@ -197,7 +197,7 @@ const Deposit: React.FC = () => {
             setEthValue(e.target.value)
         }
         if (sendToken == 'USDC') {
-            if (Number(ethers.utils.formatEther(dataUSDC.data?.value)) < Number(e.target.value)) {
+            if (Number(ethers.utils.formatEther(dataUSDC.data?.value) < Number(e.target.value))) {
                 setErrorInput("Insufficient USDC balance.")
                 setCheckDisabled(true)
             } else {

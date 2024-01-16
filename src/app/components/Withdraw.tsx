@@ -7,7 +7,7 @@ import { MdOutlineSecurity } from "react-icons/md"
 import { FaEthereum } from "react-icons/fa"
 import Web3 from 'web3';
 import toIcn from "../assets/images/logo.png"
-import { useAccount, useConnect, useSwitchChain, useConfig, useBalance } from 'wagmi'
+import { useAccount, useConnect, useSwitchChain, useConfig, useBalance, Connector } from 'wagmi'
 import { injected } from 'wagmi/connectors';
 import { IoMdWallet } from "react-icons/io"
 import { HiSwitchHorizontal } from "react-icons/hi";
@@ -16,12 +16,6 @@ import TabMenu from './TabMenu';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
 
-interface BalanceOptions {
-  address: string;
-  token?: string;
-  watch: boolean;
-  chainId: number;
-}
 
 const Withdraw: React.FC = () => {
   const [ethValue, setEthValue] = useState<string>(""); 
@@ -31,59 +25,29 @@ const Withdraw: React.FC = () => {
   const [loader, setLoader] = useState<boolean>(false);
   const { address, isConnected } = useAccount();
   const { chain } = useAccount();
-  const { chains } = useConfig();
   const [SwanBalance, setSwanBalance] = useState<number>(0);
   const [metaMastError, setMetaMaskError] = useState<string>("");
-
   const { connect } = useConnect();
-  const { error, isLoading, pendingChainId, switchNetwork } = useSwitchChain({
-    chainId: 90001,
-    onError: (error: SwitchChainErrorType) => {
-      console.log('Error', error);
-    },
-    onMutate: (args: SwitchChainVariables) => {
-      console.log('Mutate', args);
-    },
-    onSettled: (data: SwitchChainData, error: SwitchChainErrorType) => {
-      console.log('Settled', { data, error });
-      try {
-        window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: process.env.NEXT_PUBLIC_L2_CHAIN_ID_WITH_HEX,
-            rpcUrls: [process.env.NEXT_PUBLIC_L2_RPC_URL],
-            chainName: process.env.NEXT_PUBLIC_L2_NETWORK_NAME,
-            nativeCurrency: {
-              name: "ETHEREUM",
-              symbol: "ETH",
-              decimals: 18
-            },
-            blockExplorerUrls: [process.env.NEXT_PUBLIC_L2_EXPLORER_URL]
-          }]
-        }).then((data: any) => {
-          setMetaMaskError("");
-        }).catch((err: { code: number; }) => {
-          if (err.code === -32002) {
-            setMetaMaskError("Request stuck in pending state");
-          }
-        });
-      }
-      catch (error: SwitchChainErrorType) {
-        console.log(error);
-      }
-    },
-    onSuccess: (data: SwitchChainData) => {
-      console.log('Success', data);
-    },
-  });
+  const { chains, switchChain } = useSwitchChain()
 
-  const balanceOptions: BalanceOptions = { address: address, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID), watch: true };
-  const { data } = useBalance(balanceOptions);
-
-  const dataUSDT = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_USDT });
-  const dataDAI = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_DAI });
-  const dataUSDC = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_USDC });
-  const datawBTC = useBalance({ ...balanceOptions, token: process.env.NEXT_PUBLIC_L2_wBTC });
+  const handleSwitchChain = async () => {
+    try {
+      await switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) });
+      setMetaMaskError("")
+    } catch (error) {
+      if ((error as any).code === -32002) {
+        setMetaMaskError("Request stuck in pending state")
+      } else {
+        console.error(error)
+      }
+    }
+  }
+  
+  const { data } = useBalance({ address: address, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })
+  const dataUSDT = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L2_USDT}`, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })
+  const dataDAI = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L2_DAI}`, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })
+  const dataUSDC = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L2_USDC}`, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })
+  const datawBTC = useBalance({ address: address, token: `0x${process.env.NEXT_PUBLIC_L2_wBTC}`, chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })
 
   useEffect(() => {
     console.log("dataUSDT", data);
@@ -210,15 +174,7 @@ const Withdraw: React.FC = () => {
     }
   }
 
-  const handleSwitch = () => {
-    try {
 
-      switchNetwork(process.env.NEXT_PUBLIC_L2_CHAIN_ID)
-    }
-    catch (error: any) {
-      console.log(error);
-    }
-  }
   ////========================================================== HANDLE CHANGE =======================================================================
   const [checkDisabled, setCheckDisabled] = useState(false)
 
@@ -346,7 +302,8 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' onClick={handleSwitch}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
+            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain && chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' 
+onClick={() => switchChain({ chainId: 90001})}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>
@@ -360,3 +317,4 @@ const Withdraw: React.FC = () => {
 }
 
 export default Withdraw
+

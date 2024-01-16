@@ -183,7 +183,7 @@ const WithdrawAccount: FunctionComponent = () => {
 
     useEffect(() => {
         if (isConnected) {
-            if (chain.id !== 11155111) {
+            if (chain?.id !== 11155111) {
                 switchChain({
                     chainId: process.env.NEXT_PUBLIC_L1_CHAIN_ID ? parseInt(process.env.NEXT_PUBLIC_L1_CHAIN_ID) : 0
                 });

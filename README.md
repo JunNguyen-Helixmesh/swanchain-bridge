@@ -1,7 +1,9 @@
 ## Orchestrator bridge frontend
 
-TODO: Rewrite & restyling of code from 
-https://github.com/nitantchhajed/op-stack-bridge/tree/master
+TODO: ~~Rewrite & restyling of code from 
+https://github.com/nitantchhajed/op-stack-bridge/tree/master~~
+- Figure out why page routing is not working.
+- Make adjustments to _app as wagmiconfig is deprecated
 
 ## Notes
 

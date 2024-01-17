@@ -4,8 +4,17 @@ TODO: ~~Rewrite & restyling of code from
 https://github.com/nitantchhajed/op-stack-bridge/tree/master~~
 - ~~Figure out why page routing is not working.~~
 - ~~Make adjustments to _app as wagmiconfig is deprecated~~
-- Fix stretched assets
-
+- ~~Fix stretched assets~~
+- Fix wallet login state persisting across routes 
+- Fix switch to swan/sepolia button
+- Fix accounts routing
+- Fix metamask button and icon
+- Fix L2 testnet icon
+- Fix justification of header icons
+- Fix size of Wallet address/profile button
+- Fix Popup window for View Deposit/ View Withdrawals/ Disconnect
+- Fix depositing to Racenet instead of Swan
+- Fix NaN ETH display on withdraw route
 
 ## Notes
 

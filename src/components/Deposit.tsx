@@ -8,11 +8,12 @@ import { useAccount, useConnect, useSwitchChain, useConfig, useBalance } from 'w
 import { injected } from 'wagmi/connectors'
 import TabMenu from './TabMenu';
 import { HiSwitchHorizontal } from "react-icons/hi"
-import metamask from "../assets/images/metamask.svg"
 import Web3 from 'web3';
+import NextImage from 'next/image';
 import { FC } from 'react';
-const optimismSDK = require("@eth-optimism/sdk")
-const ethers = require("ethers")
+import { formatUnits } from 'viem';
+const optimismSDK = require("@eth-optimism/sdk");
+const ethers = require("ethers");
 
 
 const Deposit: React.FC = () => {
@@ -154,58 +155,60 @@ const Deposit: React.FC = () => {
     }
     const [checkDisabled, setCheckDisabled] = useState(false)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (sendToken == 'ETH') {
-            if (Number(ethers.utils.formatEther(data?.value)) < Number(e.target.value)) {
-                setErrorInput("Insufficient ETH balance.")
-                setCheckDisabled(true)
+        if (sendToken == "ETH") {
+            if (data?.value && Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)) {
+              setCheckDisabled(true)
+              setErrorInput("Insufficient ETH balance.")
             } else {
-                setCheckDisabled(false)
-                setErrorInput("")
+              setCheckDisabled(false)
+              setErrorInput("")
             }
             setEthValue(e.target.value)
-        }
-        if (sendToken == 'DAI') {
-            if (Number(ethers.utils.formatEther(dataDAI.data?.value)) < Number(e.target.value)) {
-                setErrorInput("Insufficient DAI balance.")
-                setCheckDisabled(true)
+          }
+          if (sendToken == "DAI") {
+            if (dataDAI.data?.value && Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) < Number(e.target.value)) {
+              setCheckDisabled(true)
+              setErrorInput("Insufficient DAI balance.")
             } else {
-                setCheckDisabled(false)
-                setErrorInput("")
+              setCheckDisabled(false)
+              setErrorInput("")
             }
             setEthValue(e.target.value)
-        }
-        if (sendToken == 'USDT') {
-            if (Number(ethers.utils.formatEther(dataUSDT.data?.value)) < Number(e.target.value)) {
-                setErrorInput("Insufficient USDT balance.")
-                setCheckDisabled(true)
+          }
+          if (sendToken == "USDT") {
+            if (dataUSDT.data?.value && Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) < Number(e.target.value)) {
+              setCheckDisabled(true);
+              setErrorInput("Insufficient USDT balance.");
             } else {
-                setCheckDisabled(false)
-                setErrorInput("")
+              setCheckDisabled(false);
+              setErrorInput("");
             }
-            setEthValue(e.target.value)
-        }
-        if (sendToken == 'wBTC') {
-            if (Number(ethers.utils.formatEther(datawBTC.data?.value)) < Number(e.target.value)) {
-                setErrorInput("Insufficient wBTC balance.")
-                setCheckDisabled(true)
+            setEthValue(e.target.value);
+          }
+          
+          if (sendToken == "wBTC") {
+            if (datawBTC.data?.value && Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) < Number(e.target.value)) {
+              setCheckDisabled(true);
+              setErrorInput("Insufficient wBTC balance.");
             } else {
-                setCheckDisabled(false)
-                setErrorInput("")
+              setCheckDisabled(false);
+              setErrorInput("");
             }
-            setEthValue(e.target.value)
-        }
-        if (sendToken == 'USDC') {
-            if (Number(ethers.utils.formatEther(dataUSDC.data?.value) < Number(e.target.value))) {
-                setErrorInput("Insufficient USDC balance.")
-                setCheckDisabled(true)
+            setEthValue(e.target.value);
+          }
+          
+          if (sendToken == "USDC") {
+            if (dataUSDC.data?.value && Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) < Number(e.target.value)) {
+              setCheckDisabled(true);
+              setErrorInput("Insufficient USDC balance.");
             } else {
-                setErrorInput("")
-                setCheckDisabled(false)
+              setCheckDisabled(false);
+              setErrorInput("");
             }
-            setEthValue(e.target.value)
+            setEthValue(e.target.value);
+          }
         }
-
-    }
+      
 
     return (
         <>
@@ -248,7 +251,7 @@ const Deposit: React.FC = () => {
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300}/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
                             checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
                                 <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>

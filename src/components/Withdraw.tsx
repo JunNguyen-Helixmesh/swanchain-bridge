@@ -9,8 +9,9 @@ import { useAccount, useConnect, useSwitchChain, useConfig, useBalance, Connecto
 import { injected } from 'wagmi/connectors';
 import { IoMdWallet } from "react-icons/io"
 import { HiSwitchHorizontal } from "react-icons/hi";
-import metamask from "../assets/images/metamask.svg"
+import NextImage from 'next/image';
 import TabMenu from './TabMenu';
+import { formatUnits } from 'viem';
 const optimismSDK = require("@eth-optimism/sdk")
 const ethers = require("ethers")
 
@@ -236,11 +237,15 @@ const Withdraw: React.FC = () => {
   }
   // ============= Get and update balance =========================
   const updateWallet = async () => {
-    const balance = formatBalance(await window.ethereum.request({
-      method: "eth_getBalance",
-      params: [address, "latest"]
-    }))
-    setSwanBalance(Number(balance));
+    if (typeof window.ethereum !== 'undefined') {
+      const balance = formatBalance(await window.ethereum.request({
+        method: "eth_getBalance",
+        params: [address, "latest"]
+      }))
+      setSwanBalance(Number(balance));
+    } else {
+      console.error('Ethereum provider is not available');
+    }
   }
 
   useEffect(() => {
@@ -300,7 +305,7 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain && chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' 
+            {checkMetaMask === true ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300}/>  Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain && chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn' 
 onClick={() => switchChain({ chainId: 90001})}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">

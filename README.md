@@ -2,8 +2,10 @@
 
 TODO: ~~Rewrite & restyling of code from 
 https://github.com/nitantchhajed/op-stack-bridge/tree/master~~
-- Figure out why page routing is not working.
-- Make adjustments to _app as wagmiconfig is deprecated
+- ~~Figure out why page routing is not working.~~
+- ~~Make adjustments to _app as wagmiconfig is deprecated~~
+- Fix stretched assets
+
 
 ## Notes
 

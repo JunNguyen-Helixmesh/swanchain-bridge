@@ -1,6 +1,5 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
-import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
-import Image from 'next/image'; 
+import { Navbar, Image, Container, Nav, Dropdown, OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
 import Link from 'next/link'; 
 import logo from "../../assets/images/logo.png";
 import { useAccount, useConnect, useDisconnect, useConfig } from 'wagmi';
@@ -59,7 +58,7 @@ const HeaderNew: FunctionComponent = () => {
                 <Navbar expand="lg" variant="dark">
                     <Container fluid>
                         <Link href="/" className='app_logo'>
-                            <Image src={logo} alt="logo"/>
+                            <Image src={logo.src} alt="logo" fluid/>
                         </Link>
                         <Navbar.Toggle aria-controls="navbarScroll" />
                         <Navbar.Collapse id="navbarScroll">
@@ -89,7 +88,7 @@ const HeaderNew: FunctionComponent = () => {
                             </div> */}
 
                                 <div className='dropdown_wrap'>
-                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank' rel='noopener noreferrer'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : address ? <Dropdown>
+                                    {checkMetaMask === true ? <a className='btn disconnect_btn header_btn' href='https://metamask.io/' target='_blank' rel='noopener noreferrer'><Image src={metamask} alt="metamask icn" fluid/> Please Install Metamask Wallet</a> : address ? <Dropdown>
                                         <Dropdown.Toggle variant="success" id="swan_header_dropdown" >
                                             {address.slice(0, 5)}...{address.slice(-5)}
                                         </Dropdown.Toggle>

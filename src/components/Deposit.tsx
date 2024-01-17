@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Spinner } from "react-bootstrap"
+import { Form, Image, Spinner } from "react-bootstrap"
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons';
-import Image from 'next/image';
 import toIcn from "../assets/images/logo.png"
 import { IoMdWallet } from "react-icons/io"
 import { FaEthereum } from "react-icons/fa"
@@ -242,14 +241,14 @@ const Deposit: React.FC = () => {
                     <div className='deposit_details_wrap'>
                         <div className="deposit_details">
                             <p>To</p>
-                            <h5><Image src={toIcn} alt="To icn"/> Swan</h5>
+                            <h5><Image src={toIcn.toString()} alt="To icn" fluid/> Swan</h5>
                         </div>
                         <div className='deposit_inner_details'>
                             {sendToken == "ETH" ? <span className='input_icn'> <Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn'> <Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn'> <Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn'> <Usdc style={{ fontSize: '1.5rem' }} /></span>}  <p> You’ll receive: {ethValue ? ethValue : "0"} {sendToken}</p>
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn"/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><Image src={metamask} alt="metamask icn" fluid/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
                             checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
                                 <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>

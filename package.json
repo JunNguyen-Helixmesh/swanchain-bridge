@@ -44,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@testing-library/react": "^14.1.2",
     "@types/node": "^20.11.4",
     "@types/react": "^18.2.48",

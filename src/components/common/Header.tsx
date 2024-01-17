@@ -1,5 +1,4 @@
 import React, { useEffect, useState, FunctionComponent } from 'react';
-import "../../assets/style/common/header.scss";
 import { Navbar, Container, Nav, Dropdown, OverlayTrigger, Tooltip, TooltipProps } from "react-bootstrap";
 import Image from 'next/image'; 
 import Link from 'next/link'; 

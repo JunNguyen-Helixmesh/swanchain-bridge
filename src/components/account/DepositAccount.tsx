@@ -54,8 +54,10 @@ const DepositAccount: FunctionComponent = () => {
     const [depositDetails, setDepositDetails] = useState<any[]>([]); 
 
     const getDeposit = async () => {
-        const l1Provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_L1_RPC_URL);
-        const l2Provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_L2_RPC_URL);
+
+
+        const l1Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L1_RPC_URL);
+        const l2Provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_L2_RPC_URL);
         const l1Signer = l1Provider.getSigner()
         const l2Signer = l2Provider.getSigner()
         const zeroAddr = "0x".padEnd(42, "0");

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import "../assets/style/deposit.scss";
-import "../assets/style/withdraw.scss";
 import { Form, Image, Spinner } from "react-bootstrap";
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons';
 import { MdOutlineSecurity } from "react-icons/md"

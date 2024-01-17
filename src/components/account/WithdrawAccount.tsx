@@ -43,8 +43,8 @@ const WithdrawAccount: FunctionComponent = () => {
     const { switchChain } = useSwitchChain();
     const getCrossChain = async () => {
         const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
-        const l1Provider = new ethers.BrowserProvider((window as any)?.ethereum, "any");
-        const l2Provider = new ethers.JsonRpcProvider(l2Url)
+        const l1Provider = new ethers.providers.Web3Provider((window as any)?.ethereum, "any");
+        const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
         const l1Signer = l1Provider.getSigner(address)
         const l2Signer = l2Provider.getSigner(address)
         const zeroAddr = "0x".padEnd(42, "0");
@@ -87,7 +87,7 @@ const WithdrawAccount: FunctionComponent = () => {
     const getWithdraw = async () => {
         const getCrossChainMessenger = await getCrossChain();
         const l2Url = String(process.env.NEXT_PUBLIC_L2_RPC_URL)
-        const l2Provider = new ethers.JsonRpcProvider(l2Url)
+        const l2Provider = new ethers.providers.JsonRpcProvider(l2Url)
         const data: WithdrawalDetail[] = await getCrossChainMessenger.getWithdrawalsByAddress(address);
         for (let index = 0; index < data.length; index++) {
             const block = await l2Provider.getBlock(data[index].blockNumber);

@@ -1,5 +1,4 @@
 import React, { useState, FunctionComponent } from 'react';
-import "../../assets/style/account/account.scss";
 import { Tooltip, OverlayTrigger, TooltipProps } from 'react-bootstrap'; 
 import { MdContentCopy } from "react-icons/md";
 import { useAccount } from "wagmi";

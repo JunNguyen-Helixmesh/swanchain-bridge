@@ -4,6 +4,17 @@ import { injected } from 'wagmi/connectors';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import type { AppProps} from 'next/app';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import '../assets/style/account/account.scss';
+import '../assets/style/account/withdrawAccount.scss';
+import '../assets/style/deposit.scss';
+import '../assets/style/withdraw.scss';
+import '../assets/style/main.scss';
+import '../assets/style/common/header.scss';
+import '../assets/style/common/footer.scss';
+import '../assets/style/common/_color_variable.scss';
+
+const queryClient = new QueryClient();
 
 export const SWAN = {
   id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
@@ -28,25 +39,27 @@ export const SWAN = {
 
 }
 
-export const config = createConfig({
+export const provider = createConfig({
   chains: [SWAN, sepolia],
-  storage: createStorage({ storage: window.localStorage}),
+  storage: typeof window !== 'undefined' ? createStorage({ storage: window.localStorage }) : undefined,
   transports: {
     [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
     [sepolia.id]: http(sepolia.rpcUrls.default.http[0])
   }
 });
 
-export const connector = injected({ target: 'metaMask'});
+export const connector = injected({ target: 'metaMask' });
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig config={config}>
-      <Header />
-      <div className="main_wrap">
-        <Component {...pageProps} />
-      </div>
-      <Footer />
+    <WagmiConfig config={provider}>
+      <QueryClientProvider client={queryClient}>
+        <Header />
+        <div className="main_wrap">
+          <Component  {...pageProps} />
+        </div>
+        <Footer />
+      </QueryClientProvider>
     </WagmiConfig>
   );
 }

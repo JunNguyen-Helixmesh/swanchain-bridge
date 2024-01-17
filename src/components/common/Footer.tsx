@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link'; 
-import "../../assets/style/common/footer.scss";
 import { BsDiscord } from "react-icons/bs";
 import { AiFillLinkedin, AiFillTwitterCircle } from "react-icons/ai";
 import { FaFacebook } from "react-icons/fa";

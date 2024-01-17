@@ -42,11 +42,19 @@ const Account: FunctionComponent = () => {
                 }
             </div>
             <div className='account_tabs'>
-                <ul>
-                    <li><Link href="/account/deposit"><a className={`${router.pathname == "/account/deposit" ? "active" : ""}`}>Deposit</a></Link></li>
-                    <li><Link href="/account/withdraw"><a className={`${router.pathname == "/account/withdraw" ? "active" : ""}`}>Withdraw</a></Link></li>
-                </ul>
-            </div>
+  <ul>
+    <li>
+      <Link href="/account/deposit">
+        <span className={`${router.pathname == "/account/deposit" ? "active" : ""}`}>Deposit</span>
+      </Link>
+    </li>
+    <li>
+      <Link href="/account/withdraw">
+        <span className={`${router.pathname == "/account/withdraw" ? "active" : ""}`}>Withdraw</span>
+      </Link>
+    </li>
+  </ul>
+</div>
         </>
     );
 };

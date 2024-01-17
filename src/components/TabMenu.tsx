@@ -8,12 +8,12 @@ const TabMenu: React.FC = () => {
             <ul>
                 <li>
                     <Link href="/deposit">
-                        <a className={router.pathname === "/" || router.pathname === "/deposit" ? "active" : ""}>Deposit</a>
+                        <span className={router.pathname === "/" || router.pathname === "/deposit" ? "active" : ""}>Deposit</span>
                     </Link>
                 </li>
                 <li>
                     <Link href="/withdraw">
-                        <a className={router.pathname === "/withdraw" ? "active" : ""}>Withdraw</a>
+                        <span className={router.pathname === "/withdraw" ? "active" : ""}>Withdraw</span>
                     </Link>
                 </li>
             </ul>

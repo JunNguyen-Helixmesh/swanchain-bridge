@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { useAccount } from 'wagmi';
 import ReactPaginate from 'react-paginate';
 import Account from './Account';
+import Link from 'next/link';
 const optimismSDK = require("@eth-optimism/sdk");
 
 
@@ -188,7 +189,13 @@ const DepositAccount: FunctionComponent = () => {
                                                         <td>{timeConverter(timestamp)}</td>
                                                         <td>Deposit</td>
                                                         <td>{retrieveEthValue(amount, l1Token)} {tokenList.filter(a => a.type === l1Token)[0]?.tokenSymbol === undefined ? "ETH" : tokenList.filter(a => a.type === l1Token)[0]?.tokenSymbol}</td>
-                                                        <td> <a href={`https://sepolia.etherscan.io/tx/${transactionHash}`} target='_blank'> {`${transactionHash.slice(0, 8)}...${transactionHash.slice(-8)}`}</a></td>
+                                                        <td>
+  <Link href={`https://sepolia.etherscan.io/tx/${transactionHash}`} passHref>
+    <a target='_blank'>
+      {`${transactionHash.slice(0, 8)}...${transactionHash.slice(-8)}`}
+    </a>
+  </Link>
+</td>
                                                         <td>Completed</td>
                                                     </tr>
                                                 )

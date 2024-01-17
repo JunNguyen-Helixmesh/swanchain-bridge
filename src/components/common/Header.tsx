@@ -110,11 +110,11 @@ const HeaderNew: FunctionComponent = () => {
                                                 </h4>
                                             </div>
                                             <Link href="/account/deposit">
-                                                <Dropdown.Item as="a"><AiOutlineDownload /> View Deposit</Dropdown.Item>
-                                            </Link>
-                                            <Link href="/account/withdraw">
-                                                <Dropdown.Item as="a"><AiOutlineUpload /> View Withdrawals</Dropdown.Item>
-                                            </Link>
+  <Dropdown.Item><AiOutlineDownload /> View Deposit</Dropdown.Item>
+</Link>
+<Link href="/account/withdraw">
+  <Dropdown.Item><AiOutlineUpload /> View Withdrawals</Dropdown.Item>
+</Link>
                                             <Dropdown.Item onClick={() => handleDisconnect()}><BiPowerOff /> Disconnect</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown> : <button onClick={() => connect({connector: injected() })} className='btn disconnect_btn header_btn'>Connect Wallet</button>}

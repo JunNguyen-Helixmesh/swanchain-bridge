@@ -11,23 +11,23 @@ const Footer: React.FunctionComponent = () => {
         <div className='footer_text_wrap'>
           <ul>
             <li>
-              <Link href="/"><a>Help center</a></Link>
+              <Link href="/">Help center</Link>
             </li>
           </ul>
         </div>
         <div className='footer_icn_wrap'>
           <ul>
             <li>
-              <Link href="/"><a><FaFacebook /></a></Link>
+              <Link href="/"><FaFacebook /></Link>
             </li>
             <li>
-              <Link href="/"><a><AiFillTwitterCircle /></a></Link>
+              <Link href="/"><AiFillTwitterCircle /></Link>
             </li>
             <li>
-              <Link href="/"><a><AiFillLinkedin /></a></Link>
+              <Link href="/"><AiFillLinkedin /></Link>
             </li>
             <li>
-              <Link href="/"><a><BsDiscord /></a></Link>
+              <Link href="/"><BsDiscord /></Link>
             </li>
           </ul>
         </div>

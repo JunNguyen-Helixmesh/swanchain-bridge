@@ -1,10 +1,10 @@
-import { WagmiConfig, createConfig, http, createStorage } from 'wagmi';
+import { WagmiProvider, createConfig, http, createStorage } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import type { AppProps} from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '../assets/style/account/account.scss';
 import '../assets/style/account/withdrawAccount.scss';
 import '../assets/style/deposit.scss';
@@ -52,7 +52,7 @@ export const connector = injected({ target: 'metaMask' });
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig config={provider}>
+    <WagmiProvider config={provider}>
       <QueryClientProvider client={queryClient}>
         <Header />
         <div className="main_wrap">
@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         </div>
         <Footer />
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   );
 }
 

@@ -179,56 +179,58 @@ const Withdraw: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == "ETH") {
-      if (Number(ethers.utils.formatEther(data ?.formatted)) < Number(e.target.value)) {
-        setCheckDisabled(true)
-        setErrorInput("Insufficient ETH balance.")
-      } else {
-        setCheckDisabled(false)
-        setErrorInput("")
-      }
-      setEthValue(e.target.value)
+        if (data ?.value && Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)) {
+            setCheckDisabled(true)
+            setErrorInput("Insufficient ETH balance.")
+        } else {
+            setCheckDisabled(false)
+            setErrorInput("")
+        }
+        setEthValue(e.target.value)
     }
     if (sendToken == "DAI") {
-      if (Number(ethers.utils.formatEther(dataDAI.data ?.value)) < Number(e.target.value)) {
-        setCheckDisabled(true)
-        setErrorInput("Insufficient DAI balance.")
-      } else {
-        setCheckDisabled(false)
-        setErrorInput("")
-      }
-      setEthValue(e.target.value)
+        if (dataDAI.data ?.value && Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) < Number(e.target.value)) {
+            setCheckDisabled(true)
+            setErrorInput("Insufficient DAI balance.")
+        } else {
+            setCheckDisabled(false)
+            setErrorInput("")
+        }
+        setEthValue(e.target.value)
     }
     if (sendToken == "USDT") {
-      if (Number(ethers.utils.formatEther(dataUSDT.data ?.value)) < Number(e.target.value)) {
-        setCheckDisabled(true)
-        setErrorInput("Insufficient DAI balance.")
-      } else {
-        setCheckDisabled(false)
-        setErrorInput("")
-      }
-      setEthValue(e.target.value)
+        if (dataUSDT.data ?.value && Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) < Number(e.target.value)) {
+            setCheckDisabled(true);
+            setErrorInput("Insufficient USDT balance.");
+        } else {
+            setCheckDisabled(false);
+            setErrorInput("");
+        }
+        setEthValue(e.target.value);
     }
+
     if (sendToken == "wBTC") {
-      if (Number(ethers.utils.formatEther(datawBTC.data ?.value)) < Number(e.target.value)) {
-        setCheckDisabled(true)
-        setErrorInput("Insufuficient wBTC balance.")
-      } else {
-        setCheckDisabled(false)
-        setErrorInput("")
-      }
-      setEthValue(e.target.value)
+        if (datawBTC.data ?.value && Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) < Number(e.target.value)) {
+            setCheckDisabled(true);
+            setErrorInput("Insufficient wBTC balance.");
+        } else {
+            setCheckDisabled(false);
+            setErrorInput("");
+        }
+        setEthValue(e.target.value);
     }
+
     if (sendToken == "USDC") {
-      if (Number(ethers.utils.formatEther(dataUSDC.data ?.value)) < Number(e.target.value)) {
-        setCheckDisabled(true)
-        setErrorInput("Insufficient USDC balance.")
-      } else {
-        setCheckDisabled(false)
-        setErrorInput("")
-      }
-      setEthValue(e.target.value)
+        if (dataUSDC.data ?.value && Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) < Number(e.target.value)) {
+            setCheckDisabled(true);
+            setErrorInput("Insufficient USDC balance.");
+        } else {
+            setCheckDisabled(false);
+            setErrorInput("");
+        }
+        setEthValue(e.target.value);
     }
-  }
+}
 
   // ============= For Format balance =========================
   const formatBalance = (rawBalance: string) => {

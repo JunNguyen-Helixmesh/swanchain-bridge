@@ -1,5 +1,5 @@
 import Withdraw from '../components/Withdraw';
 
-export default function DepositPage() {
+export default function WithdrawPage() {
   return <Withdraw />;
 }

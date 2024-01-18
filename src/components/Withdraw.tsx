@@ -312,8 +312,8 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
-            {checkMetaMask === true ? <a className='btn deposit_btn flex-row' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300} />  Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn flex-row' onClick={() => connect({ connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id )!== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn flex-row'
-              onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) })}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
+            {checkMetaMask === true ? <a className='btn deposit_btn flex-row' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300} />  Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn flex-row' onClick={() => connect({ connector: injected() })}><IoMdWallet />Connect Wallet</button> : chain && chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? <button className='btn deposit_btn flex-row'
+              onClick={() => switchChain({ chainId: 2024})}><HiSwitchHorizontal />Switch to SWAN Testnet</button> :
               checkDisabled ? <button className='btn deposit_btn flex-row' disabled={true}>Withdraw</button> :
                 <button className='btn deposit_btn flex-row' onClick={handleWithdraw} disabled={loader ? true : false}>{loader ? <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>

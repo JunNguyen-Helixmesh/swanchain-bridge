@@ -292,6 +292,11 @@ const Withdraw: React.FC = () => {
             {errorInput && <small className='text-danger'>{errorInput}</small>}
             {sendToken === "ETH" ? address && <p className='wallet_bal mt-2'>Balance: {Number(data ?.formatted).toFixed(5)} ETH</p> : sendToken === "DAI" ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataDAI.data ?.formatted).toFixed(5)} DAI</p> : sendToken == "USDT" ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDT.data ?.formatted).toFixed(5)} USDT</p> : sendToken === "wBTC" ? address && <p className='wallet_bal mt-2'>Balance: {Number(datawBTC.data ?.formatted).toFixed(5)} wBTC</p> : <p className='wallet_bal mt-2'>Balance: {Number(dataUSDC.data ?.formatted).toFixed(5)} USDC</p>}
           </div>
+          <div className='up flex-row center'>
+            <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.5 17.4736L15 11.0696M8.5 17.4736L2 11.0696M8.5 17.4736V1.5" stroke="#447DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
           <div className='deposit_details_wrap'>
             <div className="deposit_details flex-row">
               <p>To:</p>

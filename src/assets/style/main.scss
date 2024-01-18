@@ -34,7 +34,9 @@ p {
 }
 
 .main_wrap {
-    min-height: calc(100vh - 265px);
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 210px);
     margin: 50px 0px;
     .bridge_wrap {
         width: 94%;

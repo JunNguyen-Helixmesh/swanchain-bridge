@@ -1,6 +1,6 @@
 .deposit_wrap {
     .deposit_price_wrap {
-        margin: 22px auto;
+        margin: 22px auto 10px;
         padding: 20px 9px;
         background: var(--tab-color);
         border-radius: 10px;
@@ -120,7 +120,7 @@
         }
     }
     .deposit_details_wrap {
-        margin: 22px auto;
+        margin: 10px auto 22px;
         padding: 20px 9px;
         background: var(--tab-color);
         border-radius: 10px;
@@ -228,6 +228,9 @@
 .flex-row {
     display: flex;
     align-items: center;
+    &.center {
+        justify-content: center;
+    }
 }
 
 @media screen and (max-width:400px) {

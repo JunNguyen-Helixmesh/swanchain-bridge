@@ -270,7 +270,7 @@ const Withdraw: React.FC = () => {
           <div className='deposit_price_wrap'>
             <div className='deposit_price_title'>
               <p>From</p>
-              <h5 class="flex-row"><Image src={toIcn.src} alt="To icn" fluid /> Swan</h5>
+              <h5 className="flex-row"><Image src={toIcn.src} alt="To icn" fluid /> Swan</h5>
             </div>
             <div className='deposit_input_wrap'>
               <Form>
@@ -300,7 +300,7 @@ const Withdraw: React.FC = () => {
           <div className='deposit_details_wrap'>
             <div className="deposit_details flex-row">
               <p>To:</p>
-              <h5 class="flex-row"><FaEthereum /> Sepolia Testnet</h5>
+              <h5 className="flex-row"><FaEthereum /> Sepolia Testnet</h5>
             </div>
             <div className='withdraw_bal_sum'>
               {sendToken == "ETH" ? <span className='input_icn flex-row'><Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn flex-row'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn flex-row'><Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn flex-row'><Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn flex-row'><Usdc style={{ fontSize: '1.5rem' }} /></span>}

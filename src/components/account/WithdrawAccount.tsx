@@ -274,7 +274,7 @@ const WithdrawAccount: FunctionComponent = () => {
                                                             <td>{timeConverter(timestamp)}</td>
                                                             <td>Withdraw</td>
                                                             <td>{retrieveEthValue(amount, l2Token)} {tokenList.filter(a => a.type === l2Token)[0]?.tokenSymbol === undefined ? "ETH" : tokenList.filter(a => a.type === l2Token)[0]?.tokenSymbol}</td>
-                                                            <td> <a href={`https://testnet.racescan.io/tx/${transactionHash}`} target='_blank'> {`${transactionHash.slice(0, 8)}...${transactionHash.slice(-8)}`}</a></td>
+                                                            <td> <a href={`https://saturn-explorer.swanchain.io/tx/${transactionHash}`} target='_blank'> {`${transactionHash.slice(0, 8)}...${transactionHash.slice(-8)}`}</a></td>
                                                             <td>{message} {messageStatus === 3 ? index == loader ? <button type='button' className='btn withdraw_inner_btn' >
                                                                 <Spinner animation="border" role="status">
                                                                     <span className="visually-hidden">Loading...</span>

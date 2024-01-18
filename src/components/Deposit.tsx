@@ -242,7 +242,7 @@ const Deposit: React.FC = () => {
 
                     </div>
                     <div className='deposit_details_wrap'>
-                        <div className="deposit_details">
+                        <div className="deposit_details flex-row">
                             <p>To</p>
                             <h5 class="flex-row"><Image src={toIcn.src} alt="To icn" fluid /> Swan</h5>
                         </div>

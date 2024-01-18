@@ -54,6 +54,7 @@
                     box-shadow: none;
                 }
                 @media screen and (max-width: 1600px) {
+                    height: 40px;
                     font-size: 18px;
                 }
             }
@@ -93,7 +94,7 @@
                 .select_wrap {
                     width: 140px;
                     height: 50px;
-                    padding: 15px 17px;
+                    padding: 0 17px;
                     font-size: 16px;
                     border-radius: 0px 6px 6px 0px;
                     border: 1px solid #bbc7d8;
@@ -104,6 +105,10 @@
                     outline: none;
                     &:focus {
                         box-shadow: none;
+                    }
+                    @media screen and (max-width: 1600px) {
+                        height: 40px;
+                        font-size: 14px;
                     }
                 }
             }

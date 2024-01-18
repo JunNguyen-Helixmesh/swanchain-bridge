@@ -293,7 +293,7 @@ const Withdraw: React.FC = () => {
             {sendToken === "ETH" ? address && <p className='wallet_bal mt-2'>Balance: {Number(data ?.formatted).toFixed(5)} ETH</p> : sendToken === "DAI" ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataDAI.data ?.formatted).toFixed(5)} DAI</p> : sendToken == "USDT" ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDT.data ?.formatted).toFixed(5)} USDT</p> : sendToken === "wBTC" ? address && <p className='wallet_bal mt-2'>Balance: {Number(datawBTC.data ?.formatted).toFixed(5)} wBTC</p> : <p className='wallet_bal mt-2'>Balance: {Number(dataUSDC.data ?.formatted).toFixed(5)} USDC</p>}
           </div>
           <div className='deposit_details_wrap'>
-            <div className="deposit_details">
+            <div className="deposit_details flex-row">
               <p>To:</p>
               <h5 class="flex-row"><FaEthereum /> Sepolia Testnet</h5>
             </div>

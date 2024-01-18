@@ -1,20 +1,21 @@
 .app_header {
-    padding: 15px 0px;
-    border-bottom: 1px solid #2f2b2b;
-    a{
+    padding: 12px 32px;
+    border-bottom: 2px solid #5f6064;
+    .logo-svg {
+        width: auto;
+        height: 37px;
+    }
+    a {
         text-decoration: none;
     }
     .app_logo {
         margin-right: 60px;
-
         img {
             width: 30px;
         }
     }
-
     .navbar-expand-lg {
         .navbar-nav {
-
             .nav-link,
             a {
                 color: var(--light-color);
@@ -25,7 +26,6 @@
             }
         }
     }
-
     .header_btn_wrap {
         .header_btn {
             img {
@@ -34,26 +34,22 @@
                 height: 24px;
                 width: 24px;
             }
-
             background: var(--primary-color);
             color: var(--dark-color);
             border-radius: 20px;
             font-weight: 500;
             font-size: 14px;
             padding: 6px 15px;
-
             span {
                 vertical-align: middle;
             }
         }
     }
-
     button {
         &:focus {
             box-shadow: none;
         }
     }
-
     .dropdown_wrap {
         .header_btn {
             img {
@@ -62,9 +58,7 @@
                 margin-right: 5px;
             }
         }
-
         .dropdown {
-
             .btn-success {
                 background: var(--primary-color);
                 color: var(--dark-color);
@@ -72,12 +66,10 @@
                 font-weight: 500;
                 font-size: 14px;
                 border-color: #FBCBA7;
-
                 &::after {
                     display: none;
                 }
             }
-
             .dropdown-menu {
                 left: -220px;
                 background-color: var(--secondary-color);
@@ -87,25 +79,20 @@
                 box-shadow: 0px 4px 16px -1px rgba(0, 0, 0, .08), 0px 0px 8px -4px rgba(0, 0, 0, .12);
                 overflow: hidden;
                 padding: 10px 15px;
-
                 .user_profile_wrap {
                     margin-bottom: 15px;
-
                     .user_profile {
                         text-align: center;
-
                         img {
                             width: 80px;
                             border-radius: 50%;
                             height: 80px;
                         }
                     }
-
                     h4 {
                         font-size: 18px;
                         text-align: center;
                         color: var(--light-color);
-
                         .text_copied {
                             font-size: 12px;
                             background: var(--secondary-color);
@@ -116,21 +103,17 @@
                             top: -23px;
                             left: -35px;
                         }
-
                         span {
                             cursor: pointer;
                         }
                     }
                 }
-
                 .dropdown-item {
                     padding: 6px 8px;
                     color: var(--text-color);
-
                     &:hover {
                         background-color: var(--button-color);
                     }
-
                     svg {
                         font-size: 20px;
                         margin-right: 5px;
@@ -139,7 +122,6 @@
                 }
             }
         }
-
         .disconnect_btn {
             background: var(--primary-color);
             color: var(--dark-color);
@@ -149,7 +131,6 @@
             border-color: #FBCBA7;
         }
     }
-
     .right_header_wrap {
         display: flex;
     }
@@ -159,17 +140,14 @@
     .app_header {
         padding: 0px;
     }
-
     .app_header .header_btn_wrap .header_btn {
         margin-bottom: 5px;
     }
-
     .app_header .right_header_wrap {
         display: flex;
         justify-content: space-between;
         margin-top: 15px;
     }
-
 }
 
 @media screen and (max-width:380px) {

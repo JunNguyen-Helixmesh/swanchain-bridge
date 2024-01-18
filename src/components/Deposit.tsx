@@ -109,7 +109,7 @@ const Deposit: React.FC = () => {
                         }
                     }
                     if (sendToken === "USDT") {
-                        var usdtValue = parseInt(ethValue)* 1000000
+                        var usdtValue = parseInt(ethValue) * 1000000
                         setLoader(true);
                         var depositTxn1 = await crossChainMessenger.approveERC20(process.env.NEXT_PUBLIC_L1_USDT, process.env.NEXT_PUBLIC_L2_USDT, usdtValue)
                         await depositTxn1.wait()
@@ -156,59 +156,59 @@ const Deposit: React.FC = () => {
     const [checkDisabled, setCheckDisabled] = useState(false)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (sendToken == "ETH") {
-            if (data?.value && Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)) {
-              setCheckDisabled(true)
-              setErrorInput("Insufficient ETH balance.")
+            if (data ?.value && Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)) {
+                setCheckDisabled(true)
+                setErrorInput("Insufficient ETH balance.")
             } else {
-              setCheckDisabled(false)
-              setErrorInput("")
+                setCheckDisabled(false)
+                setErrorInput("")
             }
             setEthValue(e.target.value)
-          }
-          if (sendToken == "DAI") {
-            if (dataDAI.data?.value && Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) < Number(e.target.value)) {
-              setCheckDisabled(true)
-              setErrorInput("Insufficient DAI balance.")
-            } else {
-              setCheckDisabled(false)
-              setErrorInput("")
-            }
-            setEthValue(e.target.value)
-          }
-          if (sendToken == "USDT") {
-            if (dataUSDT.data?.value && Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) < Number(e.target.value)) {
-              setCheckDisabled(true);
-              setErrorInput("Insufficient USDT balance.");
-            } else {
-              setCheckDisabled(false);
-              setErrorInput("");
-            }
-            setEthValue(e.target.value);
-          }
-          
-          if (sendToken == "wBTC") {
-            if (datawBTC.data?.value && Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) < Number(e.target.value)) {
-              setCheckDisabled(true);
-              setErrorInput("Insufficient wBTC balance.");
-            } else {
-              setCheckDisabled(false);
-              setErrorInput("");
-            }
-            setEthValue(e.target.value);
-          }
-          
-          if (sendToken == "USDC") {
-            if (dataUSDC.data?.value && Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) < Number(e.target.value)) {
-              setCheckDisabled(true);
-              setErrorInput("Insufficient USDC balance.");
-            } else {
-              setCheckDisabled(false);
-              setErrorInput("");
-            }
-            setEthValue(e.target.value);
-          }
         }
-      
+        if (sendToken == "DAI") {
+            if (dataDAI.data ?.value && Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) < Number(e.target.value)) {
+                setCheckDisabled(true)
+                setErrorInput("Insufficient DAI balance.")
+            } else {
+                setCheckDisabled(false)
+                setErrorInput("")
+            }
+            setEthValue(e.target.value)
+        }
+        if (sendToken == "USDT") {
+            if (dataUSDT.data ?.value && Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) < Number(e.target.value)) {
+                setCheckDisabled(true);
+                setErrorInput("Insufficient USDT balance.");
+            } else {
+                setCheckDisabled(false);
+                setErrorInput("");
+            }
+            setEthValue(e.target.value);
+        }
+
+        if (sendToken == "wBTC") {
+            if (datawBTC.data ?.value && Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) < Number(e.target.value)) {
+                setCheckDisabled(true);
+                setErrorInput("Insufficient wBTC balance.");
+            } else {
+                setCheckDisabled(false);
+                setErrorInput("");
+            }
+            setEthValue(e.target.value);
+        }
+
+        if (sendToken == "USDC") {
+            if (dataUSDC.data ?.value && Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) < Number(e.target.value)) {
+                setCheckDisabled(true);
+                setErrorInput("Insufficient USDC balance.");
+            } else {
+                setCheckDisabled(false);
+                setErrorInput("");
+            }
+            setEthValue(e.target.value);
+        }
+    }
+
 
     return (
         <>
@@ -218,7 +218,7 @@ const Deposit: React.FC = () => {
                     <div className='deposit_price_wrap'>
                         <div className='deposit_price_title'>
                             <p>From</p>
-                            <h5><FaEthereum /> Sepolia Testnet</h5>
+                            <h5 class="flex-row"><FaEthereum /> Sepolia Testnet</h5>
                         </div>
                         <div className='deposit_input_wrap'>
                             <Form>
@@ -233,27 +233,32 @@ const Deposit: React.FC = () => {
                                     </Form.Select>
                                 </div>
                                 <div className='input_icn_wrap'>
-                                    {sendToken == "ETH" ? <span className='input_icn'><Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn'><Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn'><Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn'><Usdc style={{ fontSize: '1.5rem' }} /></span>}
+                                    {sendToken == "ETH" ? <span className='input_icn flex-row'><Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn flex-row'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn flex-row'><Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn flex-row'><Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn flex-row'><Usdc style={{ fontSize: '1.5rem' }} /></span>}
                                 </div>
                             </Form>
                         </div>
                         {errorInput && <small className='text-danger'>{errorInput}</small>}
-                        {sendToken == 'ETH' ? address && <p className='wallet_bal mt-2'>Balance: {Number(data?.formatted).toFixed(5)} ETH</p> : sendToken == 'USDT' ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDT.data?.formatted).toFixed(5)} USDT</p> : sendToken == 'DAI' ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataDAI.data?.formatted).toFixed(5)} DAI</p> : sendToken == 'wBTC' ? address && <p className='wallet_bal mt-2'>Balance: {Number(datawBTC.data?.formatted).toFixed(5)} wBTC</p> : address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDC.data?.formatted).toFixed(5)} USDC</p>}
+                        {sendToken == 'ETH' ? address && <p className='wallet_bal mt-2'>Balance: {Number(data ?.formatted).toFixed(5)} ETH</p> : sendToken == 'USDT' ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDT.data ?.formatted).toFixed(5)} USDT</p> : sendToken == 'DAI' ? address && <p className='wallet_bal mt-2'>Balance: {Number(dataDAI.data ?.formatted).toFixed(5)} DAI</p> : sendToken == 'wBTC' ? address && <p className='wallet_bal mt-2'>Balance: {Number(datawBTC.data ?.formatted).toFixed(5)} wBTC</p> : address && <p className='wallet_bal mt-2'>Balance: {Number(dataUSDC.data ?.formatted).toFixed(5)} USDC</p>}
 
                     </div>
+                    <div className='up flex-row center'>
+                        <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8.5 17.4736L15 11.0696M8.5 17.4736L2 11.0696M8.5 17.4736V1.5" stroke="#447DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                     <div className='deposit_details_wrap'>
-                        <div className="deposit_details">
+                        <div className="deposit_details flex-row">
                             <p>To</p>
-                            <h5><Image src={toIcn.toString()} alt="To icn" fluid/> Swan</h5>
+                            <h5 class="flex-row"><Image src={toIcn.src} alt="To icn" fluid /> Swan</h5>
                         </div>
-                        <div className='deposit_inner_details'>
-                            {sendToken == "ETH" ? <span className='input_icn'> <Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn'> <Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn'> <Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn'> <Usdc style={{ fontSize: '1.5rem' }} /></span>}  <p> You’ll receive: {ethValue ? ethValue : "0"} {sendToken}</p>
+                        <div className='deposit_inner_details flex-row'>
+                            {sendToken == "ETH" ? <span className='input_icn flex-row'> <Ethereum style={{ fontSize: '1.5rem' }} /></span> : sendToken == "DAI" ? <span className='input_icn flex-row'><Dai style={{ fontSize: '1.5rem' }} /></span> : sendToken == "USDT" ? <span className='input_icn flex-row'> <Usdt style={{ fontSize: '1.5rem' }} /></span> : sendToken == "wBTC" ? <span className='input_icn flex-row'> <Btc style={{ fontSize: '1.5rem' }} /></span> : <span className='input_icn flex-row'> <Usdc style={{ fontSize: '1.5rem' }} /></span>}  <p> You’ll receive: {ethValue ? ethValue : "0"} {sendToken}</p>
                         </div>
                     </div>
                     <div className="deposit_btn_wrap">
-                        {checkMetaMask === 'true' ? <a className='btn deposit_btn' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300}/> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn' onClick={() => connect({connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID)})}><HiSwitchHorizontal />Switch to Sepolia</button> :
-                            checkDisabled ? <button className='btn deposit_btn' disabled={true}>Deposit</button> :
-                                <button className='btn deposit_btn' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
+                        {checkMetaMask === 'true' ? <a className='btn deposit_btn flex-row' href='https://metamask.io/' target='_blank'><NextImage src="/assets/images/metamask.svg" alt="metamask icn" layout="responsive" width={500} height={300} /> Please Install Metamask Wallet</a> : !isConnected ? <button className='btn deposit_btn flex-row' onClick={() => connect({ connector: injected() })}><IoMdWallet />Connect Wallet</button> : Number(chain ?.id) !== Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? <button className='btn deposit_btn flex-row' onClick={() => switchChain({ chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) })}><HiSwitchHorizontal />Switch to Sepolia</button> :
+                            checkDisabled ? <button className='btn deposit_btn flex-row' disabled={true}>Deposit</button> :
+                                <button className='btn deposit_btn flex-row' onClick={handleDeposit} disabled={loader ? true : false}> {loader ? <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                 </Spinner> : "Deposit"} </button>}
                     </div>

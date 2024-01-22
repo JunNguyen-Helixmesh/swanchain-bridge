@@ -28,9 +28,17 @@ https://github.com/nitantchhajed/op-stack-bridge/tree/master~~
  - [ethers v6 uses ethers.JsonRPCProvider instead of ethers.providers.JsonRPCProvider](docs.ethers.org/v6/migrating/)
  - [ethers v6 uses BrowserProvider instead of Web3Provider](docs.ethers.org/migrating/#migrate-providers)
 - [useNetwork](0.5.x.wagmi.sh/react/hooks/useNetwork) depracated for [useAccount](wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-usenetwork-hook)
-- Run the following commands to build
+
+Run the following commands to build
 ```
 docker build -t orchestrator-bridge-ui .
 docker run -p 3000:3000 orchestrator-bridge-ui
 
+``
+or
+
 ```
+docker pull jameschennbai/orchestratorbridge-ui:platformfix
+
+```
+https://hub.docker.com/layers/jameschennbai/orchestratorbridge-ui/platformfix/images/sha256-68891b8e6861e27402442169a2d638cbafd83376c42749cb62ac8867afe7cbff?context=repo

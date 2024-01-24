@@ -46,7 +46,8 @@ export const SWAN = {
 
 export const provider = createConfig({
   chains: [SWAN, sepolia],
-  connectors: [metaMask()],
+  connectors: [injected()],
+  multiInjectedProviderDiscovery: false,
   storage: typeof window !== 'undefined' ? createStorage({ storage: window.localStorage }) : undefined,
   transports: {
     [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),

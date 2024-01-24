@@ -7,7 +7,6 @@ import { injected } from 'wagmi/connectors';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import type { AppProps} from 'next/app';
-import { metaMask } from 'wagmi/connectors'; //will be deprecated soon, switch to walletConnect(reqs projectID)
 import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '../assets/style/account/account.scss';

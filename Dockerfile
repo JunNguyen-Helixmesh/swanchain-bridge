@@ -1,4 +1,4 @@
-FROM node:18.17.0-alpine as builder
+FROM node:20.1.0-alpine as builder
 # python2 support
 
 RUN apk add --update \
@@ -37,15 +37,16 @@ RUN npm install --save-dev @types/react-copy-to-clipboard
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-
 # build app for production with minification
-RUN npm run build 
-RUN ls -la
+RUN npm run build
+
 ENV NODE_ENV=production
 
-FROM nginx:1.15.2-alpine as production-build
+#FROM nginx:1.15.2-alpine as production-build
+#
+#COPY --from=builder .next /usr/share/nginx/html
+#COPY nginx.conf /etc/nginx/conf.d/default.conf
+#EXPOSE 8080
+#CMD ["nginx", "-g", "daemon off;"]
 
-COPY --from=builder /app/.next /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "npm", "start" ]

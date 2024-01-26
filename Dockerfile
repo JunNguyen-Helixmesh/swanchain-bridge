@@ -42,11 +42,9 @@ RUN npm run build
 
 ENV NODE_ENV=production
 
-#FROM nginx:1.15.2-alpine as production-build
-#
-#COPY --from=builder .next /usr/share/nginx/html
-#COPY nginx.conf /etc/nginx/conf.d/default.conf
-#EXPOSE 8080
-#CMD ["nginx", "-g", "daemon off;"]
+FROM nginx:1.15.2-alpine as production-build
 
-CMD [ "npm", "start" ]
+COPY --from=builder /.next /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]

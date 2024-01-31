@@ -1,6 +1,6 @@
 // Temp disable server side rendering for min viable product
 import dynamic from "next/dynamic";
-
+import Head from "next/head";
 import { WagmiProvider, createConfig, http, createStorage } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
@@ -71,6 +71,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiProvider config={provider}>
       <QueryClientProvider client={queryClient}>
+        <Head>
+          <link rel="icon" href="/assets/images/swantoken.png" />
+        </Head>
         <Header />
         <div className="main_wrap">
           {isMounted && <Component {...pageProps} />}

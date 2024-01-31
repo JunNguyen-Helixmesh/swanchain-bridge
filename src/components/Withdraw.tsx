@@ -431,30 +431,48 @@ const Withdraw: React.FC = () => {
             {sendToken === "ETH" ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance: {Number(data?.formatted).toFixed(5)} ETH
+                  Balance:{" "}
+                  {Number(formatUnits(data!.value, data!.decimals)).toFixed(5)}{" "}
+                  ETH
                 </p>
               )
             ) : sendToken === "DAI" ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance: {Number(dataDAI.data?.formatted).toFixed(5)} DAI
+                  Balance:{" "}
+                  {Number(
+                    formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
+                  ).toFixed(5)}{" "}
+                  DAI
                 </p>
               )
             ) : sendToken == "USDT" ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance: {Number(dataUSDT.data?.formatted).toFixed(5)} USDT
+                  Balance:{" "}
+                  {Number(
+                    formatUnits(dataUSDT.data!.value, dataUSDT.data!.decimals)
+                  ).toFixed(5)}{" "}
+                  USDT
                 </p>
               )
             ) : sendToken === "wBTC" ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance: {Number(datawBTC.data?.formatted).toFixed(5)} wBTC
+                  Balance:{" "}
+                  {Number(
+                    formatUnits(datawBTC.data!.value, datawBTC.data!.decimals)
+                  ).toFixed(5)}{" "}
+                  wBTC
                 </p>
               )
             ) : (
               <p className="wallet_bal mt-2">
-                Balance: {Number(dataUSDC.data?.formatted).toFixed(5)} USDC
+                Balance:{" "}
+                {Number(
+                  formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals)
+                ).toFixed(5)}{" "}
+                USDC
               </p>
             )}
           </div>

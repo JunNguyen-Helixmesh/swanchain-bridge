@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Form, Image, Spinner, Modal, Button } from "react-bootstrap";
 import { Dai, Usdt, Usdc, Ethereum, Btc } from "react-web3-icons";
 import { MdOutlineSecurity } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
 import Web3 from "web3";
-import toIcn from "../assets/images/logo.png";
+import toIcn from "../assets/images/swantoken.png";
 import {
   useAccount,
   useConnect,
@@ -35,20 +36,6 @@ const Withdraw: React.FC = () => {
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
-  const handleSwitchChain = async () => {
-    try {
-      await switchChain({
-        chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-      });
-      setMetaMaskError("");
-    } catch (error) {
-      if ((error as any).code === -32002) {
-        setMetaMaskError("Request stuck in pending state");
-      } else {
-        console.error(error);
-      }
-    }
-  };
 
   const { data } = useBalance({
     address: address,
@@ -80,6 +67,49 @@ const Withdraw: React.FC = () => {
   }, []);
 
   ////========================================================== WITHDRAW =======================================================================
+  async function callGalxeAPI() {
+    const credId = process.env.NEXT_PUBLIC_GALXE_CRED_ID || "";
+    const operation = "APPEND";
+    const items = [address as string];
+
+    let result = await axios.post(
+      "https://graphigo.prd.galaxy.eco/query",
+      {
+        operationName: "credentialItems",
+        query: `
+        mutation credentialItems($credId: ID!, $operation: Operation!, $items: [String!]!) 
+          { 
+            credentialItems(input: { 
+              credId: $credId 
+              operation: $operation 
+              items: $items 
+            }) 
+            { 
+              name 
+            } 
+          }
+        `,
+        variables: {
+          credId: credId,
+          operation: operation,
+          items: items,
+        },
+      },
+      {
+        headers: {
+          "access-token": process.env.NEXT_PUBLIC_GALXE_ACCESS_TOKEN || "",
+        },
+      }
+    );
+
+    if (result.status != 200) {
+      throw new Error(result.data);
+    } else if (result.data.errors && result.data.errors.length > 0) {
+      console.log(result.data.errors);
+      throw new Error(result.data.errors);
+    }
+    console.log(result.data);
+  }
 
   const handleWithdraw = async () => {
     try {
@@ -147,6 +177,7 @@ const Withdraw: React.FC = () => {
               if (logs) {
                 setLoader(false);
                 setEthValue("");
+                await callGalxeAPI();
               }
             }
             if (sendToken == "DAI") {
@@ -161,6 +192,7 @@ const Withdraw: React.FC = () => {
               if (receiptDAI) {
                 setLoader(false);
                 setEthValue("");
+                await callGalxeAPI();
               }
             }
 
@@ -176,6 +208,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptUSDT) {
                 setLoader(false);
                 setEthValue("");
+                await callGalxeAPI();
               }
             }
             if (sendToken == "wBTC") {
@@ -190,6 +223,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptwBTC) {
                 setLoader(false);
                 setEthValue("");
+                await callGalxeAPI();
               }
             }
             if (sendToken == "USDC") {
@@ -204,6 +238,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptUSDC) {
                 setLoader(false);
                 setEthValue("");
+                await callGalxeAPI();
               }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
@@ -477,6 +512,17 @@ const Withdraw: React.FC = () => {
             </div>
           </div>
           <div className="deposit_btn_wrap">
+            <p
+              style={{
+                color: "#ffffff",
+                fontSize: "0.8rem",
+                textAlign: "center",
+                marginTop: "0px",
+                marginBottom: "20px",
+              }}
+            >
+              Please ensure you are connected to MetaMask & Sepolia Testnet.
+            </p>
             {checkMetaMask === true ? (
               <a
                 className="btn deposit_btn flex-row"
@@ -564,7 +610,7 @@ const Withdraw: React.FC = () => {
                     fontSize: "1.5em",
                   }}
                 >
-                  X
+                  x
                 </button>
               </div>
               <div style={{ padding: "20px", color: "black" }}>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Form, Image, Spinner, Modal, Button } from "react-bootstrap";
 import { Dai, Usdt, Usdc, Ethereum, Btc } from "react-web3-icons";
-import toIcn from "../assets/images/logo.png";
+import toIcn from "../assets/images/swantoken.png";
 import { IoMdWallet } from "react-icons/io";
 import { FaEthereum } from "react-icons/fa";
 import {
@@ -57,6 +58,50 @@ const Deposit: React.FC = () => {
     token: `0x${process.env.NEXT_PUBLIC_L1_wBTC}`,
     chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
   });
+
+  async function callGalxeAPI() {
+    const credId = process.env.NEXT_PUBLIC_GALXE_CRED_ID || "";
+    const operation = "APPEND";
+    const items = [address as string];
+
+    let result = await axios.post(
+      "https://graphigo.prd.galaxy.eco/query",
+      {
+        operationName: "credentialItems",
+        query: `
+        mutation credentialItems($credId: ID!, $operation: Operation!, $items: [String!]!) 
+          { 
+            credentialItems(input: { 
+              credId: $credId 
+              operation: $operation 
+              items: $items 
+            }) 
+            { 
+              name 
+            } 
+          }
+        `,
+        variables: {
+          credId: credId,
+          operation: operation,
+          items: items,
+        },
+      },
+      {
+        headers: {
+          "access-token": process.env.NEXT_PUBLIC_GALXE_ACCESS_TOKEN || "",
+        },
+      }
+    );
+
+    if (result.status != 200) {
+      throw new Error(result.data);
+    } else if (result.data.errors && result.data.errors.length > 0) {
+      console.log(result.data.errors);
+      throw new Error(result.data.errors);
+    }
+    console.log(result.data);
+  }
 
   const handleDeposit = async () => {
     try {
@@ -121,6 +166,7 @@ const Deposit: React.FC = () => {
             if (receiptETH) {
               setLoader(false);
               setEthValue("");
+              await callGalxeAPI();
             }
           }
           if (sendToken === "DAI") {
@@ -142,6 +188,7 @@ const Deposit: React.FC = () => {
             if (getReceiptDAI) {
               setLoader(false);
               setEthValue("");
+              await callGalxeAPI();
             }
           }
           if (sendToken === "USDT") {
@@ -162,6 +209,7 @@ const Deposit: React.FC = () => {
             if (getReceiptUSDT) {
               setLoader(false);
               setEthValue("");
+              await callGalxeAPI();
             }
           }
           if (sendToken === "wBTC") {
@@ -182,6 +230,7 @@ const Deposit: React.FC = () => {
             if (getReceiptwBTC) {
               setLoader(false);
               setEthValue("");
+              await callGalxeAPI();
             }
           }
           if (sendToken === "USDC") {
@@ -202,6 +251,7 @@ const Deposit: React.FC = () => {
             if (getReceiptUSDC) {
               setLoader(false);
               setEthValue("");
+              await callGalxeAPI();
             }
           }
         }
@@ -434,7 +484,25 @@ const Deposit: React.FC = () => {
             </div>
           </div>
 
-          <div className="deposit_btn_wrap">
+          <div
+            className="deposit_btn_wrap"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <p
+              style={{
+                color: "#ffffff",
+                fontSize: "0.8rem",
+                textAlign: "center",
+                marginTop: "0px",
+                marginBottom: "20px",
+              }}
+            >
+              Please ensure you are connected to MetaMask & Sepolia Testnet.
+            </p>
             {checkMetaMask === "true" ? (
               <a
                 className="btn deposit_btn flex-row"

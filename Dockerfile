@@ -8,11 +8,10 @@ RUN apk add --update \
   build-base \
   git \
   openssh-client \
-&& pip install --ignore-installed distlib virtualenv \
-&& rm -rf /var/cache/apk/* \
-
-# make the 'app' folder the current working directory
-WORKDIR /app
+  && pip install --ignore-installed distlib virtualenv \
+  && rm -rf /var/cache/apk/* \
+  # make the 'app' folder the current working directory
+  WORKDIR /app
 
 # copy both 'package.json'
 COPY package.json ./

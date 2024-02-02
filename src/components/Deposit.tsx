@@ -401,9 +401,10 @@ const Deposit: React.FC = () => {
               ? address && (
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
-                    {Number(formatUnits(data!.value, data!.decimals)).toFixed(
-                      5
-                    )}{" "}
+                    {data &&
+                      Number(formatUnits(data.value, data.decimals)).toFixed(
+                        5
+                      )}{" "}
                     ETH
                   </p>
                 )
@@ -411,9 +412,13 @@ const Deposit: React.FC = () => {
               ? address && (
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
-                    {Number(
-                      formatUnits(dataUSDT.data!.value, dataUSDT.data!.decimals)
-                    ).toFixed(5)}{" "}
+                    {dataUSDT &&
+                      Number(
+                        formatUnits(
+                          dataUSDT.data!.value,
+                          dataUSDT.data!.decimals
+                        )
+                      ).toFixed(5)}{" "}
                     USDT
                   </p>
                 )
@@ -421,9 +426,10 @@ const Deposit: React.FC = () => {
               ? address && (
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
-                    {Number(
-                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
-                    ).toFixed(5)}{" "}
+                    {dataDAI &&
+                      Number(
+                        formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
+                      ).toFixed(5)}{" "}
                     DAI
                   </p>
                 )
@@ -431,18 +437,26 @@ const Deposit: React.FC = () => {
               ? address && (
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
-                    {Number(
-                      formatUnits(datawBTC.data!.value, datawBTC.data!.decimals)
-                    ).toFixed(5)}{" "}
+                    {datawBTC &&
+                      Number(
+                        formatUnits(
+                          datawBTC.data!.value,
+                          datawBTC.data!.decimals
+                        )
+                      ).toFixed(5)}{" "}
                     wBTC
                   </p>
                 )
               : address && (
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
-                    {Number(
-                      formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals)
-                    ).toFixed(5)}{" "}
+                    {dataUSDC &&
+                      Number(
+                        formatUnits(
+                          dataUSDC.data!.value,
+                          dataUSDC.data!.decimals
+                        )
+                      ).toFixed(5)}{" "}
                     USDC
                   </p>
                 )}

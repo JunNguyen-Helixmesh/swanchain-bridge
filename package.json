@@ -14,6 +14,7 @@
     "@eth-optimism/sdk": "^3.1.8",
     "@reduxjs/toolkit": "^2.0.1",
     "abitype": "^0.10.3",
+    "axios": "1.6.7",
     "ethers": "^5.7.2",
     "next": "^14.0.4",
     "react": "^18.2.0",

@@ -56,3 +56,5 @@ yarn-error.log*
 
 .env.production
 .env.local
+
+/.idea/*

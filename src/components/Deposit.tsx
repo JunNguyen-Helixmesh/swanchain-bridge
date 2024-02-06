@@ -11,6 +11,7 @@ import {
   useSwitchChain,
   useConfig,
   useBalance,
+  useChainId,
 } from "wagmi";
 import { injected } from "wagmi/connectors";
 import TabMenu from "./TabMenu";
@@ -28,11 +29,13 @@ const Deposit: React.FC = () => {
   const { address, isConnected } = useAccount();
   const [errorInput, setErrorInput] = useState<string>("");
   const [loader, setLoader] = useState<boolean>(false);
+  const [SepoliaBalance, setSepoliaBalance] = useState<number>(0);
   const { chain } = useAccount();
   const [checkMetaMask, setCheckMetaMask] = useState<string>("");
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const chainId = useChainId();
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
@@ -335,6 +338,33 @@ const Deposit: React.FC = () => {
       setEthValue(e.target.value);
     }
   };
+  // ============= For Format balance =========================
+  const formatBalance = (rawBalance: string) => {
+    const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6);
+    return balance;
+  };
+  // ============= Get and update balance =========================
+  const updateWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      const balance = formatBalance(
+        await window.ethereum.request({
+          method: "eth_getBalance",
+          params: [address, "latest"],
+        })
+      );
+      setSepoliaBalance(Number(balance));
+    } else {
+      console.error("Ethereum provider is not available");
+    }
+  };
+
+  useEffect(() => {
+    updateWallet();
+  }, [data]);
+
+  useEffect(() => {
+    console.log("Network changed:", chainId);
+  }, [chainId]);
 
   return (
     <>

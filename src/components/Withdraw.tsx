@@ -13,6 +13,7 @@ import {
   useConfig,
   useBalance,
   Connector,
+  useChainId,
 } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { IoMdWallet } from "react-icons/io";
@@ -36,6 +37,7 @@ const Withdraw: React.FC = () => {
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const chainId = useChainId();
 
   const { data } = useBalance({
     address: address,
@@ -354,6 +356,11 @@ const Withdraw: React.FC = () => {
   useEffect(() => {
     updateWallet();
   }, [data]);
+
+  useEffect(() => {
+    console.log("Network changed:", chainId);
+  }, [chainId]);
+
   return (
     <>
       <div className="bridge_wrap">

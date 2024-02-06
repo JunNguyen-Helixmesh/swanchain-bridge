@@ -17,7 +17,7 @@ import { FaEthereum } from "react-icons/fa";
 import { BiInfoCircle, BiPowerOff } from "react-icons/bi";
 import { MdContentCopy } from "react-icons/md";
 import { AiOutlineDownload, AiOutlineUpload } from "react-icons/ai";
-import { CopyToClipboard } from "react-copy-to-clipboard";
+//import { CopyToClipboard } from "react-copy-to-clipboard";
 import NextImage from "next/image";
 
 const HeaderNew: FunctionComponent = () => {

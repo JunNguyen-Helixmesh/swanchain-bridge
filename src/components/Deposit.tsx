@@ -5,7 +5,6 @@ import { Dai, Usdt, Usdc, Ethereum, Btc } from "react-web3-icons";
 import toIcn from "../assets/images/swantoken.png";
 import { IoMdWallet } from "react-icons/io";
 import { FaEthereum } from "react-icons/fa";
-import { useWeb3React } from "@web3-react/core";
 import {
   useAccount,
   useConnect,

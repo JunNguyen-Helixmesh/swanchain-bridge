@@ -1,49 +1,26 @@
-FROM node:20.1.0-alpine as builder
-# python2 support
+# 使用官方 Node.js 基础镜像
+FROM node:latest
 
-RUN apk add --update \
-  python3 \
-  python3-dev \
-  py-pip \
-  build-base \
-  git \
-  openssh-client \
-  && pip install --ignore-installed distlib virtualenv \
-  && rm -rf /var/cache/apk/* 
-# make the 'app' folder the current working directory
+# 设置容器内的工作目录
 WORKDIR /app
 
-# copy both 'package.json'
-COPY package.json ./
+# 复制 package.json 和 package-lock.json（如果可用）
+COPY package*.json ./
 
-# copy tsconfig.json
-COPY tsconfig.json ./
+# 安装项目依赖
+RUN npm install
 
-# remove node_modules if exists
-RUN rm -rf node_modules
-
-# remove package-lock.json if exists
-RUN rm -rf package-lock.json
-
-# clean npm cache
-RUN npm cache clean --force
-
-# install project dependencies
-RUN npm install -g only-allow
-RUN npm install --production
-RUN npm install --save-dev @types/react-copy-to-clipboard
-
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+# 复制项目文件和目录到工作目录
 COPY . .
 
-# build app for production with minification
+# 构建应用
 RUN npm run build
 
-ENV NODE_ENV=production
-
-FROM nginx:1.15.2-alpine as production-build
-
-COPY --from=builder /app/.next /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 暴露端口 3000
 EXPOSE 3000
-CMD ["nginx", "-g", "daemon off;"]
+
+# 设置环境变量
+ENV NODE_ENV production
+
+# 启动 Next.js 应用
+CMD ["npm", "start"]

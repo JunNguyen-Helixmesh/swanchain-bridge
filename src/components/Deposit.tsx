@@ -402,7 +402,7 @@ const Deposit: React.FC = () => {
                   <p className="wallet_bal mt-2">
                     Balance:{" "}
                     {data &&
-                      Number(formatUnits(data.value, data.decimals)).toFixed(
+                      Number(formatUnits(data!.value, data!.decimals)).toFixed(
                         5
                       )}{" "}
                     ETH

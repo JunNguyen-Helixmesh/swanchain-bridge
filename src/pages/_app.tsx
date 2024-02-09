@@ -45,14 +45,20 @@ export const SWAN = {
   testnet: true,
 };
 
+const noopStorage = {
+  getItem: (_key: any) => "",
+  setItem: (_key: any, _value: any) => {},
+  removeItem: (_key: any) => {},
+};
+
 export const provider = createConfig({
   chains: [SWAN, sepolia],
   connectors: [injected()],
   multiInjectedProviderDiscovery: true,
-  storage:
-    typeof window !== "undefined"
-      ? createStorage({ storage: window.localStorage })
-      : undefined,
+  syncConnectedChain: true,
+  storage: createStorage({
+    storage: typeof window !== "undefined" ? window.localStorage : noopStorage,
+  }),
   transports: {
     [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
     [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),

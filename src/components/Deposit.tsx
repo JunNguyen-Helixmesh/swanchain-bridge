@@ -35,6 +35,7 @@ const Deposit: React.FC = () => {
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const chainId = useChainId();
   const { data } = useBalance({
     address: address,
@@ -427,69 +428,65 @@ const Deposit: React.FC = () => {
               </Form>
             </div>
             {errorInput && <small className="text-danger">{errorInput}</small>}
-            {sendToken == "ETH"
-              ? address && (
-                  <p className="wallet_bal mt-2">
-                    Balance:{" "}
-                    {data &&
-                      Number(formatUnits(data!.value, data!.decimals)).toFixed(
-                        5
-                      )}{" "}
-                    ETH
-                  </p>
-                )
-              : sendToken == "USDT"
-              ? address && (
-                  <p className="wallet_bal mt-2">
-                    Balance:{" "}
-                    {dataUSDT &&
-                      Number(
-                        formatUnits(
-                          dataUSDT.data!.value,
-                          dataUSDT.data!.decimals
-                        )
-                      ).toFixed(5)}{" "}
-                    USDT
-                  </p>
-                )
-              : sendToken == "DAI"
-              ? address && (
-                  <p className="wallet_bal mt-2">
-                    Balance:{" "}
-                    {dataDAI &&
-                      Number(
-                        formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
-                      ).toFixed(5)}{" "}
-                    DAI
-                  </p>
-                )
-              : sendToken == "wBTC"
-              ? address && (
-                  <p className="wallet_bal mt-2">
-                    Balance:{" "}
-                    {datawBTC &&
-                      Number(
-                        formatUnits(
-                          datawBTC.data!.value,
-                          datawBTC.data!.decimals
-                        )
-                      ).toFixed(5)}{" "}
-                    wBTC
-                  </p>
-                )
-              : address && (
-                  <p className="wallet_bal mt-2">
-                    Balance:{" "}
-                    {dataUSDC &&
-                      Number(
-                        formatUnits(
-                          dataUSDC.data!.value,
-                          dataUSDC.data!.decimals
-                        )
-                      ).toFixed(5)}{" "}
-                    USDC
-                  </p>
-                )}
+            {sendToken === "ETH" ? (
+              address && (
+                <p className="wallet_bal mt-2">
+                  Balance:{" "}
+                  {data?.value !== undefined &&
+                    data?.value !== BigInt(0) &&
+                    Number(formatUnits(data!.value, data!.decimals)).toFixed(
+                      5
+                    )}{" "}
+                  ETH
+                </p>
+              )
+            ) : sendToken === "DAI" ? (
+              address && (
+                <p className="wallet_bal mt-2">
+                  Balance:{" "}
+                  {dataDAI?.data?.value !== undefined &&
+                    dataDAI?.data?.value !== BigInt(0) &&
+                    Number(
+                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
+                    ).toFixed(5)}{" "}
+                  DAI
+                </p>
+              )
+            ) : sendToken == "USDT" ? (
+              address && (
+                <p className="wallet_bal mt-2">
+                  Balance:{" "}
+                  {dataUSDT?.data?.value !== undefined &&
+                    dataUSDT?.data?.value !== BigInt(0) &&
+                    Number(
+                      formatUnits(dataUSDT.data!.value, dataUSDT.data!.decimals)
+                    ).toFixed(5)}{" "}
+                  USDT
+                </p>
+              )
+            ) : sendToken === "wBTC" ? (
+              address && (
+                <p className="wallet_bal mt-2">
+                  Balance:{" "}
+                  {datawBTC?.data?.value !== undefined &&
+                    datawBTC?.data?.value !== BigInt(0) &&
+                    Number(
+                      formatUnits(datawBTC.data!.value, datawBTC.data!.decimals)
+                    ).toFixed(5)}{" "}
+                  wBTC
+                </p>
+              )
+            ) : (
+              <p className="wallet_bal mt-2">
+                Balance:{" "}
+                {dataUSDC?.data?.value !== undefined &&
+                  dataUSDC?.data?.value !== BigInt(0) &&
+                  Number(
+                    formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals)
+                  ).toFixed(5)}{" "}
+                USDC
+              </p>
+            )}
           </div>
           <div className="up flex-row center">
             <svg
@@ -547,7 +544,6 @@ const Deposit: React.FC = () => {
               </p>
             </div>
           </div>
-
           <div
             className="deposit_btn_wrap"
             style={{
@@ -586,11 +582,7 @@ const Deposit: React.FC = () => {
               <button
                 className="btn deposit_btn flex-row"
                 onClick={() => {
-                  if (window.ethereum && window.ethereum.isMetaMask) {
-                    connect({ connector: injected({ target: "metaMask" }) });
-                  } else {
-                    setShowModal(true);
-                  }
+                  setIsWalletModalOpen(true);
                 }}
               >
                 <IoMdWallet />
@@ -628,7 +620,21 @@ const Deposit: React.FC = () => {
                 )}
               </button>
             )}
-          </div>
+          </div>{" "}
+          {showModal && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 999,
+              }}
+              onClick={() => setShowModal(false)}
+            />
+          )}
           <Modal
             show={showModal}
             onHide={() => setShowModal(false)}
@@ -648,22 +654,11 @@ const Deposit: React.FC = () => {
                 maxWidth: "500px",
                 width: "100%",
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  onClick={() => setShowModal(false)}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    fontSize: "1.5em",
-                  }}
-                >
-                  X
-                </button>
-              </div>
               <div style={{ padding: "20px", color: "black" }}>
                 <h2>Install MetaMask</h2>
-                <p>
+                <p style={{ marginBottom: "20px" }}>
                   You need to install MetaMask to use this application. Click
                   the button below to install it.
                 </p>
@@ -676,12 +671,101 @@ const Deposit: React.FC = () => {
                     padding: "10px 20px",
                     borderRadius: "5px",
                     textDecoration: "none",
+                    marginTop: "20px",
                   }}
                 >
                   Install MetaMask
                 </a>
               </div>
             </div>
+          </Modal>
+          {isWalletModalOpen && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 1000,
+              }}
+              onClick={() => setIsWalletModalOpen(false)}
+            />
+          )}
+          <Modal
+            show={isWalletModalOpen}
+            onHide={() => setIsWalletModalOpen(false)}
+            centered
+            style={{
+              zIndex: 2000,
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "#333",
+              color: "white",
+              borderRadius: "15px",
+              width: "80%",
+              maxWidth: "600px",
+              height: "60%",
+              overflow: "auto",
+            }}
+          >
+            <Modal.Header>
+              <Modal.Title style={{ textAlign: "center" }}>
+                Select a Supported Wallet
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div
+                className="wallet-option"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  paddingLeft: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  if (window.ethereum?.isMetaMask) {
+                    connect({ connector: injected({ target: "metaMask" }) });
+                    setIsWalletModalOpen(false);
+                  } else {
+                    setIsWalletModalOpen(false);
+                    setShowModal(true);
+                  }
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.opacity = "0.5";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                >
+                  <img
+                    src="/assets/images/MetaMask_Fox.png"
+                    alt="MetaMask"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      transition: "opacity 0.3s ease",
+                    }}
+                  />
+                  <p>MetaMask</p>
+                </div>
+              </div>
+              {/* Add more wallet options here */}
+            </Modal.Body>
           </Modal>
         </section>
       </div>

@@ -37,6 +37,7 @@ const Withdraw: React.FC = () => {
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const chainId = useChainId();
 
   const { data } = useBalance({
@@ -439,7 +440,8 @@ const Withdraw: React.FC = () => {
               address && (
                 <p className="wallet_bal mt-2">
                   Balance:{" "}
-                  {data &&
+                  {data?.value !== undefined &&
+                    data?.value !== BigInt(0) &&
                     Number(formatUnits(data!.value, data!.decimals)).toFixed(
                       5
                     )}{" "}
@@ -450,7 +452,8 @@ const Withdraw: React.FC = () => {
               address && (
                 <p className="wallet_bal mt-2">
                   Balance:{" "}
-                  {dataDAI &&
+                  {dataDAI?.data?.value !== undefined &&
+                    dataDAI?.data?.value !== BigInt(0) &&
                     Number(
                       formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
                     ).toFixed(5)}{" "}
@@ -461,7 +464,8 @@ const Withdraw: React.FC = () => {
               address && (
                 <p className="wallet_bal mt-2">
                   Balance:{" "}
-                  {dataUSDT &&
+                  {dataUSDT?.data?.value !== undefined &&
+                    dataUSDT?.data?.value !== BigInt(0) &&
                     Number(
                       formatUnits(dataUSDT.data!.value, dataUSDT.data!.decimals)
                     ).toFixed(5)}{" "}
@@ -472,7 +476,8 @@ const Withdraw: React.FC = () => {
               address && (
                 <p className="wallet_bal mt-2">
                   Balance:{" "}
-                  {datawBTC &&
+                  {datawBTC?.data?.value !== undefined &&
+                    datawBTC?.data?.value !== BigInt(0) &&
                     Number(
                       formatUnits(datawBTC.data!.value, datawBTC.data!.decimals)
                     ).toFixed(5)}{" "}
@@ -482,7 +487,8 @@ const Withdraw: React.FC = () => {
             ) : (
               <p className="wallet_bal mt-2">
                 Balance:{" "}
-                {dataUSDC &&
+                {dataUSDC?.data?.value !== undefined &&
+                  dataUSDC?.data?.value !== BigInt(0) &&
                   Number(
                     formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals)
                   ).toFixed(5)}{" "}
@@ -543,7 +549,14 @@ const Withdraw: React.FC = () => {
               {/* <span className='input_title'>ETH</span> */}
             </div>
           </div>
-          <div className="deposit_btn_wrap">
+          <div
+            className="deposit_btn_wrap"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <p
               style={{
                 color: "#ffffff",
@@ -574,28 +587,28 @@ const Withdraw: React.FC = () => {
               <button
                 className="btn deposit_btn flex-row"
                 onClick={() => {
-                  if (window.ethereum && window.ethereum.isMetaMask) {
-                    connect({ connector: injected({ target: "metaMask" }) });
-                  } else {
-                    setShowModal(true);
-                  }
+                  setIsWalletModalOpen(true);
                 }}
               >
                 <IoMdWallet />
                 Connect Wallet
               </button>
-            ) : chain &&
-              chain.id !== Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? (
+            ) : Number(chain?.id) !==
+              Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? (
               <button
                 className="btn deposit_btn flex-row"
-                onClick={() => switchChain({ chainId: 2024 })}
+                onClick={() =>
+                  switchChain({
+                    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+                  })
+                }
               >
                 <HiSwitchHorizontal />
-                Switch to SWAN Testnet
+                Switch to SWAN
               </button>
             ) : checkDisabled ? (
               <button className="btn deposit_btn flex-row" disabled={true}>
-                Withdraw
+                Deposit
               </button>
             ) : (
               <button
@@ -613,6 +626,20 @@ const Withdraw: React.FC = () => {
               </button>
             )}
           </div>
+          {showModal && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 999,
+              }}
+              onClick={() => setShowModal(false)}
+            />
+          )}
           <Modal
             show={showModal}
             onHide={() => setShowModal(false)}
@@ -632,22 +659,11 @@ const Withdraw: React.FC = () => {
                 maxWidth: "500px",
                 width: "100%",
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  onClick={() => setShowModal(false)}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    fontSize: "1.5em",
-                  }}
-                >
-                  x
-                </button>
-              </div>
               <div style={{ padding: "20px", color: "black" }}>
                 <h2>Install MetaMask</h2>
-                <p>
+                <p style={{ marginBottom: "20px" }}>
                   You need to install MetaMask to use this application. Click
                   the button below to install it.
                 </p>
@@ -660,6 +676,7 @@ const Withdraw: React.FC = () => {
                     padding: "10px 20px",
                     borderRadius: "5px",
                     textDecoration: "none",
+                    marginTop: "20px",
                   }}
                 >
                   Install MetaMask
@@ -667,15 +684,98 @@ const Withdraw: React.FC = () => {
               </div>
             </div>
           </Modal>
-          {metaMastError && (
-            <small className="d-block text-danger text-center mt-2">
-              {metaMastError}
-            </small>
+          {isWalletModalOpen && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 1000,
+              }}
+              onClick={() => setIsWalletModalOpen(false)}
+            />
           )}
+
+          <Modal
+            show={isWalletModalOpen}
+            onHide={() => setIsWalletModalOpen(false)}
+            centered
+            style={{
+              zIndex: 2000,
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "#333",
+              color: "white",
+              borderRadius: "15px",
+              width: "80%",
+              maxWidth: "600px",
+              height: "60%",
+              overflow: "auto",
+            }}
+          >
+            <Modal.Header>
+              <Modal.Title style={{ textAlign: "center" }}>
+                Select a Supported Wallet
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div
+                className="wallet-option"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  paddingLeft: "20px",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  if (window.ethereum?.isMetaMask) {
+                    connect({ connector: injected({ target: "metaMask" }) });
+                    setIsWalletModalOpen(false);
+                  } else {
+                    setIsWalletModalOpen(false);
+                    setShowModal(true);
+                  }
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.opacity = "0.5";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                >
+                  <img
+                    src="/assets/images/MetaMask_Fox.png"
+                    alt="MetaMask"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      transition: "opacity 0.3s ease",
+                    }}
+                  />
+                  <p>MetaMask</p>
+                </div>
+              </div>
+              {/* Add more wallet options here */}
+            </Modal.Body>
+          </Modal>
         </section>
       </div>
     </>
   );
 };
-
 export default Withdraw;

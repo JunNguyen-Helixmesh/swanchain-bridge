@@ -566,7 +566,7 @@ const Withdraw: React.FC = () => {
                 marginBottom: "20px",
               }}
             >
-              Please ensure you are connected to MetaMask & Sepolia Testnet.
+              Please ensure you are connected to MetaMask & Swan Testnet.
             </p>
             {checkMetaMask === true ? (
               <a

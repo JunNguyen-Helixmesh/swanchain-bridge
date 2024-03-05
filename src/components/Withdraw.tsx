@@ -114,6 +114,36 @@ const Withdraw: React.FC = () => {
     console.log(result.data);
   }
 
+  async function updateWithdrawHistory(
+    wallet_address: string,
+    tx_hash: string,
+    status: boolean,
+    block_number: number
+  ) {
+    const data = {
+      wallet_address,
+      tx_hash,
+      status,
+      block_number,
+      create_at: new Date(),
+      update_at: new Date(),
+    };
+
+    let result = await axios.post(
+      process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
+      data
+    );
+
+    if (result.status !== 200) {
+      throw new Error(result.data);
+    } else if (result.data.errors && result.data.errors.length > 0) {
+      console.log(result.data.errors);
+      throw new Error(result.data.errors);
+    }
+
+    console.log(result.data);
+  }
+
   const handleWithdraw = async () => {
     try {
       if (!ethValue) {
@@ -176,13 +206,32 @@ const Withdraw: React.FC = () => {
               const response = await crossChainMessenger.withdrawETH(
                 weiValue.toString()
               );
+
+              const transactionHash = response.hash;
+
+              const receipt = await l1Provider.getTransactionReceipt(
+                transactionHash
+              );
+
               const logs = await response.wait();
               if (logs) {
                 setLoader(false);
                 setEthValue("");
+
+                const wallet_address =
+                  await crossChainMessenger.signer.getAddress();
+
+                await updateWithdrawHistory(
+                  wallet_address,
+                  transactionHash,
+                  receipt.status,
+                  receipt.blockNumber
+                );
+
                 await callGalxeAPI();
               }
             }
+
             if (sendToken == "DAI") {
               var daiValue = Web3.utils.toWei(ethValue, "ether");
               setLoader(true);

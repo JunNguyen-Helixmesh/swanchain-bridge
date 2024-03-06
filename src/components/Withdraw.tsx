@@ -117,16 +117,12 @@ const Withdraw: React.FC = () => {
   async function updateWithdrawHistory(
     wallet_address: string,
     tx_hash: string,
-    status: boolean,
     block_number: number
   ) {
     const data = {
       wallet_address,
       tx_hash,
-      status,
       block_number,
-      create_at: new Date(),
-      update_at: new Date(),
     };
 
     let result = await axios.post(
@@ -224,7 +220,6 @@ const Withdraw: React.FC = () => {
                 await updateWithdrawHistory(
                   wallet_address,
                   transactionHash,
-                  receipt.status,
                   receipt.blockNumber
                 );
 

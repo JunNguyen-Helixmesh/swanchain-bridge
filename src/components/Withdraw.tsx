@@ -214,16 +214,14 @@ const Withdraw: React.FC = () => {
                 setLoader(false);
                 setEthValue("");
 
-                const wallet_address =
-                  await crossChainMessenger.signer.getAddress();
-
-                await updateWithdrawHistory(
-                  wallet_address,
-                  transactionHash,
-                  receipt.blockNumber
-                );
-
-                await callGalxeAPI();
+                if (isConnected && address) {
+                  await callGalxeAPI();
+                  await updateWithdrawHistory(
+                    address,
+                    transactionHash,
+                    receipt.blockNumber
+                  );
+                }
               }
             }
 

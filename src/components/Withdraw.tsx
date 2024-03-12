@@ -215,12 +215,12 @@ const Withdraw: React.FC = () => {
                 setEthValue("");
 
                 if (isConnected && address) {
-                  await callGalxeAPI();
                   await updateWithdrawHistory(
                     address,
                     transactionHash,
                     receipt.blockNumber
                   );
+                  await callGalxeAPI();
                 }
               }
             }

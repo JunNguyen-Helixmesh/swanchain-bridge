@@ -134,7 +134,7 @@ const Withdraw: React.FC = () => {
       throw new Error(result.data);
     } else if (result.data.errors && result.data.errors.length > 0) {
       console.log(result.data.errors);
-      throw new Error(result.data.errors);
+      throw new Error(result.data.errors.slice(0, 3).join(", "));
     }
 
     console.log(result.data);
@@ -204,7 +204,7 @@ const Withdraw: React.FC = () => {
               );
 
               const transactionHash = response.hash;
-
+              await l1Provider.waitForTransaction(transactionHash);
               const receipt = await l1Provider.getTransactionReceipt(
                 transactionHash
               );

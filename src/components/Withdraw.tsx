@@ -127,7 +127,7 @@ const Withdraw: React.FC = () => {
     try {
       let result = await axios.post(
         process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
-        JSON.stringify(data),
+        data,
         {
           headers: {
             "Content-Type": "application/json",

@@ -49,6 +49,7 @@
     "@svgr/webpack": "^8.1.0",
     "@testing-library/react": "^14.1.2",
     "@types/node": "^20.11.4",
+    "@types/node-fetch": "^2.6.11",
     "@types/react": "^18.2.48",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "css-loader": "^6.10.0",

@@ -170,7 +170,7 @@ const Deposit: React.FC = () => {
             if (receiptETH) {
               setLoader(false);
               setEthValue("");
-              await callGalxeAPI();
+              // await callGalxeAPI();
             }
           }
           if (sendToken === "DAI") {
@@ -192,7 +192,7 @@ const Deposit: React.FC = () => {
             if (getReceiptDAI) {
               setLoader(false);
               setEthValue("");
-              await callGalxeAPI();
+              //  await callGalxeAPI();
             }
           }
           if (sendToken === "USDT") {

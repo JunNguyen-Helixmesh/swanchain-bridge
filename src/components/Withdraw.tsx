@@ -220,7 +220,7 @@ const Withdraw: React.FC = () => {
                     transactionHash,
                     receipt.blockNumber
                   );
-                  await callGalxeAPI();
+                  // await callGalxeAPI();
                 }
               }
             }
@@ -237,7 +237,7 @@ const Withdraw: React.FC = () => {
               if (receiptDAI) {
                 setLoader(false);
                 setEthValue("");
-                await callGalxeAPI();
+                // await callGalxeAPI();
               }
             }
 
@@ -253,7 +253,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptUSDT) {
                 setLoader(false);
                 setEthValue("");
-                await callGalxeAPI();
+                // await callGalxeAPI();
               }
             }
             if (sendToken == "wBTC") {
@@ -268,7 +268,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptwBTC) {
                 setLoader(false);
                 setEthValue("");
-                await callGalxeAPI();
+                // await callGalxeAPI();
               }
             }
             if (sendToken == "USDC") {
@@ -283,7 +283,7 @@ const Withdraw: React.FC = () => {
               if (getReceiptUSDC) {
                 setLoader(false);
                 setEthValue("");
-                await callGalxeAPI();
+                // await callGalxeAPI();
               }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------

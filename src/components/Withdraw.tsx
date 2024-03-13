@@ -124,20 +124,37 @@ const Withdraw: React.FC = () => {
       tx_hash,
       block_number,
     };
+    try {
+      let result = await axios.post(
+        process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
+        JSON.stringify(data),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    let result = await axios.post(
-      process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
-      data
-    );
+      if (result.status !== 200) {
+        throw new Error(result.data);
+      } else if (result.data.errors && result.data.errors.length > 0) {
+        console.log(result.data.errors);
+        throw new Error(result.data.errors.join(", "));
+      }
 
-    if (result.status !== 200) {
-      throw new Error(result.data);
-    } else if (result.data.errors && result.data.errors.length > 0) {
-      console.log(result.data.errors);
-      throw new Error(result.data.errors.slice(0, 3).join(", "));
+      console.log(result.data);
+    } catch (error: any) {
+      if (error.response) {
+        console.error(error.response.data);
+        console.error(error.response.status);
+        console.error(error.response.headers);
+      } else if (error.request) {
+        console.error(error.request);
+      } else {
+        console.error("Error", error.message);
+      }
+      console.error(error.config);
     }
-
-    console.log(result.data);
   }
 
   const handleWithdraw = async () => {
@@ -204,10 +221,7 @@ const Withdraw: React.FC = () => {
               );
 
               const transactionHash = response.hash;
-              await l1Provider.waitForTransaction(transactionHash);
-              const receipt = await l1Provider.getTransactionReceipt(
-                transactionHash
-              );
+              const blockNumber = await l1Provider.getBlockNumber();
 
               const logs = await response.wait();
               if (logs) {
@@ -218,7 +232,7 @@ const Withdraw: React.FC = () => {
                   await updateWithdrawHistory(
                     address,
                     transactionHash,
-                    receipt.blockNumber
+                    blockNumber
                   );
                   // await callGalxeAPI();
                 }

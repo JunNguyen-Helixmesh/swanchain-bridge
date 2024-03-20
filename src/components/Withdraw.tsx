@@ -126,7 +126,6 @@ const Withdraw: React.FC = () => {
     };
     try {
       const url = process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw";
-      console.log(`Sending POST request to ${url}`);
 
       let result = await axios.post(url, data, {
         headers: {

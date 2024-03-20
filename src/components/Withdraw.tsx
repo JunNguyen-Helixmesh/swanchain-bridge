@@ -125,15 +125,14 @@ const Withdraw: React.FC = () => {
       block_number,
     };
     try {
-      let result = await axios.post(
-        process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const url = process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw";
+      console.log(`Sending POST request to ${url}`);
+
+      let result = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (result.status !== 200) {
         throw new Error(result.data);

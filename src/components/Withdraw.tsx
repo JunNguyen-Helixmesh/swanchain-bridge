@@ -125,39 +125,34 @@ const Withdraw: React.FC = () => {
       block_number,
     };
 
-    const urls = [
-      process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw",
-      "http://172.16.200.12:4001/withdraw",
-    ];
+    const url = process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw";
 
-    for (const url of urls) {
-      try {
-        let result = await axios.post(url, data, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+    try {
+      let result = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        if (result.status !== 200) {
-          throw new Error(result.data);
-        } else if (result.data.errors && result.data.errors.length > 0) {
-          console.log(result.data.errors);
-          throw new Error(result.data.errors.join(", "));
-        }
-
-        console.log(result.data);
-      } catch (error: any) {
-        if (error.response) {
-          console.error(error.response.data);
-          console.error(error.response.status);
-          console.error(error.response.headers);
-        } else if (error.request) {
-          console.error(error.request);
-        } else {
-          console.error("Error", error.message);
-        }
-        console.error(error.config);
+      if (result.status !== 200) {
+        throw new Error(result.data);
+      } else if (result.data.errors && result.data.errors.length > 0) {
+        console.log(result.data.errors);
+        throw new Error(result.data.errors.join(", "));
       }
+
+      console.log(result.data);
+    } catch (error: any) {
+      if (error.response) {
+        console.error(error.response.data);
+        console.error(error.response.status);
+        console.error(error.response.headers);
+      } else if (error.request) {
+        console.error(error.request);
+      } else {
+        console.error("Error", error.message);
+      }
+      console.error(error.config);
     }
   }
 

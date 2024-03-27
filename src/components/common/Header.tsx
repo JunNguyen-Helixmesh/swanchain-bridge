@@ -65,7 +65,7 @@ const HeaderNew: FunctionComponent = () => {
     <>
       <header className="app_header flex-row">
         <a
-          href="https://orchestrator.swanchain.io/provider-status"
+          href="https://swanchain.io"
           target="_blank"
           rel="noopener noreferrer"
         >

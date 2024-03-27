@@ -79,7 +79,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <Head>
           <title>SwanETH Bridge</title>
-          <meta name="description" content="Bridge to Swan Saturn testnet" />
+          <meta
+            name="description"
+            content="Welcome to the Swan Saturn testnet bridge. We will NEVER ask for your private keys or seed phrase."
+          />
           <link rel="icon" href="/assets/images/swantoken.png" />
         </Head>
         <Header />

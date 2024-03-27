@@ -78,6 +78,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiProvider config={provider}>
       <QueryClientProvider client={queryClient}>
         <Head>
+          <title>SwanETH Bridge</title>
+          <meta name="description" content="Bridge to Swan Saturn testnet" />
           <link rel="icon" href="/assets/images/swantoken.png" />
         </Head>
         <Header />

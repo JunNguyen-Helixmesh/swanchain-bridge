@@ -21,6 +21,7 @@ import { HiSwitchHorizontal } from "react-icons/hi";
 import NextImage from "next/image";
 import TabMenu from "./TabMenu";
 import { formatUnits } from "viem";
+import Head from "next/head";
 const optimismSDK = require("@eth-optimism/sdk");
 const ethers = require("ethers");
 
@@ -421,6 +422,13 @@ const Withdraw: React.FC = () => {
 
   return (
     <>
+      <Head>
+        <title>Withdraw</title>
+        <meta
+          name="description"
+          content="Withdraw SwanETH to receive SepoliaETH"
+        />
+      </Head>
       <div className="bridge_wrap">
         <TabMenu />
         <section className="deposit_wrap">

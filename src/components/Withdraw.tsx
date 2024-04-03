@@ -222,11 +222,11 @@ const Withdraw: React.FC = () => {
                 weiValue.toString()
               );
 
+              await response.wait();
               const transactionHash = response.hash;
-              const blockNumber = await l1Provider.getBlockNumber();
+              const blockNumber = response.blockNumber;
 
-              const logs = await response.wait();
-              if (logs) {
+              if (blockNumber !== null) {
                 setLoader(false);
                 setEthValue("");
 

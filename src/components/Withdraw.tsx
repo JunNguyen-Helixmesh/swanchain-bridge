@@ -222,9 +222,10 @@ const Withdraw: React.FC = () => {
                 weiValue.toString()
               );
 
-              await response.wait();
-              const transactionHash = response.hash;
-              const blockNumber = response.blockNumber;
+              const crossChainMessage =
+                await crossChainMessenger.toCrossChainMessage(response);
+              const transactionHash = crossChainMessage.transactionHash;
+              const blockNumber = crossChainMessage.blockNumber;
 
               if (blockNumber !== null) {
                 setLoader(false);

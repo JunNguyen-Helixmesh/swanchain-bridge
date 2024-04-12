@@ -35,6 +35,7 @@ const Deposit: React.FC = () => {
   const { connect } = useConnect();
   const { chains, switchChain } = useSwitchChain();
   const [showModal, setShowModal] = useState(false);
+  const [balance, setBalance] = useState<string>("");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const chainId = useChainId();
   const { data } = useBalance({
@@ -127,6 +128,7 @@ const Deposit: React.FC = () => {
               setLoader(false);
               setEthValue("");
               // await callGalxeAPI();
+              setTimeout(fetchBalance, 3000);
             }
           }
           if (sendToken === "DAI") {
@@ -216,9 +218,12 @@ const Deposit: React.FC = () => {
           }
         }
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
       setLoader(false);
+      console.log({ error }, 98);
+    } finally {
+      setLoader(false);
+      fetchBalance();
     }
   };
   const [checkDisabled, setCheckDisabled] = useState(false);
@@ -315,6 +320,16 @@ const Deposit: React.FC = () => {
     }
   };
 
+  const fetchBalance = async () => {
+    if (address) {
+      const web3 = new Web3(window.ethereum);
+      const balance = await web3.eth.getBalance(address);
+      const balanceInEther = web3.utils.fromWei(balance, "ether");
+      const formattedBalance = parseFloat(balanceInEther).toFixed(6);
+      setBalance(formattedBalance);
+    }
+  };
+
   useEffect(() => {
     updateWallet();
   }, [data]);
@@ -322,7 +337,25 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     console.log("Network changed:", chainId);
   }, [chainId]);
+  useEffect(() => {
+    const ethereum = window.ethereum;
 
+    if (ethereum && ethereum.on && ethereum.removeListener) {
+      const handleChainChanged = async () => {
+        await fetchBalance();
+      };
+
+      ethereum.on("chainChanged", handleChainChanged);
+
+      return () => {
+        ethereum.removeListener("chainChanged", handleChainChanged);
+      };
+    }
+  }, [fetchBalance]);
+
+  useEffect(() => {
+    fetchBalance();
+  }, [address]);
   return (
     <>
       <div className="bridge_wrap">
@@ -386,15 +419,7 @@ const Deposit: React.FC = () => {
             {errorInput && <small className="text-danger">{errorInput}</small>}
             {sendToken === "ETH" ? (
               address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{" "}
-                  {data?.value !== undefined &&
-                    data?.value !== BigInt(0) &&
-                    Number(formatUnits(data!.value, data!.decimals)).toFixed(
-                      5
-                    )}{" "}
-                  ETH
-                </p>
+                <p className="wallet_bal mt-2">Balance: {balance} ETH</p>
               )
             ) : sendToken === "DAI" ? (
               address && (

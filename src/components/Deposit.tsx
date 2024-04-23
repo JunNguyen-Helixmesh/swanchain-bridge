@@ -365,7 +365,7 @@ const Deposit: React.FC = () => {
             <div className="deposit_price_title">
               <p>From</p>
               <h5 className="flex-row">
-                <FaEthereum /> Sepolia Testnet
+                <FaEthereum /> Ethereum Mainnet
               </h5>
             </div>
             <div className="deposit_input_wrap">
@@ -542,7 +542,8 @@ const Deposit: React.FC = () => {
                 marginBottom: "20px",
               }}
             >
-              Please ensure you are connected to MetaMask & Sepolia Testnet.
+              Please ensure you are connected to MetaMask & the Ethereum
+              Mainnet.
             </p>
             {checkMetaMask === "true" ? (
               <a
@@ -580,7 +581,7 @@ const Deposit: React.FC = () => {
                 }
               >
                 <HiSwitchHorizontal />
-                Switch to Sepolia
+                Switch to Ethereum
               </button>
             ) : checkDisabled ? (
               <button className="btn deposit_btn flex-row" disabled={true}>

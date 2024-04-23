@@ -460,10 +460,7 @@ const Withdraw: React.FC = () => {
     <>
       <Head>
         <title>Withdraw</title>
-        <meta
-          name="description"
-          content="Withdraw SwanETH to receive SepoliaETH"
-        />
+        <meta name="description" content="Withdraw SwanETH to receive ETH" />
       </Head>
       <div className="bridge_wrap">
         <TabMenu />
@@ -610,7 +607,7 @@ const Withdraw: React.FC = () => {
             <div className="deposit_details flex-row">
               <p>To:</p>
               <h5 className="flex-row">
-                <FaEthereum /> Sepolia Testnet
+                <FaEthereum /> Ethereum Mainnet
               </h5>
             </div>
             <div className="withdraw_bal_sum">
@@ -659,7 +656,7 @@ const Withdraw: React.FC = () => {
                 marginBottom: "20px",
               }}
             >
-              Please ensure you are connected to MetaMask & Swan Testnet.
+              Please ensure you are connected to MetaMask & Swan Mainnet.
             </p>
             {checkMetaMask === true ? (
               <a

@@ -472,7 +472,7 @@ const Withdraw: React.FC = () => {
             <div className="withdraw_title_content">
               <h3>Use the official bridge</h3>
               <p>This usually takes 7 days</p>
-              <p>Bridge any token to Ethereum Mainnet</p>
+              <p>Bridge any token to Sepolia Testnet</p>
             </div>
           </div>
           <div className="deposit_price_wrap">
@@ -607,7 +607,7 @@ const Withdraw: React.FC = () => {
             <div className="deposit_details flex-row">
               <p>To:</p>
               <h5 className="flex-row">
-                <FaEthereum /> Ethereum Mainnet
+                <FaEthereum /> Sepolia Testnet
               </h5>
             </div>
             <div className="withdraw_bal_sum">
@@ -656,7 +656,7 @@ const Withdraw: React.FC = () => {
                 marginBottom: "20px",
               }}
             >
-              Please ensure you are connected to MetaMask & Swan Mainnet.
+              Please ensure you are connected to MetaMask & Swan Testnet.
             </p>
             {checkMetaMask === true ? (
               <a

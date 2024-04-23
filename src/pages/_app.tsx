@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { WagmiProvider, createConfig, http, createStorage } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
@@ -22,7 +22,7 @@ const queryClient = new QueryClient();
 
 export const SWAN = {
   id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  name: "Swan Mainnet",
+  name: "Swan Testnet",
   network: "SWAN",
   iconUrl: "https://i.imgur.com/Q3oIdip.png",
   iconBackground: "#000000",
@@ -38,11 +38,11 @@ export const SWAN = {
   },
   blockExplorers: {
     default: {
-      name: "Swan Mainnet Explorer",
+      name: "Swan Testnet Explorer",
       url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL || "",
     },
   },
-  testnet: false,
+  testnet: true,
 };
 
 const noopStorage = {
@@ -52,7 +52,7 @@ const noopStorage = {
 };
 
 export const provider = createConfig({
-  chains: [SWAN, mainnet],
+  chains: [SWAN, sepolia],
   connectors: [injected()],
   multiInjectedProviderDiscovery: true,
   syncConnectedChain: true,
@@ -61,7 +61,7 @@ export const provider = createConfig({
   }),
   transports: {
     [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
-    [mainnet.id]: http(mainnet.rpcUrls.default.http[0]),
+    [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
   },
 });
 
@@ -81,7 +81,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <title>SwanETH Bridge</title>
           <meta
             name="description"
-            content="Welcome to the Swan Mainnet bridge. We will NEVER ask for your private keys or seed phrase."
+            content="Welcome to the Swan Saturn testnet bridge. We will NEVER ask for your private keys or seed phrase."
           />
           <link rel="icon" href="/assets/images/swantoken.png" />
         </Head>

@@ -501,11 +501,11 @@ const Withdraw: React.FC = () => {
                       setSendToken(event.target.value)
                     }
                   >
-                    <option>ETH</option>
-                    <option value="DAI">DAI</option>
+                    <option>swanETH</option>
+                    {/* <option value="DAI">DAI</option>
                     <option value="USDT">USDT</option>
                     <option value="wBTC">wBTC</option>
-                    <option value="USDC">USDC</option>
+                    <option value="USDC">USDC</option> */}
                   </Form.Select>
                 </div>
                 <div className="input_icn_wrap">

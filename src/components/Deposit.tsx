@@ -385,10 +385,10 @@ const Deposit: React.FC = () => {
                     onChange={({ target }) => setSendToken(target.value)}
                   >
                     <option>ETH</option>
-                    <option value="DAI">DAI</option>
+                    {/* <option value="DAI">DAI</option>
                     <option value="USDC">USDC</option>
                     <option value="USDT">USDT</option>
-                    <option value="wBTC">wBTC</option>
+                    <option value="wBTC">wBTC</option> */}
                   </Form.Select>
                 </div>
                 <div className="input_icn_wrap">

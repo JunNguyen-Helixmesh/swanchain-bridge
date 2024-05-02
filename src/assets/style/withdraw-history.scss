@@ -1,0 +1,34 @@
+.withdraw-history-table,
+h2 {
+  color: white;
+}
+
+// components/WithdrawHistory.module.scss
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--secondary-color);
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--card-color);
+}
+
+tbody tr:hover {
+  background-color: var(--tab-color);
+}
+
+tbody td {
+  color: var(--text-color);
+}

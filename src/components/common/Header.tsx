@@ -1,4 +1,5 @@
 import React, { useEffect, useState, FunctionComponent } from 'react'
+import { useRouter } from 'next/router'
 import {
   Navbar,
   Image,
@@ -48,6 +49,8 @@ const HeaderNew: FunctionComponent = () => {
   const chainId = useChainId()
 
   const [hydrationLoad, setHydrationLoad] = useState(true)
+  const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     setHydrationLoad(false)
@@ -87,6 +90,11 @@ const HeaderNew: FunctionComponent = () => {
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
     switchChain({ chainId: Number(targetChainId) })
+  }
+  const handleOptionSelect = (event: any) => {
+    const selectedOption = event.target.value
+    router.push(event.target.value)
+    event.target.value = ''
   }
   return (
     <>
@@ -129,16 +137,17 @@ const HeaderNew: FunctionComponent = () => {
             <></>
           ) : (
             <div className="header-flex">
-              <select
-                className="network-selector"
-                value={chainId}
-                onChange={changeChain}
-              >
-                <option value="11155111">Sepolia</option>
-                <option value="2024">Swan Saturn</option>
-                <option value="20241133">Swan Proxima</option>
-              </select>
-              {/* <Dropdown className="network-selector">
+              <div className="network-selector-container">
+                <select
+                  className="network-selector"
+                  value={chainId}
+                  onChange={changeChain}
+                >
+                  <option value="11155111">Sepolia</option>
+                  <option value="2024">Swan Saturn</option>
+                  <option value="20241133">Swan Proxima</option>
+                </select>
+                {/* <Dropdown className="network-selector">
                 <Dropdown.Toggle id="dropdown-autoclose-true">
                   Default Dropdown
                 </Dropdown.Toggle>
@@ -149,8 +158,9 @@ const HeaderNew: FunctionComponent = () => {
                   <Dropdown.Item href="#">Menu Item</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown> */}
+              </div>
 
-              <div className="">
+              <>
                 {!isConnected ? (
                   <button
                     className="btn header_btn flex-row"
@@ -162,12 +172,17 @@ const HeaderNew: FunctionComponent = () => {
                     Connect Wallet
                   </button>
                 ) : (
-                  <Link
-                    className="btn header_btn flex-row"
-                    href="/withdraw-history"
+                  <select
+                    className="page-select"
+                    // href="/withdraw-history"
+                    onChange={handleOptionSelect}
                   >
-                    {address?.slice(0, 6)}...{address?.slice(-4)}
-                  </Link>
+                    <option value="" disabled selected>
+                      {address?.slice(0, 6)}...{address?.slice(-4)}
+                    </option>
+                    <option value="/deposit">Bridge</option>
+                    <option value="/withdraw-history">Withdraw History</option>
+                  </select>
                 )}
                 <div>
                   {showModal && (
@@ -320,7 +335,7 @@ const HeaderNew: FunctionComponent = () => {
                     </div>
                   </Modal.Body>
                 </Modal>
-              </div>
+              </>
             </div>
           )}
         </div>

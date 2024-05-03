@@ -17,7 +17,6 @@ import logo from '../../assets/images/swantoken.png'
 import {
   useAccount,
   useConnect,
-  useDisconnect,
   useConfig,
   useChainId,
   useSwitchChain,
@@ -64,10 +63,10 @@ const HeaderNew: FunctionComponent = () => {
       setCheckMetaMask(true)
     }
   }, [isConnected, address, chain])
-  const { disconnect } = useDisconnect()
-  const handleDisconnect = async () => {
-    await disconnect()
-  }
+  // const { disconnect } = useDisconnect()
+  // const handleDisconnect = async () => {
+  //   await disconnect()
+  // }
   useEffect(() => {
     if (chain?.id == 11155111 || chain?.id == 20241133 || chain?.id == 2024) {
       setNetwork(chain.name)
@@ -160,7 +159,7 @@ const HeaderNew: FunctionComponent = () => {
               </Dropdown> */}
               </div>
 
-              <>
+              <div className="page-select-conatainer">
                 {!isConnected ? (
                   <button
                     className="btn header_btn flex-row"
@@ -172,17 +171,23 @@ const HeaderNew: FunctionComponent = () => {
                     Connect Wallet
                   </button>
                 ) : (
+                  // <div className="page-select-conatainer">
                   <select
                     className="page-select"
+                    defaultValue=""
                     // href="/withdraw-history"
                     onChange={handleOptionSelect}
                   >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                       {address?.slice(0, 6)}...{address?.slice(-4)}
                     </option>
                     <option value="/deposit">Bridge</option>
-                    <option value="/withdraw-history">Withdraw History</option>
+                    <option value={`/withdraw-history/${address}`}>
+                      Withdraw History
+                    </option>
+                    {/* <option value="disconnect">Log out</option> */}
                   </select>
+                  // </div>
                 )}
                 <div>
                   {showModal && (
@@ -335,7 +340,7 @@ const HeaderNew: FunctionComponent = () => {
                     </div>
                   </Modal.Body>
                 </Modal>
-              </>
+              </div>
             </div>
           )}
         </div>

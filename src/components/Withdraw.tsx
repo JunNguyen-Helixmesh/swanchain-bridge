@@ -31,8 +31,7 @@ const Withdraw: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
   const [loader, setLoader] = useState<boolean>(false)
-  const { address, isConnected } = useAccount()
-  const { chain } = useAccount()
+  const { address, isConnected, chain } = useAccount()
   const [SwanBalance, setSwanBalance] = useState<number>(0)
   const [metaMastError, setMetaMaskError] = useState<string>('')
   const { connect } = useConnect()
@@ -466,7 +465,7 @@ const Withdraw: React.FC = () => {
       <div className="bridge_wrap">
         <TabMenu />
         <section className="deposit_wrap">
-          <div className="withdraw_title_wrap">
+          {/* <div className="withdraw_title_wrap">
             <div className="withdraw_title_icn">
               <MdOutlineSecurity />
             </div>
@@ -475,7 +474,7 @@ const Withdraw: React.FC = () => {
               <p>This usually takes 7 days</p>
               <p>Bridge any token to Sepolia Testnet</p>
             </div>
-          </div>
+          </div> */}
           <div className="deposit_price_wrap">
             <div className="deposit_price_title">
               <p>From</p>
@@ -663,7 +662,7 @@ const Withdraw: React.FC = () => {
                 marginBottom: '20px',
               }}
             >
-              Please ensure you are connected to MetaMask & Swan Testnet.
+              Please ensure you are connected to MetaMask & Swan Saturn Testnet.
             </p>
             {checkMetaMask === true ? (
               <a

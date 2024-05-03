@@ -13,6 +13,7 @@ table {
 thead {
   background-color: var(--primary-color);
   color: var(--light-color);
+  text-align: left;
 }
 
 th,
@@ -27,8 +28,144 @@ tbody tr:nth-child(even) {
 
 tbody tr:hover {
   background-color: var(--tab-color);
+  cursor: pointer;
 }
 
 tbody td {
   color: var(--text-color);
+}
+
+.history_wrap {
+  display: flex;
+  flex-direction: column;
+  // align-items: center;
+  // justify-content: center;
+  min-height: calc(100vh - 210px);
+  width: 94%;
+  max-width: 550px;
+  min-width: 300px;
+  // margin: 0px auto;
+  background-color: var(--card-color);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
+  @media screen and (max-width: 1600px) {
+    max-width: 1000px;
+  }
+}
+
+.modal-container {
+  min-width: 500px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  // background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+// // Define your modal styles
+.modal {
+  //   border: 1px solid;width: 94%;
+  z-index: 1;
+  max-width: 550px;
+  min-width: 300px;
+  margin: 0px auto;
+  background-color: var(--light-color);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
+  @media screen and (max-width: 1600px) {
+    max-width: 500px;
+  }
+}
+
+// .modal-test {
+//   color: white;
+// }
+
+.modal-content-header {
+  display: flex;
+  // align-items: center;
+  justify-content: space-between;
+}
+
+.close {
+  font-size: x-large;
+  cursor: pointer;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  h2 {
+    color: black;
+    font-weight: 500;
+  }
+  .withdraw-flow {
+    ul {
+      display: flex;
+      flex-direction: column;
+      list-style-type: none;
+      gap: 8px;
+      li {
+        display: flex;
+        color: gray;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+  }
+  .vertical-dots {
+    display: inline;
+    padding-left: 6px;
+  }
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   //   background-color: var(--light-color); // Use variable for background color
+  //   //   margin: 15% auto;
+  //   padding: 20px;
+  //   //   border: 1px solid var(--dark-color); // Use variable for border color
+  //   width: 100%;
+  //   //   color: var(--text-color); // Use variable for text color
+
+  //   //   // Additional styles
+  //   //   // You can use other variables as needed
+}
+
+.modal-amoumt {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+
+  .title {
+    font-size: small;
+    font-weight: lighter;
+    color: gray;
+  }
+  .text {
+    font-size: large;
+    font-weight: bold;
+  }
+}
+.modal-btn-container {
+  display: flex;
+  margin-top: 16px;
+}
+.modal-btn {
+  font-size: 18px;
+  font-weight: 500;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: var(--theme-color);
+  color: var(--light-color);
 }

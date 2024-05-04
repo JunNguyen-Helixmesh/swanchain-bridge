@@ -356,6 +356,12 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     fetchBalance()
   }, [address])
+
+  const changeChain = (event: any) => {
+    const targetChainId = event.target.value
+    switchChain({ chainId: Number(targetChainId) })
+  }
+
   return (
     <>
       <div className="bridge_wrap">
@@ -493,10 +499,15 @@ const Deposit: React.FC = () => {
             </svg>
           </div>
           <div className="deposit_details_wrap">
-            <div className="deposit_details flex-row">
+            <div className="deposit_details">
               <p>To</p>
               <h5 className="flex-row">
-                <Image src={toIcn.src} alt="To icn" fluid /> Swan
+                {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
+
+                <select value={chainId} onChange={changeChain}>
+                  <option value="2024">Swan Saturn</option>
+                  <option value="20241133">Swan Proxima</option>
+                </select>
               </h5>
             </div>
             <div className="deposit_inner_details flex-row">

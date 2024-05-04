@@ -136,17 +136,18 @@ const HeaderNew: FunctionComponent = () => {
             <></>
           ) : (
             <div className="header-flex">
-              <div className="network-selector-container">
-                <select
-                  className="network-selector"
-                  value={chainId}
-                  onChange={changeChain}
-                >
-                  <option value="11155111">Sepolia</option>
-                  <option value="2024">Swan Saturn</option>
-                  <option value="20241133">Swan Proxima</option>
-                </select>
-                {/* <Dropdown className="network-selector">
+              {isConnected ? (
+                <div className="network-selector-container">
+                  <select
+                    className="network-selector"
+                    value={chainId}
+                    onChange={changeChain}
+                  >
+                    <option value="11155111">Sepolia</option>
+                    <option value="2024">Swan Saturn</option>
+                    <option value="20241133">Swan Proxima</option>
+                  </select>
+                  {/* <Dropdown className="network-selector">
                 <Dropdown.Toggle id="dropdown-autoclose-true">
                   Default Dropdown
                 </Dropdown.Toggle>
@@ -157,7 +158,10 @@ const HeaderNew: FunctionComponent = () => {
                   <Dropdown.Item href="#">Menu Item</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown> */}
-              </div>
+                </div>
+              ) : (
+                <></>
+              )}
 
               <div className="page-select-conatainer">
                 {!isConnected ? (

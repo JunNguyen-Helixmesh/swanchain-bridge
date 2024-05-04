@@ -31,7 +31,8 @@ const Withdraw: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
   const [loader, setLoader] = useState<boolean>(false)
-  const { address, isConnected, chain } = useAccount()
+  const { address, isConnected } = useAccount()
+  const { chain } = useAccount()
   const [SwanBalance, setSwanBalance] = useState<number>(0)
   const [metaMastError, setMetaMaskError] = useState<string>('')
   const { connect } = useConnect()
@@ -400,6 +401,11 @@ const Withdraw: React.FC = () => {
     }
   }
 
+  const changeChain = (event: any) => {
+    const targetChainId = event.target.value
+    switchChain({ chainId: Number(targetChainId) })
+  }
+
   // ============= For Format balance =========================
   const formatBalance = (rawBalance: string) => {
     const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6)
@@ -479,7 +485,12 @@ const Withdraw: React.FC = () => {
             <div className="deposit_price_title">
               <p>From</p>
               <h5 className="flex-row">
-                <Image src={toIcn.src} alt="To icn" fluid /> Swan
+                {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
+
+                <select value={chainId} onChange={changeChain}>
+                  <option value="2024">Swan Saturn</option>
+                  <option value="20241133">Swan Proxima</option>
+                </select>
               </h5>
             </div>
             <div className="deposit_input_wrap">

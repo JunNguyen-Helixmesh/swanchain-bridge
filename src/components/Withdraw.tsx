@@ -41,6 +41,7 @@ const Withdraw: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
   const [balance, setBalance] = useState<string>('')
+  const [fromChain, setFromChain] = useState('2024')
 
   const { data } = useBalance({
     address: address,
@@ -169,7 +170,39 @@ const Withdraw: React.FC = () => {
           setErrorInput('Invalid Amount Entered!')
         } else {
           setErrorInput('')
-          const l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
+          let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
+          let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+          let AddressManager = process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER
+          let L1CrossDomainMessenger =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER
+          let L1StandardBridge =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE
+          let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
+          let OptimismPortal = process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY
+          if (fromChain == '20241133') {
+            l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+            AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
+            L1CrossDomainMessenger =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
+            L1StandardBridge =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
+            L2OutputOracle =
+              process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
+            OptimismPortal =
+              process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
+          }
+          // const bridges = {
+          //   Standard: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: '0x4200000000000000000000000000000000000010',
+          //     Adapter: optimismSDK.StandardBridgeAdapter,
+          //   },
+          //   ETH: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: '0x4200000000000000000000000000000000000010',
+          //     Adapter: optimismSDK.ETHBridgeAdapter,
+          //   },
+          // }
           const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
           const l2Provider = new ethers.providers.Web3Provider(window.ethereum)
           const l1Signer = l1Provider.getSigner(address)
@@ -179,36 +212,22 @@ const Withdraw: React.FC = () => {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
-          }
-          const bridges = {
-            Standard: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: '0x4200000000000000000000000000000000000010',
-              Adapter: optimismSDK.StandardBridgeAdapter,
-            },
-            ETH: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: '0x4200000000000000000000000000000000000010',
-              Adapter: optimismSDK.ETHBridgeAdapter,
-            },
+            AddressManager,
+            L1CrossDomainMessenger,
+            L1StandardBridge,
+            OptimismPortal,
+            L2OutputOracle,
           }
           const crossChainMessenger = new optimismSDK.CrossChainMessenger({
             contracts: {
               l1: l1Contracts,
             },
-            bridges: bridges,
+            // bridges: bridges,
             l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
             l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
-            bedrock: true,
+            // bedrock: true,
           })
           //-------------------------------------------------------- SEND TOKEN VALUE -----------------------------------------------------------------
 
@@ -243,68 +262,6 @@ const Withdraw: React.FC = () => {
                   // await callGalxeAPI();
                 }
                 setTimeout(fetchBalance, 3000)
-              }
-            }
-
-            if (sendToken == 'DAI') {
-              var daiValue = Web3.utils.toWei(ethValue, 'ether')
-              setLoader(true)
-              var depositTxn2 = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_DAI,
-                process.env.NEXT_PUBLIC_L2_DAI,
-                daiValue,
-              )
-              var receiptDAI = await depositTxn2.wait()
-              if (receiptDAI) {
-                setLoader(false)
-                setEthValue('')
-                // await callGalxeAPI();
-              }
-            }
-
-            if (sendToken == 'USDT') {
-              var usdtValue = parseInt(ethValue) * 1000000
-              setLoader(true)
-              var receiptUSDT = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_USDT,
-                process.env.NEXT_PUBLIC_L2_USDT,
-                usdtValue,
-              )
-              var getReceiptUSDT = await receiptUSDT.wait()
-              if (getReceiptUSDT) {
-                setLoader(false)
-                setEthValue('')
-                // await callGalxeAPI();
-              }
-            }
-            if (sendToken == 'wBTC') {
-              var wBTCValue = parseInt(ethValue) * 100000000
-              setLoader(true)
-              var receiptwBTC = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_wBTC,
-                process.env.NEXT_PUBLIC_L2_wBTC,
-                wBTCValue,
-              )
-              var getReceiptwBTC = await receiptwBTC.wait()
-              if (getReceiptwBTC) {
-                setLoader(false)
-                setEthValue('')
-                // await callGalxeAPI();
-              }
-            }
-            if (sendToken == 'USDC') {
-              var usdcValue = parseInt(ethValue) * 1000000
-              setLoader(true)
-              var receiptUSDC = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_USDC,
-                process.env.NEXT_PUBLIC_L2_USDC,
-                usdcValue,
-              )
-              var getReceiptUSDC = await receiptUSDC.wait()
-              if (getReceiptUSDC) {
-                setLoader(false)
-                setEthValue('')
-                // await callGalxeAPI();
               }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
@@ -404,6 +361,7 @@ const Withdraw: React.FC = () => {
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
     switchChain({ chainId: Number(targetChainId) })
+    setFromChain(targetChainId)
   }
 
   // ============= For Format balance =========================
@@ -700,18 +658,19 @@ const Withdraw: React.FC = () => {
                 <IoMdWallet />
                 Connect Wallet
               </button>
-            ) : Number(chain?.id) !==
-              Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? (
+            ) : Number(chain?.id) !== Number(fromChain) ? (
               <button
                 className="btn deposit_btn flex-row"
                 onClick={() =>
                   switchChain({
-                    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+                    chainId: Number(fromChain),
                   })
                 }
               >
                 <HiSwitchHorizontal />
-                Switch to Swan Saturn
+                {fromChain == '2024'
+                  ? 'Switch to Swan Saturn'
+                  : 'Switch to Swan Proxima'}
               </button>
             ) : checkDisabled ? (
               <button className="btn deposit_btn flex-row" disabled={true}>

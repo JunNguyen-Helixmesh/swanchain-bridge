@@ -38,6 +38,7 @@ const Deposit: React.FC = () => {
   const [balance, setBalance] = useState<string>('')
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
+  const [destinationChainId, setDestinationChainId] = useState('2024')
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
@@ -72,7 +73,28 @@ const Deposit: React.FC = () => {
         if (!(parseFloat(ethValue) > 0)) {
           setErrorInput('Invalid Amount Entered!')
         } else {
-          const l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+          let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
+          let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+          let AddressManager = process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER
+          let L1CrossDomainMessenger =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER
+          let L1StandardBridge =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE
+          let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
+          let OptimismPortal = process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY
+          if (destinationChainId == '20241133') {
+            l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+            AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
+            L1CrossDomainMessenger =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
+            L1StandardBridge =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
+            L2OutputOracle =
+              process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
+            OptimismPortal =
+              process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
+          }
+
           const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
           const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
           const l1Signer = l1Provider.getSigner(address)
@@ -82,36 +104,34 @@ const Deposit: React.FC = () => {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
+            AddressManager,
+            L1CrossDomainMessenger,
+            L1StandardBridge,
+            OptimismPortal,
+            L2OutputOracle,
           }
-          const bridges = {
-            Standard: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
-              Adapter: optimismSDK.StandardBridgeAdapter,
-            },
-            ETH: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
-              Adapter: optimismSDK.ETHBridgeAdapter,
-            },
-          }
+          // const bridges = {
+          //   Standard: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
+          //     Adapter: optimismSDK.StandardBridgeAdapter,
+          //   },
+          //   ETH: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
+          //     Adapter: optimismSDK.ETHBridgeAdapter,
+          //   },
+          // }
           const crossChainMessenger = new optimismSDK.CrossChainMessenger({
             contracts: {
               l1: l1Contracts,
             },
-            bridges: bridges,
+            // bridges: bridges,
             l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+            l2ChainId: Number(destinationChainId),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
-            bedrock: true,
+            // bedrock: true,
           })
           if (sendToken === 'ETH') {
             console.log(sendToken)
@@ -125,95 +145,11 @@ const Deposit: React.FC = () => {
             )
             const receiptETH = await depositETHEREUM.wait()
             if (receiptETH) {
+              console.log(receiptETH)
               setLoader(false)
               setEthValue('')
               // await callGalxeAPI();
               setTimeout(fetchBalance, 3000)
-            }
-          }
-          if (sendToken === 'DAI') {
-            var daiValue = Web3.utils.toWei(ethValue, 'ether')
-            setLoader(true)
-            console.log('adddresssssssssss', process.env.NEXT_PUBLIC_L1_DAI)
-            var depositTxn2 = await crossChainMessenger.approveERC20(
-              process.env.NEXT_PUBLIC_L1_DAI,
-              process.env.NEXT_PUBLIC_L2_DAI,
-              daiValue,
-            )
-            await depositTxn2.wait()
-            var receiptDAI = await crossChainMessenger.depositERC20(
-              process.env.NEXT_PUBLIC_L1_DAI,
-              process.env.NEXT_PUBLIC_L2_DAI,
-              daiValue,
-            )
-            var getReceiptDAI = await receiptDAI.wait()
-            if (getReceiptDAI) {
-              setLoader(false)
-              setEthValue('')
-              //  await callGalxeAPI();
-            }
-          }
-          if (sendToken === 'USDT') {
-            var usdtValue = parseInt(ethValue) * 1000000
-            setLoader(true)
-            var depositTxn1 = await crossChainMessenger.approveERC20(
-              process.env.NEXT_PUBLIC_L1_USDT,
-              process.env.NEXT_PUBLIC_L2_USDT,
-              usdtValue,
-            )
-            await depositTxn1.wait()
-            var receiptUSDT = await crossChainMessenger.depositERC20(
-              process.env.NEXT_PUBLIC_L1_USDT,
-              process.env.NEXT_PUBLIC_L2_USDT,
-              usdtValue,
-            )
-            var getReceiptUSDT = await receiptUSDT.wait()
-            if (getReceiptUSDT) {
-              setLoader(false)
-              setEthValue('')
-              //await callGalxeAPI();
-            }
-          }
-          if (sendToken === 'wBTC') {
-            var wBTCValue = parseInt(ethValue) * 100000000
-            setLoader(true)
-            var depositTxnBtc = await crossChainMessenger.approveERC20(
-              process.env.NEXT_PUBLIC_L1_wBTC,
-              process.env.NEXT_PUBLIC_L2_wBTC,
-              wBTCValue,
-            )
-            await depositTxnBtc.wait()
-            var receiptwBTC = await crossChainMessenger.depositERC20(
-              process.env.NEXT_PUBLIC_L1_wBTC,
-              process.env.NEXT_PUBLIC_L2_wBTC,
-              wBTCValue,
-            )
-            var getReceiptwBTC = await receiptwBTC.wait()
-            if (getReceiptwBTC) {
-              setLoader(false)
-              setEthValue('')
-              //await callGalxeAPI();
-            }
-          }
-          if (sendToken === 'USDC') {
-            var usdcValue = parseInt(ethValue) * 1000000
-            setLoader(true)
-            var depositTxn3 = await crossChainMessenger.approveERC20(
-              process.env.NEXT_PUBLIC_L1_USDC,
-              process.env.NEXT_PUBLIC_L2_USDC,
-              usdcValue,
-            )
-            await depositTxn3.wait()
-            var receiptUSDC = await crossChainMessenger.depositERC20(
-              process.env.NEXT_PUBLIC_L1_USDC,
-              process.env.NEXT_PUBLIC_L2_USDC,
-              usdcValue,
-            )
-            var getReceiptUSDC = await receiptUSDC.wait()
-            if (getReceiptUSDC) {
-              setLoader(false)
-              setEthValue('')
-              //await callGalxeAPI();
             }
           }
         }
@@ -235,64 +171,6 @@ const Deposit: React.FC = () => {
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-    if (sendToken == 'DAI') {
-      if (
-        dataDAI.data?.value &&
-        Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient DAI balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-    if (sendToken == 'USDT') {
-      if (
-        dataUSDT.data?.value &&
-        Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient USDT balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-
-    if (sendToken == 'wBTC') {
-      if (
-        datawBTC.data?.value &&
-        Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient wBTC balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-
-    if (sendToken == 'USDC') {
-      if (
-        dataUSDC.data?.value &&
-        Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient USDC balance.')
       } else {
         setCheckDisabled(false)
         setErrorInput('')
@@ -359,7 +237,8 @@ const Deposit: React.FC = () => {
 
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
-    switchChain({ chainId: Number(targetChainId) })
+    // switchChain({ chainId: Number(targetChainId) })
+    setDestinationChainId(targetChainId)
   }
 
   return (
@@ -504,7 +383,7 @@ const Deposit: React.FC = () => {
               <h5 className="flex-row">
                 {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
 
-                <select value={chainId} onChange={changeChain}>
+                <select value={destinationChainId} onChange={changeChain}>
                   <option value="2024">Swan Saturn</option>
                   <option value="20241133">Swan Proxima</option>
                 </select>

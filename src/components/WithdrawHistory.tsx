@@ -8,6 +8,23 @@ import { LuShield } from 'react-icons/lu'
 import { HiDownload, HiDotsVertical } from 'react-icons/hi'
 
 const { ethers } = require('ethers')
+// const Web3 = require('web3')
+
+const OUTPUT_ORACLE_ABI = [
+  {
+    inputs: [],
+    name: 'latestBlockNumber',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+]
 
 const WithdrawHistory: React.FC = (walletAddress: any) => {
   const [withdrawals, setWithdrawals] = useState([])
@@ -39,15 +56,36 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
-    let rpcUrl = process.env.NEXT_PUBLIC_L2_RPC_URL
+    let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
+    let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
     if (rowData.chain_id == '20241133') {
-      rpcUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+      l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+      L2OutputOracle = process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
     }
 
-    const l2Provider = new ethers.providers.JsonRpcProvider(rpcUrl, 'any')
+    const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
+    const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
+
+    // const web3 = new Web3(l1Url)
+
+    const outputOracleContract = new ethers.Contract(
+      L2OutputOracle,
+      OUTPUT_ORACLE_ABI,
+      l1Provider,
+    )
 
     try {
-      // Get transaction details
+      rowData.latestOutputtedBlockNumber = Number(
+        await outputOracleContract.latestBlockNumber(),
+      )
+      console.log(
+        'Result of the view function:',
+        rowData.latestOutputtedBlockNumber,
+      )
+      console.log(rowData)
+
+      // Get withdraw transaction details
       const transaction = await l2Provider.getTransaction(rowData.tx_hash)
 
       // If transaction is found and has a value, return the value
@@ -116,42 +154,71 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
               </div>
               <div className="withdraw-flow">
                 <ul>
-                  <li>
+                  <li className="withdraw-step done">
                     <GrSend size={28} />
                     Initiate withdraw
                   </li>
                   <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
-                  <li>
+                  <li className="withdraw-step done">
                     <IoMdTime size={28} />
-                    Wait for the withdraw request published on L1
+                    Wait for the published withdraw on L1
                   </li>
                   <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
-                  <li>
+                  <li
+                    className={
+                      Number(modalData.latestOutputtedBlockNumber) >=
+                      Number(modalData.block_number)
+                        ? 'withdraw-step done'
+                        : 'withdraw-step'
+                    }
+                  >
                     <LuShield size={28} />
-                    Prove withdraw
+                    Prove withdrawal
                   </li>
                   <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
-                  <li>
+                  <li
+                    className={
+                      modalData.status == 'proved'
+                        ? 'withdraw-step done'
+                        : 'withdraw-step'
+                    }
+                  >
                     <IoMdTime size={28} />
                     Wait the fault challenge period
                   </li>
                   <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
-                  <li>
+                  <li
+                    className={
+                      modalData.status == 'proved'
+                        ? 'withdraw-step done'
+                        : 'withdraw-step'
+                    }
+                  >
                     <HiDownload size={28} />
-                    Claim withdraw
+                    Claim withdrawal
                   </li>
                 </ul>
               </div>
               <div className="modal-btn-container">
-                <button className="modal-btn">Prove Withdrawal</button>
+                <button
+                  className="modal-btn"
+                  disabled={
+                    Number(modalData.latestOutputtedBlockNumber) <
+                    Number(modalData.block_number)
+                  }
+                >
+                  {modalData.status == 'initiated'
+                    ? 'Prove withdrawal'
+                    : 'Claim withdrawal'}
+                </button>
               </div>
             </div>
           </div>

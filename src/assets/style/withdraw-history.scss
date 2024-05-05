@@ -112,18 +112,34 @@ tbody td {
       display: flex;
       flex-direction: column;
       list-style-type: none;
-      gap: 8px;
-      li {
+      // margin: 0 10px;
+      // gap: 8px;
+      .withdraw-step {
         display: flex;
         color: gray;
         align-items: center;
         gap: 8px;
+        padding: 10px 24px;
+        padding-left: 10px;
+        border-radius: 24px;
+        border: 1px solid gray;
+      }
+      .done {
+        background-color: var(--tab-color);
+        color: var(--text-color);
+        border: none;
       }
     }
   }
   .vertical-dots {
-    display: inline;
-    padding-left: 6px;
+    display: flex;
+    align-items: center;
+    // justify-content: center;
+    color: gray;
+    padding: 6px 16px;
+    margin: 0;
+    // display: inline;
+    // padding-left: 16px;
   }
   //   display: flex;
   //   align-items: center;
@@ -156,7 +172,7 @@ tbody td {
 }
 .modal-btn-container {
   display: flex;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 .modal-btn {
   font-size: 18px;
@@ -168,4 +184,14 @@ tbody td {
   cursor: pointer;
   background-color: var(--theme-color);
   color: var(--light-color);
+}
+
+.withdraw-step {
+  padding: 16px;
+  // background-color: black;
+}
+
+.step-done {
+  padding: 16px;
+  // background-color: black;
 }

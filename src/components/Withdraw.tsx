@@ -145,7 +145,7 @@ const Withdraw: React.FC = () => {
           throw new Error(result.data.errors.join(', '))
         }
 
-        console.log(result.data)
+        // console.log(result.data)
       } catch (error) {
         if (error.response) {
           console.error(error.response.data)
@@ -243,9 +243,13 @@ const Withdraw: React.FC = () => {
               )
               await response.wait()
 
+              console.log('withdraw response:', response)
+
               const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
                 response,
               )
+
+              console.log('crosschain message:', crossChainMessage)
               const transactionHash = crossChainMessage.transactionHash
               const blockNumber = crossChainMessage.blockNumber
 

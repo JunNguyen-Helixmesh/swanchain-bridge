@@ -46,7 +46,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         if (!response.ok) {
           throw new Error('Failed to fetch data')
         }
-        const data = await response.json()
+        let data = await response.json()
         setWithdrawals(data)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -221,13 +221,34 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             {withdrawals.map((withdrawal: any, index) => (
               <tr
                 key={index}
-                onClick={async () => await getModalData(withdrawal)}
+                onClick={async (e: any) => {
+                  if (e.target.className != 'tx_hash') getModalData(withdrawal)
+                }}
               >
-                <td>{withdrawal.timestamp}</td>
-                <td>{withdrawal.chain_id}</td>
                 <td>
-                  {withdrawal.tx_hash.slice(0, 6)}...
-                  {withdrawal.tx_hash.slice(-4)}
+                  {new Date(withdrawal.timestamp * 1000).toLocaleString()}
+                </td>
+                <td>
+                  {withdrawal.chain_id == '2024'
+                    ? 'Saturn'
+                    : withdrawal.chain_id == '20241133'
+                    ? 'Proxima'
+                    : withdrawal.chain_id}
+                </td>
+                <td>
+                  <a
+                    className="tx_hash"
+                    target="_blank"
+                    href={
+                      withdrawal.chain_id == '2024'
+                        ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                        : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                    }
+                    rel="noopener noreferrer"
+                  >
+                    {withdrawal.tx_hash.slice(0, 6)}...
+                    {withdrawal.tx_hash.slice(-4)}{' '}
+                  </a>
                 </td>
                 <td>{withdrawal.status}</td>
               </tr>

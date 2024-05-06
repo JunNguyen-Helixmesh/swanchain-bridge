@@ -51,12 +51,13 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         if (!response.ok) {
           throw new Error('Failed to fetch data')
         }
-        let data = (await response.json()).data
-        let withdrawal_list = data.withdrawal_list
+        let data = await response.json()
+        let withdrawal_data = data.data
+        let withdrawal_list = withdrawal_data.withdrawal_list
 
-        setTotalPages(Math.ceil(withdrawal_list / 10))
+        setTotalPages(Math.ceil(withdrawal_data.total_withdrawal / 10))
 
-        console.log(data)
+        console.log(withdrawal_list)
         setWithdrawals(withdrawal_list)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -214,7 +215,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
       let result = await axios.post(url, formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
       })
 
@@ -252,9 +253,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   if (e.target.className != 'tx_hash') getModalData(withdrawal)
                 }}
               >
-                <td>
-                  {new Date(withdrawal.timestamp * 1000).toLocaleString()}
-                </td>
+                <td>{new Date(withdrawal.create_at).toLocaleString()}</td>
                 <td>
                   {withdrawal.chain_id == '2024'
                     ? 'Saturn'

@@ -8,6 +8,7 @@ import { IoMdTime } from 'react-icons/io'
 import { LuShield } from 'react-icons/lu'
 import { HiDownload, HiDotsVertical } from 'react-icons/hi'
 import { useAccount } from 'wagmi'
+import axios from 'axios'
 
 const { ethers } = require('ethers')
 const optimismSDK = require('@eth-optimism/sdk')
@@ -34,6 +35,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const [withdrawals, setWithdrawals] = useState([])
   const [loader, setLoader] = useState<boolean>(false)
   const [modalData, setModalData] = useState<any>(null)
+  const [offset, setOffset] = useState<Number>(0)
+  const [page, setPage] = useState<Number>(1)
+  const [totalPages, setTotalPages] = useState<Number>(1)
   const router = useRouter()
 
   useEffect(() => {
@@ -41,19 +45,25 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/withdraw-history/${address}`,
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/retrieve_withdrawal_list?wallet_address=${address}&limit=10&offset=${offset}`,
+          // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch data')
         }
-        let data = await response.json()
-        setWithdrawals(data)
+        let data = (await response.json()).data
+        let withdrawal_list = data.withdrawal_list
+
+        setTotalPages(Math.ceil(withdrawal_list / 10))
+
+        console.log(data)
+        setWithdrawals(withdrawal_list)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     }
 
-    fetchData()
+    if (address && isConnected) fetchData()
   }, [address, isConnected])
 
   const closeModal = () => {
@@ -172,11 +182,20 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     try {
       setLoader(true)
 
+      // Create a FormData object
+      const formData = new FormData()
+      formData.append('chain_id', modalData.chain_id)
+      formData.append('tx_hash', modalData.tx_hash)
+
+      const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/update_status`
+
       let response = null
       if (modalData.status == 'initiated') {
         response = await crossChainMessenger.proveMessage(modalData.tx_hash)
+        formData.append('stauts', 'proved')
       } else if (modalData.status == 'proved') {
         response = await crossChainMessenger.finalizeMessage(modalData.tx_hash)
+        formData.append('stauts', 'finalized')
       }
       await response.wait()
 
@@ -192,6 +211,14 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       if (transactionHash !== null) {
         setLoader(false)
       }
+
+      let result = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      console.log(result.data)
     } catch (error) {
       setLoader(false)
       console.error('Error:', error.message)

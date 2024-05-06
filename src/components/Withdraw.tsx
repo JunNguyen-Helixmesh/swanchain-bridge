@@ -118,46 +118,46 @@ const Withdraw: React.FC = () => {
   }
 
   async function updateWithdrawHistory(
+    chain_id: number,
     wallet_address: string,
     tx_hash: string,
     block_number: number,
   ) {
-    const data = {
-      wallet_address,
-      tx_hash,
-      block_number,
-    }
+    // Create a FormData object
+    const formData = new FormData()
+    formData.append('chain_id', chain_id.toString())
+    formData.append('wallet_address', 'wallet_address')
+    formData.append('tx_hash', tx_hash)
+    formData.append('block_number', block_number.toString())
 
-    const urls = [process.env.NEXT_PUBLIC_API_ROUTE + '/withdraw']
+    const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/new_withdrawal`
 
-    for (const url of urls) {
-      try {
-        let result = await axios.post(url, data, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
+    try {
+      let result = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-        if (result.status !== 200) {
-          throw new Error(result.data)
-        } else if (result.data.errors && result.data.errors.length > 0) {
-          console.log(result.data.errors)
-          throw new Error(result.data.errors.join(', '))
-        }
-
-        // console.log(result.data)
-      } catch (error) {
-        if (error.response) {
-          console.error(error.response.data)
-          console.error(error.response.status)
-          console.error(error.response.headers)
-        } else if (error.request) {
-          console.error(error.request)
-        } else {
-          console.error('Error', error.message)
-        }
-        console.error(error.config)
+      if (result.status !== 200) {
+        throw new Error(result.data)
+      } else if (result.data.errors && result.data.errors.length > 0) {
+        console.log(result.data.errors)
+        throw new Error(result.data.errors.join(', '))
       }
+
+      // console.log(result.data)
+    } catch (error) {
+      if (error.response) {
+        console.error(error.response.data)
+        console.error(error.response.status)
+        console.error(error.response.headers)
+      } else if (error.request) {
+        console.error(error.request)
+      } else {
+        console.error('Error', error.message)
+      }
+      console.error(error.config)
     }
   }
 
@@ -259,6 +259,7 @@ const Withdraw: React.FC = () => {
 
                 if (isConnected && address) {
                   await updateWithdrawHistory(
+                    chainId,
                     address,
                     transactionHash,
                     blockNumber,

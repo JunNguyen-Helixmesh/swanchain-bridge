@@ -126,9 +126,7 @@ const Withdraw: React.FC = () => {
     // Create a FormData object
     const formData = new FormData()
     formData.append('chain_id', chain_id.toString())
-    formData.append('wallet_address', wallet_address)
     formData.append('tx_hash', tx_hash)
-    formData.append('block_number', block_number.toString())
 
     const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/new_withdrawal`
 

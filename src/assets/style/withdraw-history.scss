@@ -186,12 +186,12 @@ tbody td {
   color: var(--light-color);
 }
 
-.withdraw-step {
-  padding: 16px;
-  // background-color: black;
+.disabled {
+  background-color: var(--tab-color);
+  cursor: not-allowed;
 }
 
+.withdraw-step,
 .step-done {
   padding: 16px;
-  // background-color: black;
 }

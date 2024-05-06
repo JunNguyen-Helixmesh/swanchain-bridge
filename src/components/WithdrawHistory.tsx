@@ -41,7 +41,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/withdraw-history/${router.query.walletAddress}`,
+          `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch data')
@@ -54,7 +54,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     }
 
     fetchData()
-  }, [])
+  }, [address, isConnected])
 
   const closeModal = () => {
     setModalData(null)
@@ -207,7 +207,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       </Head>
 
       <div className="history_wrap">
-        <h2>Withdrawal History</h2>
+        <h2>Withdrawal History {isConnected}</h2>
         <table>
           <thead>
             <tr>

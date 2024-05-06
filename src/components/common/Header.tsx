@@ -186,7 +186,7 @@ const HeaderNew: FunctionComponent = () => {
                       {address?.slice(0, 6)}...{address?.slice(-4)}
                     </option>
                     <option value="/deposit">Bridge</option>
-                    <option value={`/withdraw-history/${address}`}>
+                    <option value={`/withdraw-history`}>
                       Withdraw History
                     </option>
                     {/* <option value="disconnect">Log out</option> */}

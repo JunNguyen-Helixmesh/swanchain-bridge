@@ -171,10 +171,16 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
     try {
       setLoader(true)
-      const response = await crossChainMessenger.proveMessage(modalData.tx_hash)
+
+      let response = null
+      if (modalData.status == 'initiated') {
+        response = await crossChainMessenger.proveMessage(modalData.tx_hash)
+      } else if (modalData.status == 'proved') {
+        response = await crossChainMessenger.finalizeMessage(modalData.tx_hash)
+      }
       await response.wait()
 
-      console.log('withdraw response:', response)
+      console.log('sdk response:', response)
 
       const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
         response,
@@ -185,14 +191,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
       if (transactionHash !== null) {
         setLoader(false)
-
-        // if (isConnected && address) {
-        // await updateWithdrawHistory(address, transactionHash, blockNumber)
-        // await callGalxeAPI();
-        // }
-        // setTimeout(fetchBalance, 3000)
       }
     } catch (error) {
+      setLoader(false)
       console.error('Error:', error.message)
       return 'Error occurred while fetching transaction value'
     }

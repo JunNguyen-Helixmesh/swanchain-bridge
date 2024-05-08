@@ -145,7 +145,7 @@ const Withdraw: React.FC = () => {
       }
 
       // console.log(result.data)
-    } catch (error) {
+    } catch (error: any) {
       if (error.response) {
         console.error(error.response.data)
         console.error(error.response.status)

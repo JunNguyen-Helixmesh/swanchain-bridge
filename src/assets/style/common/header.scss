@@ -64,6 +64,9 @@
     @media screen and (max-width: 1600px) {
       font-size: 14px;
     }
+    @media screen and (max-width: 600px) {
+      visibility: hidden;
+    }
     img {
       width: 20px;
       height: 20px;

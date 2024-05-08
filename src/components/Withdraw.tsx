@@ -145,7 +145,7 @@ const Withdraw: React.FC = () => {
       }
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error) {
       if (error.response) {
         console.error(error.response.data)
         console.error(error.response.status)
@@ -450,7 +450,7 @@ const Withdraw: React.FC = () => {
 
                 <select value={chainId} onChange={changeChain}>
                   <option value="2024">Swan Saturn</option>
-                  <option value="20241133">Swan Proxima</option>
+                  {/* <option value="20241133">Swan Proxima</option> */}
                 </select>
               </h5>
             </div>

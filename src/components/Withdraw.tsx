@@ -145,7 +145,7 @@ const Withdraw: React.FC = () => {
       }
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error) {
       if (error.response) {
         console.error(error.response.data)
         console.error(error.response.status)
@@ -677,7 +677,7 @@ const Withdraw: React.FC = () => {
               </button>
             ) : checkDisabled ? (
               <button className="btn deposit_btn flex-row" disabled={true}>
-                Deposit
+                Initiate Withdrawal
               </button>
             ) : (
               <button
@@ -690,10 +690,34 @@ const Withdraw: React.FC = () => {
                     <span className="visually-hidden">Loading...</span>
                   </Spinner>
                 ) : (
-                  'Withdraw'
+                  'Initiate Withdrawal'
                 )}
               </button>
             )}
+            <p
+              style={{
+                color: '#ffffff',
+                fontSize: '0.7rem',
+                textAlign: 'left',
+                marginTop: '20px',
+                marginBottom: '0px',
+              }}
+            >
+              After you initiate the withdrawal, please go to the Withdraw
+              History page to complete the withdrawal process.
+            </p>
+            <p
+              style={{
+                color: '#ffffff',
+                fontSize: '0.7rem',
+                textAlign: 'left',
+                marginTop: '0px',
+                marginBottom: '0px',
+              }}
+            >
+              You may need to wait for our blockchain scanner to pickup your
+              request.
+            </p>
           </div>
           {showModal && (
             <div

@@ -125,7 +125,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       } else {
         rowData.amount = 'unknown amount'
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error.message)
       return 'Error occurred while fetching transaction value'
     }
@@ -220,7 +220,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       })
 
       console.log(result.data)
-    } catch (error) {
+    } catch (error: any) {
       setLoader(false)
       console.error('Error:', error.message)
       return 'Error occurred while fetching transaction value'

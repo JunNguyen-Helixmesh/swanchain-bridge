@@ -108,7 +108,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <title>SwanETH Bridge</title>
           <meta
             name="description"
-            content="Welcome to the Swan Saturn testnet bridge. We will NEVER ask for your private keys or seed phrase."
+            content="Welcome to the Swan Bridge. We will NEVER ask for your private keys or seed phrase."
           />
           <link rel="icon" href="/assets/images/swantoken.png" />
         </Head>

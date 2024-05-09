@@ -25,6 +25,7 @@ import { injected } from 'wagmi/connectors'
 import { FaEthereum } from 'react-icons/fa'
 import { BiInfoCircle, BiPowerOff } from 'react-icons/bi'
 import { IoMdWallet } from 'react-icons/io'
+import { HiSwitchHorizontal } from 'react-icons/hi'
 import { MdContentCopy } from 'react-icons/md'
 import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai'
 //import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -90,10 +91,12 @@ const HeaderNew: FunctionComponent = () => {
     const targetChainId = event.target.value
     switchChain({ chainId: Number(targetChainId) })
   }
-  const handleOptionSelect = (event: any) => {
-    const selectedOption = event.target.value
-    router.push(event.target.value)
-    event.target.value = ''
+  const handleOptionSelect = (destination: string) => {
+    // const selectedOption = event.target.value
+    // router.push(event.target.value)
+    // event.target.value = ''
+
+    router.push(destination)
   }
   return (
     <>
@@ -136,7 +139,25 @@ const HeaderNew: FunctionComponent = () => {
             <></>
           ) : (
             <div className="header-flex">
-              {isConnected ? (
+              <div className="page-select-conatainer">
+                <button
+                  className="btn header_btn flex-row "
+                  onClick={() => {
+                    router.pathname == '/withdraw-history'
+                      ? handleOptionSelect('/deposit')
+                      : handleOptionSelect('/withdraw-history')
+                  }}
+                >
+                  {/* <HiSwitchHorizontal /> */}
+                  <span>
+                    {router.pathname == '/withdraw-history'
+                      ? 'Bridge'
+                      : 'Withdraw History'}
+                  </span>
+                </button>
+              </div>
+
+              {/* {isConnected ? (
                 <div className="network-selector-container">
                   <select
                     className="network-selector"
@@ -147,21 +168,10 @@ const HeaderNew: FunctionComponent = () => {
                     <option value="2024">Swan Saturn</option>
                     <option value="20241133">Swan Proxima</option>
                   </select>
-                  {/* <Dropdown className="network-selector">
-                <Dropdown.Toggle id="dropdown-autoclose-true">
-                  Default Dropdown
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Item href="#">Menu Item</Dropdown.Item>
-                  <Dropdown.Item href="#">Menu Item</Dropdown.Item>
-                  <Dropdown.Item href="#">Menu Item</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown> */}
                 </div>
               ) : (
                 <></>
-              )}
+              )} */}
 
               <div className="page-select-conatainer">
                 {!isConnected ? (
@@ -171,26 +181,29 @@ const HeaderNew: FunctionComponent = () => {
                       setIsWalletModalOpen(true)
                     }}
                   >
-                    <IoMdWallet />
+                    {/* <IoMdWallet /> */}
                     Connect Wallet
                   </button>
                 ) : (
                   // <div className="page-select-conatainer">
-                  <select
-                    className="page-select"
-                    defaultValue=""
-                    // href="/withdraw-history"
-                    onChange={handleOptionSelect}
-                  >
-                    <option value="" disabled>
-                      {address?.slice(0, 6)}...{address?.slice(-4)}
-                    </option>
-                    <option value="/deposit">Bridge</option>
-                    <option value={`/withdraw-history`}>
-                      Withdraw History
-                    </option>
-                    {/* <option value="disconnect">Log out</option> */}
-                  </select>
+                  <button className="page-select">
+                    {address?.slice(0, 6)}...{address?.slice(-4)}
+                  </button>
+                  // <select
+                  //   className="page-select"
+                  //   defaultValue=""
+                  //   // href="/withdraw-history"
+                  //   onChange={handleOptionSelect}
+                  // >
+                  //   <option value="" disabled>
+                  //     {address?.slice(0, 6)}...{address?.slice(-4)}
+                  //   </option>
+                  //   <option value="/deposit">Bridge</option>
+                  //   <option value={`/withdraw-history`}>
+                  //     Withdraw History
+                  //   </option>
+                  //   {/* <option value="disconnect">Log out</option> */}
+                  // </select>
                   // </div>
                 )}
                 <div>

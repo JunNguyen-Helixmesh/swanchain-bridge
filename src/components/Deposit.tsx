@@ -38,7 +38,7 @@ const Deposit: React.FC = () => {
   const [balance, setBalance] = useState<string>('')
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
-  const [destinationChainId, setDestinationChainId] = useState('2024')
+  const [destinationChainId, setDestinationChainId] = useState('20241133')
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),

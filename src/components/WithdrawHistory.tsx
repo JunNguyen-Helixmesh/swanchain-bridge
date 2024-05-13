@@ -45,7 +45,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/retrieve_withdrawal_list?wallet_address=${address}&limit=10&offset=${offset}`,
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {

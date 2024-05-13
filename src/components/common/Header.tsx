@@ -140,21 +140,25 @@ const HeaderNew: FunctionComponent = () => {
           ) : (
             <div className="header-flex">
               <div className="page-select-conatainer">
-                <button
-                  className="btn header_btn flex-row "
-                  onClick={() => {
-                    router.pathname == '/withdraw-history'
-                      ? handleOptionSelect('/deposit')
-                      : handleOptionSelect('/withdraw-history')
-                  }}
-                >
-                  {/* <HiSwitchHorizontal /> */}
-                  <span>
-                    {router.pathname == '/withdraw-history'
-                      ? 'Bridge'
-                      : 'Withdraw History'}
-                  </span>
-                </button>
+                {isConnected ? (
+                  <button
+                    className="btn header_btn flex-row "
+                    onClick={() => {
+                      router.pathname == '/withdraw-history'
+                        ? handleOptionSelect('/deposit')
+                        : handleOptionSelect('/withdraw-history')
+                    }}
+                  >
+                    {/* <HiSwitchHorizontal /> */}
+                    <span>
+                      {router.pathname == '/withdraw-history'
+                        ? 'Bridge'
+                        : 'Withdraw History'}
+                    </span>
+                  </button>
+                ) : (
+                  <></>
+                )}
               </div>
 
               {/* {isConnected ? (

@@ -6,7 +6,7 @@ COPY package*.json ./
 
 COPY tsconfig.json ./
 RUN npm install -g only-allow
-RUN npm install --production
+RUN npm install --omit=dev
 
 COPY . .
 

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Form, Image, Spinner, Modal, Button } from "react-bootstrap";
-import { Dai, Usdt, Usdc, Ethereum, Btc } from "react-web3-icons";
-import { MdOutlineSecurity } from "react-icons/md";
-import { FaEthereum } from "react-icons/fa";
-import Web3 from "web3";
-import toIcn from "../assets/images/swantoken.png";
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Form, Image, Spinner, Modal, Button } from 'react-bootstrap'
+import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons'
+import { MdOutlineSecurity } from 'react-icons/md'
+import { FaEthereum } from 'react-icons/fa'
+import Web3 from 'web3'
+import toIcn from '../assets/images/swantoken.png'
 import {
   useAccount,
   useConnect,
@@ -14,73 +14,74 @@ import {
   useBalance,
   Connector,
   useChainId,
-} from "wagmi";
-import { injected } from "wagmi/connectors";
-import { IoMdWallet } from "react-icons/io";
-import { HiSwitchHorizontal } from "react-icons/hi";
-import NextImage from "next/image";
-import TabMenu from "./TabMenu";
-import { formatUnits } from "viem";
-import Head from "next/head";
-const optimismSDK = require("@eth-optimism/sdk");
-const ethers = require("ethers");
+} from 'wagmi'
+import { injected } from 'wagmi/connectors'
+import { IoMdWallet } from 'react-icons/io'
+import { HiSwitchHorizontal } from 'react-icons/hi'
+import NextImage from 'next/image'
+import TabMenu from './TabMenu'
+import { formatUnits } from 'viem'
+import Head from 'next/head'
+const optimismSDK = require('@eth-optimism/sdk')
+const ethers = require('ethers')
 
 const Withdraw: React.FC = () => {
-  const [ethValue, setEthValue] = useState<string>("");
-  const [sendToken, setSendToken] = useState<string>("ETH");
-  const [errorInput, setErrorInput] = useState<string>("");
-  const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false);
-  const [loader, setLoader] = useState<boolean>(false);
-  const { address, isConnected } = useAccount();
-  const { chain } = useAccount();
-  const [SwanBalance, setSwanBalance] = useState<number>(0);
-  const [metaMastError, setMetaMaskError] = useState<string>("");
-  const { connect } = useConnect();
-  const { chains, switchChain } = useSwitchChain();
-  const [showModal, setShowModal] = useState(false);
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  const chainId = useChainId();
-  const [balance, setBalance] = useState<string>("");
+  const [ethValue, setEthValue] = useState<string>('')
+  const [sendToken, setSendToken] = useState<string>('ETH')
+  const [errorInput, setErrorInput] = useState<string>('')
+  const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
+  const [loader, setLoader] = useState<boolean>(false)
+  const { address, isConnected } = useAccount()
+  const { chain } = useAccount()
+  const [SwanBalance, setSwanBalance] = useState<number>(0)
+  const [metaMastError, setMetaMaskError] = useState<string>('')
+  const { connect } = useConnect()
+  const { chains, switchChain } = useSwitchChain()
+  const [showModal, setShowModal] = useState(false)
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const chainId = useChainId()
+  const [balance, setBalance] = useState<string>('')
+  const [fromChain, setFromChain] = useState('2024')
 
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  });
+  })
   const dataUSDT = useBalance({
     address: address,
     token: `0x${process.env.NEXT_PUBLIC_L2_USDT}`,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  });
+  })
   const dataDAI = useBalance({
     address: address,
     token: `0x${process.env.NEXT_PUBLIC_L2_DAI}`,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  });
+  })
   const dataUSDC = useBalance({
     address: address,
     token: `0x${process.env.NEXT_PUBLIC_L2_USDC}`,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  });
+  })
   const datawBTC = useBalance({
     address: address,
     token: `0x${process.env.NEXT_PUBLIC_L2_wBTC}`,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  });
+  })
 
   useEffect(() => {
-    console.log("dataUSDT", data);
-  }, []);
+    console.log('dataUSDT', data)
+  }, [])
 
   ////========================================================== WITHDRAW =======================================================================
   async function callGalxeAPI() {
-    const credId = process.env.NEXT_PUBLIC_GALXE_CRED_ID || "";
-    const operation = "APPEND";
-    const items = [address as string];
+    const credId = process.env.NEXT_PUBLIC_GALXE_CRED_ID || ''
+    const operation = 'APPEND'
+    const items = [address as string]
 
     let result = await axios.post(
-      "https://graphigo.prd.galaxy.eco/query",
+      'https://graphigo.prd.galaxy.eco/query',
       {
-        operationName: "credentialItems",
+        operationName: 'credentialItems',
         query: `
         mutation credentialItems($credId: ID!, $operation: Operation!, $items: [String!]!) 
           { 
@@ -102,359 +103,325 @@ const Withdraw: React.FC = () => {
       },
       {
         headers: {
-          "access-token": process.env.NEXT_PUBLIC_GALXE_ACCESS_TOKEN || "",
+          'access-token': process.env.NEXT_PUBLIC_GALXE_ACCESS_TOKEN || '',
         },
-      }
-    );
+      },
+    )
 
     if (result.status != 200) {
-      throw new Error(result.data);
+      throw new Error(result.data)
     } else if (result.data.errors && result.data.errors.length > 0) {
-      console.log(result.data.errors);
-      throw new Error(result.data.errors);
+      console.log(result.data.errors)
+      throw new Error(result.data.errors)
     }
-    console.log(result.data);
+    console.log(result.data)
   }
 
   async function updateWithdrawHistory(
+    chain_id: number,
     wallet_address: string,
     tx_hash: string,
-    block_number: number
+    block_number: number,
   ) {
-    const data = {
-      wallet_address,
-      tx_hash,
-      block_number,
-    };
+    // Create a FormData object
+    const formData = new FormData()
+    formData.append('chain_id', chain_id.toString())
+    formData.append('tx_hash', tx_hash)
 
-    const urls = [process.env.NEXT_PUBLIC_API_ROUTE + "/withdraw"];
+    const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/new_withdrawal`
 
-    for (const url of urls) {
-      try {
-        let result = await axios.post(url, data, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+    try {
+      let result = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
 
-        if (result.status !== 200) {
-          throw new Error(result.data);
-        } else if (result.data.errors && result.data.errors.length > 0) {
-          console.log(result.data.errors);
-          throw new Error(result.data.errors.join(", "));
-        }
-
-        console.log(result.data);
-      } catch (error: any) {
-        if (error.response) {
-          console.error(error.response.data);
-          console.error(error.response.status);
-          console.error(error.response.headers);
-        } else if (error.request) {
-          console.error(error.request);
-        } else {
-          console.error("Error", error.message);
-        }
-        console.error(error.config);
+      if (result.status !== 200) {
+        throw new Error(result.data)
+      } else if (result.data.errors && result.data.errors.length > 0) {
+        console.log(result.data.errors)
+        throw new Error(result.data.errors.join(', '))
       }
+
+      // console.log(result.data)
+    } catch (error: any) {
+      if (error.response) {
+        console.error(error.response.data)
+        console.error(error.response.status)
+        console.error(error.response.headers)
+      } else if (error.request) {
+        console.error(error.request)
+      } else {
+        console.error('Error', error.message)
+      }
+      console.error(error.config)
     }
   }
 
   const handleWithdraw = async () => {
     try {
       if (!ethValue) {
-        setErrorInput("Please enter the amount");
+        setErrorInput('Please enter the amount')
       } else {
         if (parseFloat(ethValue) <= 0) {
-          setErrorInput("Invalid Amount Entered!");
+          setErrorInput('Invalid Amount Entered!')
         } else {
-          setErrorInput("");
-          const l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL;
-          const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, "any");
-          const l2Provider = new ethers.providers.Web3Provider(window.ethereum);
-          const l1Signer = l1Provider.getSigner(address);
-          const l2Signer = l2Provider.getSigner(address);
-          const zeroAddr = "0x".padEnd(42, "0");
+          setErrorInput('')
+          let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
+          let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+          let AddressManager = process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER
+          let L1CrossDomainMessenger =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER
+          let L1StandardBridge =
+            process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE
+          let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
+          let OptimismPortal = process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY
+          if (fromChain == '20241133') {
+            l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+            AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
+            L1CrossDomainMessenger =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
+            L1StandardBridge =
+              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
+            L2OutputOracle =
+              process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
+            OptimismPortal =
+              process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
+          }
+          // const bridges = {
+          //   Standard: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: '0x4200000000000000000000000000000000000010',
+          //     Adapter: optimismSDK.StandardBridgeAdapter,
+          //   },
+          //   ETH: {
+          //     l1Bridge: l1Contracts.L1StandardBridge,
+          //     l2Bridge: '0x4200000000000000000000000000000000000010',
+          //     Adapter: optimismSDK.ETHBridgeAdapter,
+          //   },
+          // }
+          const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
+          const l2Provider = new ethers.providers.Web3Provider(window.ethereum)
+          const l1Signer = l1Provider.getSigner(address)
+          const l2Signer = l2Provider.getSigner(address)
+          const zeroAddr = '0x'.padEnd(42, '0')
           const l1Contracts = {
             StateCommitmentChain: zeroAddr,
             CanonicalTransactionChain: zeroAddr,
             BondManager: zeroAddr,
-            AddressManager: process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER,
-            L1CrossDomainMessenger:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER,
-            L1StandardBridge:
-              process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE,
-            OptimismPortal: process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY,
-            L2OutputOracle: process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY,
-          };
-          const bridges = {
-            Standard: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: "0x4200000000000000000000000000000000000010",
-              Adapter: optimismSDK.StandardBridgeAdapter,
-            },
-            ETH: {
-              l1Bridge: l1Contracts.L1StandardBridge,
-              l2Bridge: "0x4200000000000000000000000000000000000010",
-              Adapter: optimismSDK.ETHBridgeAdapter,
-            },
-          };
+            AddressManager,
+            L1CrossDomainMessenger,
+            L1StandardBridge,
+            OptimismPortal,
+            L2OutputOracle,
+          }
           const crossChainMessenger = new optimismSDK.CrossChainMessenger({
             contracts: {
               l1: l1Contracts,
             },
-            bridges: bridges,
+            // bridges: bridges,
             l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
             l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
-            bedrock: true,
-          });
+            // bedrock: true,
+          })
           //-------------------------------------------------------- SEND TOKEN VALUE -----------------------------------------------------------------
 
           try {
-            if (sendToken == "ETH") {
+            if (sendToken == 'ETH') {
               const weiValue = parseInt(
                 ethers.utils.parseEther(ethValue)._hex,
-                16
-              );
-              setLoader(true);
+                16,
+              )
+              setLoader(true)
               const response = await crossChainMessenger.withdrawETH(
-                weiValue.toString()
-              );
-              await response.wait();
+                weiValue.toString(),
+              )
+              await response.wait()
 
-              const crossChainMessage =
-                await crossChainMessenger.toCrossChainMessage(response);
-              const transactionHash = crossChainMessage.transactionHash;
-              const blockNumber = crossChainMessage.blockNumber;
+              console.log('withdraw response:', response)
+
+              const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
+                response,
+              )
+
+              console.log('crosschain message:', crossChainMessage)
+              const transactionHash = crossChainMessage.transactionHash
+              const blockNumber = crossChainMessage.blockNumber
 
               if (blockNumber !== null) {
-                setLoader(false);
-                setEthValue("");
+                setLoader(false)
+                setEthValue('')
 
                 if (isConnected && address) {
                   await updateWithdrawHistory(
+                    chainId,
                     address,
                     transactionHash,
-                    blockNumber
-                  );
+                    blockNumber,
+                  )
                   // await callGalxeAPI();
                 }
-                setTimeout(fetchBalance, 3000);
-              }
-            }
-
-            if (sendToken == "DAI") {
-              var daiValue = Web3.utils.toWei(ethValue, "ether");
-              setLoader(true);
-              var depositTxn2 = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_DAI,
-                process.env.NEXT_PUBLIC_L2_DAI,
-                daiValue
-              );
-              var receiptDAI = await depositTxn2.wait();
-              if (receiptDAI) {
-                setLoader(false);
-                setEthValue("");
-                // await callGalxeAPI();
-              }
-            }
-
-            if (sendToken == "USDT") {
-              var usdtValue = parseInt(ethValue) * 1000000;
-              setLoader(true);
-              var receiptUSDT = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_USDT,
-                process.env.NEXT_PUBLIC_L2_USDT,
-                usdtValue
-              );
-              var getReceiptUSDT = await receiptUSDT.wait();
-              if (getReceiptUSDT) {
-                setLoader(false);
-                setEthValue("");
-                // await callGalxeAPI();
-              }
-            }
-            if (sendToken == "wBTC") {
-              var wBTCValue = parseInt(ethValue) * 100000000;
-              setLoader(true);
-              var receiptwBTC = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_wBTC,
-                process.env.NEXT_PUBLIC_L2_wBTC,
-                wBTCValue
-              );
-              var getReceiptwBTC = await receiptwBTC.wait();
-              if (getReceiptwBTC) {
-                setLoader(false);
-                setEthValue("");
-                // await callGalxeAPI();
-              }
-            }
-            if (sendToken == "USDC") {
-              var usdcValue = parseInt(ethValue) * 1000000;
-              setLoader(true);
-              var receiptUSDC = await crossChainMessenger.withdrawERC20(
-                process.env.NEXT_PUBLIC_L1_USDC,
-                process.env.NEXT_PUBLIC_L2_USDC,
-                usdcValue
-              );
-              var getReceiptUSDC = await receiptUSDC.wait();
-              if (getReceiptUSDC) {
-                setLoader(false);
-                setEthValue("");
-                // await callGalxeAPI();
+                setTimeout(fetchBalance, 3000)
               }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
-            updateWallet();
-          } catch (error: any) {
-            setLoader(false);
-            console.log({ error }, 98);
+            updateWallet()
+          } catch (error) {
+            setLoader(false)
+            console.log({ error }, 98)
           } finally {
-            setLoader(false);
-            updateWallet();
-            fetchBalance();
+            setLoader(false)
+            updateWallet()
+            fetchBalance()
           }
         }
       }
-    } catch (error: any) {
-      console.log(error);
+    } catch (error) {
+      console.log(error)
     }
-  };
+  }
 
   ////========================================================== HANDLE CHANGE =======================================================================
-  const [checkDisabled, setCheckDisabled] = useState(false);
+  const [checkDisabled, setCheckDisabled] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (sendToken == "ETH") {
+    if (sendToken == 'ETH') {
       if (
         data?.value &&
         Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
       ) {
-        setCheckDisabled(true);
-        setErrorInput("Insufficient ETH balance.");
+        setCheckDisabled(true)
+        setErrorInput('Insufficient ETH balance.')
       } else {
-        setCheckDisabled(false);
-        setErrorInput("");
+        setCheckDisabled(false)
+        setErrorInput('')
       }
-      setEthValue(e.target.value);
+      setEthValue(e.target.value)
     }
-    if (sendToken == "DAI") {
+    if (sendToken == 'DAI') {
       if (
         dataDAI.data?.value &&
         Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) <
           Number(e.target.value)
       ) {
-        setCheckDisabled(true);
-        setErrorInput("Insufficient DAI balance.");
+        setCheckDisabled(true)
+        setErrorInput('Insufficient DAI balance.')
       } else {
-        setCheckDisabled(false);
-        setErrorInput("");
+        setCheckDisabled(false)
+        setErrorInput('')
       }
-      setEthValue(e.target.value);
+      setEthValue(e.target.value)
     }
-    if (sendToken == "USDT") {
+    if (sendToken == 'USDT') {
       if (
         dataUSDT.data?.value &&
         Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) <
           Number(e.target.value)
       ) {
-        setCheckDisabled(true);
-        setErrorInput("Insufficient USDT balance.");
+        setCheckDisabled(true)
+        setErrorInput('Insufficient USDT balance.')
       } else {
-        setCheckDisabled(false);
-        setErrorInput("");
+        setCheckDisabled(false)
+        setErrorInput('')
       }
-      setEthValue(e.target.value);
+      setEthValue(e.target.value)
     }
 
-    if (sendToken == "wBTC") {
+    if (sendToken == 'wBTC') {
       if (
         datawBTC.data?.value &&
         Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) <
           Number(e.target.value)
       ) {
-        setCheckDisabled(true);
-        setErrorInput("Insufficient wBTC balance.");
+        setCheckDisabled(true)
+        setErrorInput('Insufficient wBTC balance.')
       } else {
-        setCheckDisabled(false);
-        setErrorInput("");
+        setCheckDisabled(false)
+        setErrorInput('')
       }
-      setEthValue(e.target.value);
+      setEthValue(e.target.value)
     }
 
-    if (sendToken == "USDC") {
+    if (sendToken == 'USDC') {
       if (
         dataUSDC.data?.value &&
         Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) <
           Number(e.target.value)
       ) {
-        setCheckDisabled(true);
-        setErrorInput("Insufficient USDC balance.");
+        setCheckDisabled(true)
+        setErrorInput('Insufficient USDC balance.')
       } else {
-        setCheckDisabled(false);
-        setErrorInput("");
+        setCheckDisabled(false)
+        setErrorInput('')
       }
-      setEthValue(e.target.value);
+      setEthValue(e.target.value)
     }
-  };
+  }
+
+  const changeChain = (event: any) => {
+    const targetChainId = event.target.value
+    switchChain({ chainId: Number(targetChainId) })
+    setFromChain(targetChainId)
+  }
 
   // ============= For Format balance =========================
   const formatBalance = (rawBalance: string) => {
-    const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6);
-    return balance;
-  };
+    const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6)
+    return balance
+  }
   // ============= Get and update balance =========================
   const updateWallet = async () => {
-    if (typeof window.ethereum !== "undefined") {
+    if (typeof window.ethereum !== 'undefined') {
       const balance = formatBalance(
         await window.ethereum.request({
-          method: "eth_getBalance",
-          params: [address, "latest"],
-        })
-      );
-      setSwanBalance(Number(balance));
+          method: 'eth_getBalance',
+          params: [address, 'latest'],
+        }),
+      )
+      setSwanBalance(Number(balance))
     } else {
-      console.error("Ethereum provider is not available");
+      console.error('Ethereum provider is not available')
     }
-  };
+  }
   const fetchBalance = async () => {
     if (address) {
-      const web3 = new Web3(window.ethereum);
-      const balance = await web3.eth.getBalance(address);
-      const balanceInEther = web3.utils.fromWei(balance, "ether");
-      const formattedBalance = parseFloat(balanceInEther).toFixed(6);
-      setBalance(formattedBalance);
+      const web3 = new Web3(window.ethereum)
+      const balance = await web3.eth.getBalance(address)
+      const balanceInEther = web3.utils.fromWei(balance, 'ether')
+      const formattedBalance = parseFloat(balanceInEther).toFixed(6)
+      setBalance(formattedBalance)
     }
-  };
+  }
   useEffect(() => {
-    const ethereum = window.ethereum;
+    const ethereum = window.ethereum
 
     if (ethereum && ethereum.on && ethereum.removeListener) {
       const handleChainChanged = async () => {
-        await fetchBalance();
-      };
+        await fetchBalance()
+      }
 
-      ethereum.on("chainChanged", handleChainChanged);
+      ethereum.on('chainChanged', handleChainChanged)
 
       return () => {
-        ethereum.removeListener("chainChanged", handleChainChanged);
-      };
+        ethereum.removeListener('chainChanged', handleChainChanged)
+      }
     }
-  }, [fetchBalance]);
+  }, [fetchBalance])
 
   useEffect(() => {
-    updateWallet();
-  }, [data]);
+    updateWallet()
+  }, [data])
 
   useEffect(() => {
-    console.log("Network changed:", chainId);
-  }, [chainId]);
+    console.log('Network changed:', chainId)
+  }, [chainId])
 
   useEffect(() => {
-    fetchBalance();
-  }, [address]);
+    fetchBalance()
+  }, [address])
 
   return (
     <>
@@ -465,7 +432,7 @@ const Withdraw: React.FC = () => {
       <div className="bridge_wrap">
         <TabMenu />
         <section className="deposit_wrap">
-          <div className="withdraw_title_wrap">
+          {/* <div className="withdraw_title_wrap">
             <div className="withdraw_title_icn">
               <MdOutlineSecurity />
             </div>
@@ -474,12 +441,17 @@ const Withdraw: React.FC = () => {
               <p>This usually takes 7 days</p>
               <p>Bridge any token to Sepolia Testnet</p>
             </div>
-          </div>
+          </div> */}
           <div className="deposit_price_wrap">
             <div className="deposit_price_title">
               <p>From</p>
               <h5 className="flex-row">
-                <Image src={toIcn.src} alt="To icn" fluid /> Swan
+                {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
+
+                <select value={chainId} onChange={changeChain}>
+                  <option value="2024">Swan Saturn</option>
+                  {/* <option value="20241133">Swan Proxima</option> */}
+                </select>
               </h5>
             </div>
             <div className="deposit_input_wrap">
@@ -501,87 +473,93 @@ const Withdraw: React.FC = () => {
                       setSendToken(event.target.value)
                     }
                   >
-                    <option>ETH</option>
-                    <option value="DAI">DAI</option>
+                    <option>swanETH</option>
+                    {/* <option value="DAI">DAI</option>
                     <option value="USDT">USDT</option>
                     <option value="wBTC">wBTC</option>
-                    <option value="USDC">USDC</option>
+                    <option value="USDC">USDC</option> */}
                   </Form.Select>
                 </div>
                 <div className="input_icn_wrap">
-                  {sendToken == "ETH" ? (
+                  {sendToken == 'ETH' ? (
                     <span className="input_icn flex-row">
-                      <Ethereum style={{ fontSize: "1.5rem" }} />
+                      <Ethereum style={{ fontSize: '1.5rem' }} />
                     </span>
-                  ) : sendToken == "DAI" ? (
+                  ) : sendToken == 'DAI' ? (
                     <span className="input_icn flex-row">
-                      <Dai style={{ fontSize: "1.5rem" }} />
+                      <Dai style={{ fontSize: '1.5rem' }} />
                     </span>
-                  ) : sendToken == "USDT" ? (
+                  ) : sendToken == 'USDT' ? (
                     <span className="input_icn flex-row">
-                      <Usdt style={{ fontSize: "1.5rem" }} />
+                      <Usdt style={{ fontSize: '1.5rem' }} />
                     </span>
-                  ) : sendToken == "wBTC" ? (
+                  ) : sendToken == 'wBTC' ? (
                     <span className="input_icn flex-row">
-                      <Btc style={{ fontSize: "1.5rem" }} />
+                      <Btc style={{ fontSize: '1.5rem' }} />
                     </span>
                   ) : (
                     <span className="input_icn flex-row">
-                      <Usdc style={{ fontSize: "1.5rem" }} />
+                      <Usdc style={{ fontSize: '1.5rem' }} />
                     </span>
                   )}
                 </div>
               </Form>
             </div>
             {errorInput && <small className="text-danger">{errorInput}</small>}
-            {sendToken === "ETH" ? (
+            {sendToken === 'ETH' ? (
               address && (
                 <p className="wallet_bal mt-2">Balance: {balance} ETH</p>
               )
-            ) : sendToken === "DAI" ? (
+            ) : sendToken === 'DAI' ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance:{" "}
+                  Balance:{' '}
                   {dataDAI?.data?.value !== undefined &&
                     dataDAI?.data?.value !== BigInt(0) &&
                     Number(
-                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals)
-                    ).toFixed(5)}{" "}
+                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals),
+                    ).toFixed(5)}{' '}
                   DAI
                 </p>
               )
-            ) : sendToken == "USDT" ? (
+            ) : sendToken == 'USDT' ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance:{" "}
+                  Balance:{' '}
                   {dataUSDT?.data?.value !== undefined &&
                     dataUSDT?.data?.value !== BigInt(0) &&
                     Number(
-                      formatUnits(dataUSDT.data!.value, dataUSDT.data!.decimals)
-                    ).toFixed(5)}{" "}
+                      formatUnits(
+                        dataUSDT.data!.value,
+                        dataUSDT.data!.decimals,
+                      ),
+                    ).toFixed(5)}{' '}
                   USDT
                 </p>
               )
-            ) : sendToken === "wBTC" ? (
+            ) : sendToken === 'wBTC' ? (
               address && (
                 <p className="wallet_bal mt-2">
-                  Balance:{" "}
+                  Balance:{' '}
                   {datawBTC?.data?.value !== undefined &&
                     datawBTC?.data?.value !== BigInt(0) &&
                     Number(
-                      formatUnits(datawBTC.data!.value, datawBTC.data!.decimals)
-                    ).toFixed(5)}{" "}
+                      formatUnits(
+                        datawBTC.data!.value,
+                        datawBTC.data!.decimals,
+                      ),
+                    ).toFixed(5)}{' '}
                   wBTC
                 </p>
               )
             ) : (
               <p className="wallet_bal mt-2">
-                Balance:{" "}
+                Balance:{' '}
                 {dataUSDC?.data?.value !== undefined &&
                   dataUSDC?.data?.value !== BigInt(0) &&
                   Number(
-                    formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals)
-                  ).toFixed(5)}{" "}
+                    formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals),
+                  ).toFixed(5)}{' '}
                 USDC
               </p>
             )}
@@ -611,29 +589,29 @@ const Withdraw: React.FC = () => {
               </h5>
             </div>
             <div className="withdraw_bal_sum">
-              {sendToken == "ETH" ? (
+              {sendToken == 'ETH' ? (
                 <span className="input_icn flex-row">
-                  <Ethereum style={{ fontSize: "1.5rem" }} />
+                  <Ethereum style={{ fontSize: '1.5rem' }} />
                 </span>
-              ) : sendToken == "DAI" ? (
+              ) : sendToken == 'DAI' ? (
                 <span className="input_icn flex-row">
-                  <Dai style={{ fontSize: "1.5rem" }} />
+                  <Dai style={{ fontSize: '1.5rem' }} />
                 </span>
-              ) : sendToken == "USDT" ? (
+              ) : sendToken == 'USDT' ? (
                 <span className="input_icn flex-row">
-                  <Usdt style={{ fontSize: "1.5rem" }} />
+                  <Usdt style={{ fontSize: '1.5rem' }} />
                 </span>
-              ) : sendToken == "wBTC" ? (
+              ) : sendToken == 'wBTC' ? (
                 <span className="input_icn flex-row">
-                  <Btc style={{ fontSize: "1.5rem" }} />
+                  <Btc style={{ fontSize: '1.5rem' }} />
                 </span>
               ) : (
                 <span className="input_icn flex-row">
-                  <Usdc style={{ fontSize: "1.5rem" }} />
+                  <Usdc style={{ fontSize: '1.5rem' }} />
                 </span>
               )}
               <p>
-                You’ll receive: {ethValue ? ethValue : "0"} {sendToken}
+                You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
               </p>
               <div></div>
               {/* <span className='input_title'>ETH</span> */}
@@ -642,21 +620,21 @@ const Withdraw: React.FC = () => {
           <div
             className="deposit_btn_wrap"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
             }}
           >
             <p
               style={{
-                color: "#ffffff",
-                fontSize: "0.8rem",
-                textAlign: "center",
-                marginTop: "0px",
-                marginBottom: "20px",
+                color: '#ffffff',
+                fontSize: '0.8rem',
+                textAlign: 'center',
+                marginTop: '0px',
+                marginBottom: '20px',
               }}
             >
-              Please ensure you are connected to MetaMask & Swan Testnet.
+              Please ensure you are connected to MetaMask & Swan Saturn Testnet.
             </p>
             {checkMetaMask === true ? (
               <a
@@ -677,28 +655,29 @@ const Withdraw: React.FC = () => {
               <button
                 className="btn deposit_btn flex-row"
                 onClick={() => {
-                  setIsWalletModalOpen(true);
+                  setIsWalletModalOpen(true)
                 }}
               >
                 <IoMdWallet />
                 Connect Wallet
               </button>
-            ) : Number(chain?.id) !==
-              Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID) ? (
+            ) : Number(chain?.id) !== Number(fromChain) ? (
               <button
                 className="btn deposit_btn flex-row"
                 onClick={() =>
                   switchChain({
-                    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+                    chainId: Number(fromChain),
                   })
                 }
               >
                 <HiSwitchHorizontal />
-                Switch to SWAN
+                {fromChain == '2024'
+                  ? 'Switch to Swan Saturn'
+                  : 'Switch to Swan Proxima'}
               </button>
             ) : checkDisabled ? (
               <button className="btn deposit_btn flex-row" disabled={true}>
-                Deposit
+                Initiate Withdrawal
               </button>
             ) : (
               <button
@@ -711,20 +690,44 @@ const Withdraw: React.FC = () => {
                     <span className="visually-hidden">Loading...</span>
                   </Spinner>
                 ) : (
-                  "Withdraw"
+                  'Initiate Withdrawal'
                 )}
               </button>
             )}
+            <p
+              style={{
+                color: '#ffffff',
+                fontSize: '0.7rem',
+                textAlign: 'left',
+                marginTop: '20px',
+                marginBottom: '0px',
+              }}
+            >
+              After you initiate the withdrawal, please go to the Withdraw
+              History page to complete the withdrawal process.
+            </p>
+            <p
+              style={{
+                color: '#ffffff',
+                fontSize: '0.7rem',
+                textAlign: 'left',
+                marginTop: '0px',
+                marginBottom: '0px',
+              }}
+            >
+              You may need to wait for our blockchain scanner to pickup your
+              request.
+            </p>
           </div>
           {showModal && (
             <div
               style={{
-                position: "fixed",
+                position: 'fixed',
                 top: 0,
                 left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                 zIndex: 999,
               }}
               onClick={() => setShowModal(false)}
@@ -735,25 +738,25 @@ const Withdraw: React.FC = () => {
             onHide={() => setShowModal(false)}
             centered
             style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
               zIndex: 1000,
             }}
           >
             <div
               style={{
-                backgroundColor: "white",
-                borderRadius: "10px",
-                maxWidth: "500px",
-                width: "100%",
+                backgroundColor: 'white',
+                borderRadius: '10px',
+                maxWidth: '500px',
+                width: '100%',
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ padding: "20px", color: "black" }}>
+              <div style={{ padding: '20px', color: 'black' }}>
                 <h2>Install MetaMask</h2>
-                <p style={{ marginBottom: "20px" }}>
+                <p style={{ marginBottom: '20px' }}>
                   You need to install MetaMask to use this application. Click
                   the button below to install it.
                 </p>
@@ -761,12 +764,12 @@ const Withdraw: React.FC = () => {
                   href="https://metamask.io/"
                   target="_blank"
                   style={{
-                    color: "white",
-                    backgroundColor: "#447dff",
-                    padding: "10px 20px",
-                    borderRadius: "5px",
-                    textDecoration: "none",
-                    marginTop: "20px",
+                    color: 'white',
+                    backgroundColor: '#447dff',
+                    padding: '10px 20px',
+                    borderRadius: '5px',
+                    textDecoration: 'none',
+                    marginTop: '20px',
                   }}
                 >
                   Install MetaMask
@@ -777,12 +780,12 @@ const Withdraw: React.FC = () => {
           {isWalletModalOpen && (
             <div
               style={{
-                position: "fixed",
+                position: 'fixed',
                 top: 0,
                 left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                 zIndex: 1000,
               }}
               onClick={() => setIsWalletModalOpen(false)}
@@ -795,21 +798,21 @@ const Withdraw: React.FC = () => {
             centered
             style={{
               zIndex: 2000,
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              backgroundColor: "#333",
-              color: "white",
-              borderRadius: "15px",
-              width: "80%",
-              maxWidth: "600px",
-              height: "60%",
-              overflow: "auto",
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: '#333',
+              color: 'white',
+              borderRadius: '15px',
+              width: '80%',
+              maxWidth: '600px',
+              height: '60%',
+              overflow: 'auto',
             }}
           >
             <Modal.Header>
-              <Modal.Title style={{ textAlign: "center" }}>
+              <Modal.Title style={{ textAlign: 'center' }}>
                 Select a Supported Wallet
               </Modal.Title>
             </Modal.Header>
@@ -817,44 +820,44 @@ const Withdraw: React.FC = () => {
               <div
                 className="wallet-option"
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  justifyContent: "center",
-                  paddingLeft: "20px",
-                  cursor: "pointer",
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  justifyContent: 'center',
+                  paddingLeft: '20px',
+                  cursor: 'pointer',
                 }}
                 onClick={() => {
                   if (window.ethereum?.isMetaMask) {
-                    connect({ connector: injected({ target: "metaMask" }) });
-                    setIsWalletModalOpen(false);
+                    connect({ connector: injected({ target: 'metaMask' }) })
+                    setIsWalletModalOpen(false)
                   } else {
-                    setIsWalletModalOpen(false);
-                    setShowModal(true);
+                    setIsWalletModalOpen(false)
+                    setShowModal(true)
                   }
                 }}
               >
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.opacity = "0.5";
+                    e.currentTarget.style.opacity = '0.5'
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.opacity = "1";
+                    e.currentTarget.style.opacity = '1'
                   }}
                 >
                   <img
                     src="/assets/images/MetaMask_Fox.png"
                     alt="MetaMask"
                     style={{
-                      width: "50px",
-                      height: "50px",
-                      transition: "opacity 0.3s ease",
+                      width: '50px',
+                      height: '50px',
+                      transition: 'opacity 0.3s ease',
                     }}
                   />
                   <p>MetaMask</p>
@@ -866,6 +869,6 @@ const Withdraw: React.FC = () => {
         </section>
       </div>
     </>
-  );
-};
-export default Withdraw;
+  )
+}
+export default Withdraw

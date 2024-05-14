@@ -287,7 +287,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       <div className="history_wrap">
         <div>
           <h2>Withdrawal History {isConnected}</h2>
-          {loader ? (
+          {loader && !modalData ? (
             <div className="loading">
               <div className="loading-text">Loading...</div>
             </div>
@@ -348,6 +348,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           className="pagination"
           pageClassName="page-number"
           activeClassName="active page-number"
+          previousClassName="page-number"
+          nextClassName="page-number"
           disabledClassName="disabled"
           breakLabel="..."
           nextLabel=">"

@@ -52,12 +52,38 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           throw new Error('Failed to fetch data')
         }
         let data = await response.json()
+        // console.log(data)
         let withdrawal_data = data.data
-        let withdrawal_list = withdrawal_data.withdrawal_list
+        let withdrawal_list = withdrawal_data.withdraw_transaction_list
+
+        let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+        const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
+
+        withdrawal_list = await Promise.all(
+          withdrawal_list.map(async (w: any) => {
+            let tx_hash = `0x${w.withdraw_tx_hash}`
+            let receipt = await l2Provider.getTransaction(tx_hash)
+            let block = await l2Provider.getBlock(receipt.blockNumber)
+            return {
+              ...w,
+              tx_hash,
+              amount: ethers.utils.formatEther(receipt.value),
+              timestamp: block.timestamp,
+              block_number: receipt.blockNumber,
+              // receipt: await l2Provider.getTransaction(tx_hash),
+            }
+          }),
+        )
+
+        // let receipt = await l2Provider.getTransaction(
+        //   withdrawal_list[0].tx_hash,
+        // )
+
+        // console.log(await l2Provider.getBlock(receipt.blockNumber))
 
         setTotalPages(Math.ceil(withdrawal_data.total_withdrawal / 10))
 
-        console.log(withdrawal_list)
+        // console.log(withdrawal_list)
         setWithdrawals(withdrawal_list)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -79,15 +105,15 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
   const getModalData = async (rowData: any) => {
     let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
-    let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
+    // let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
     let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
     if (rowData.chain_id == '20241133') {
-      l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+      // l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
       L2OutputOracle = process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
     }
 
     const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
-    const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
+    // const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
 
     // const web3 = new Web3(l1Url)
 
@@ -117,16 +143,16 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       }
 
       // Get withdraw transaction details
-      const transaction = await l2Provider.getTransaction(rowData.tx_hash)
+      // const transaction = await l2Provider.getTransaction(rowData.tx_hash)
 
-      // If transaction is found and has a value, return the value
-      if (transaction && transaction.value) {
-        rowData.amount = ethers.utils.formatEther(transaction.value) // Convert value from Wei to Ether
-      } else {
-        rowData.amount = 'unknown amount'
-      }
-    } catch (error: any) {
-      console.error('Error:', error.message)
+      // // If transaction is found and has a value, return the value
+      // if (transaction && transaction.value) {
+      //   rowData.amount = ethers.utils.formatEther(transaction.value) // Convert value from Wei to Ether
+      // } else {
+      //   rowData.amount = 'unknown amount'
+      // }
+    } catch (error) {
+      console.error('Error:', error)
       return 'Error occurred while fetching transaction value'
     }
 
@@ -220,9 +246,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       })
 
       console.log(result.data)
-    } catch (error: any) {
+    } catch (error) {
       setLoader(false)
-      console.error('Error:', error.message)
+      console.error('Error:', error)
       return 'Error occurred while fetching transaction value'
     }
   }
@@ -240,6 +266,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           <thead>
             <tr>
               <th>Time</th>
+              <th>Amount</th>
               <th>Network</th>
               <th>Transaction Hash</th>
               <th>Status</th>
@@ -253,7 +280,10 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   if (e.target.className != 'tx_hash') getModalData(withdrawal)
                 }}
               >
-                <td>{new Date(withdrawal.create_at).toLocaleString()}</td>
+                <td>
+                  {new Date(withdrawal.timestamp * 1000).toLocaleString()}
+                </td>
+                <td>{withdrawal.amount}</td>
                 <td>
                   {withdrawal.chain_id == '2024'
                     ? 'Saturn'

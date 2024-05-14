@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-
+import { useSearchParams } from 'next/navigation'
 import Head from 'next/head'
+
 import { Spinner } from 'react-bootstrap'
 import { GrSend } from 'react-icons/gr'
 import { IoMdTime } from 'react-icons/io'
@@ -9,6 +10,7 @@ import { LuShield } from 'react-icons/lu'
 import { HiDownload, HiDotsVertical } from 'react-icons/hi'
 import { useAccount } from 'wagmi'
 import axios from 'axios'
+import ReactPaginate from 'react-paginate'
 
 const { ethers } = require('ethers')
 const optimismSDK = require('@eth-optimism/sdk')
@@ -36,14 +38,25 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const [loader, setLoader] = useState<boolean>(false)
   const [modalData, setModalData] = useState<any>(null)
   const [offset, setOffset] = useState<Number>(0)
-  const [page, setPage] = useState<Number>(1)
-  const [totalPages, setTotalPages] = useState<Number>(1)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalRows, setTotalRows] = useState<number>(0)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     // Fetch data from API
     const fetchData = async () => {
       try {
+        // const page = searchParams.get('page') ?? '1'
+        const offset = 10 * (currentPage - 1)
+        // router.push(
+        //   {
+        //     pathname: '/withdraw-history',
+        //     query: { page: currentPage },
+        //   },
+        //   undefined,
+        //   { shallow: true },
+        // )
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
@@ -61,7 +74,10 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
         withdrawal_list = await Promise.all(
           withdrawal_list.map(async (w: any) => {
-            let tx_hash = `0x${w.withdraw_tx_hash}`
+            let tx_hash =
+              w.withdraw_tx_hash.slice(0, 2) == '0x'
+                ? w.withdraw_tx_hash
+                : `0x${w.withdraw_tx_hash}`
             let receipt = await l2Provider.getTransaction(tx_hash)
             let block = await l2Provider.getBlock(receipt.blockNumber)
             return {
@@ -81,17 +97,18 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
         // console.log(await l2Provider.getBlock(receipt.blockNumber))
 
-        setTotalPages(Math.ceil(withdrawal_data.total_withdrawal / 10))
+        setTotalRows(withdrawal_data.total)
 
         // console.log(withdrawal_list)
         setWithdrawals(withdrawal_list)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
+      setLoader(false)
     }
 
     if (address && isConnected) fetchData()
-  }, [address, isConnected])
+  }, [address, isConnected, currentPage])
 
   const closeModal = () => {
     setModalData(null)
@@ -101,6 +118,13 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     if (e.target.className == 'modal-container') {
       closeModal()
     }
+  }
+
+  const handlePageClick = (event: any) => {
+    // const newOffset = (event.selected * itemsPerPage) % items.length
+    setLoader(true)
+    console.log(`User requested page number ${event.selected + 1}`)
+    setCurrentPage(event.selected + 1)
   }
 
   const getModalData = async (rowData: any) => {
@@ -261,56 +285,78 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       </Head>
 
       <div className="history_wrap">
-        <h2>Withdrawal History {isConnected}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Amount</th>
-              <th>Network</th>
-              <th>Transaction Hash</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {withdrawals.map((withdrawal: any, index) => (
-              <tr
-                key={index}
-                onClick={async (e: any) => {
-                  if (e.target.className != 'tx_hash') getModalData(withdrawal)
-                }}
-              >
-                <td>
-                  {new Date(withdrawal.timestamp * 1000).toLocaleString()}
-                </td>
-                <td>{withdrawal.amount}</td>
-                <td>
-                  {withdrawal.chain_id == '2024'
-                    ? 'Saturn'
-                    : withdrawal.chain_id == '20241133'
-                    ? 'Proxima'
-                    : withdrawal.chain_id}
-                </td>
-                <td>
-                  <a
-                    className="tx_hash"
-                    target="_blank"
-                    href={
-                      withdrawal.chain_id == '2024'
-                        ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                        : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                    }
-                    rel="noopener noreferrer"
+        <div>
+          <h2>Withdrawal History {isConnected}</h2>
+          {loader ? (
+            <div className="loading">
+              <div className="loading-text">Loading...</div>
+            </div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Amount</th>
+                  <th>Network</th>
+                  <th>Transaction Hash</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {withdrawals.map((withdrawal: any, index) => (
+                  <tr
+                    key={index}
+                    onClick={async (e: any) => {
+                      if (e.target.className != 'tx_hash')
+                        getModalData(withdrawal)
+                    }}
                   >
-                    {withdrawal.tx_hash.slice(0, 6)}...
-                    {withdrawal.tx_hash.slice(-4)}{' '}
-                  </a>
-                </td>
-                <td>{withdrawal.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td>
+                      {new Date(withdrawal.timestamp * 1000).toLocaleString()}
+                    </td>
+                    <td>{withdrawal.amount}</td>
+                    <td>
+                      {withdrawal.chain_id == '2024'
+                        ? 'Saturn'
+                        : withdrawal.chain_id == '20241133'
+                        ? 'Proxima'
+                        : withdrawal.chain_id}
+                    </td>
+                    <td>
+                      <a
+                        className="tx_hash"
+                        target="_blank"
+                        href={
+                          withdrawal.chain_id == '2024'
+                            ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                            : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                        }
+                        rel="noopener noreferrer"
+                      >
+                        {withdrawal.tx_hash.slice(0, 6)}...
+                        {withdrawal.tx_hash.slice(-4)}{' '}
+                      </a>
+                    </td>
+                    <td>{withdrawal.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+        <ReactPaginate
+          className="pagination"
+          pageClassName="page-number"
+          activeClassName="active page-number"
+          disabledClassName="disabled"
+          breakLabel="..."
+          nextLabel=">"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={5}
+          pageCount={Math.ceil(totalRows / 10)}
+          previousLabel="<"
+          renderOnZeroPageCount={null}
+        />
       </div>
       {modalData && (
         <div className="modal-container" onClick={checkModalClick}>

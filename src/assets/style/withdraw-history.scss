@@ -39,6 +39,7 @@ tbody td {
 .history_wrap {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   // align-items: center;
   // justify-content: center;
   min-height: calc(100vh - 210px);
@@ -50,6 +51,7 @@ tbody td {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
+  gap: 10px;
   @media screen and (max-width: 1600px) {
     max-width: 1000px;
   }
@@ -199,4 +201,33 @@ tbody td {
 
 .tx_hash {
   color: var(--text-color);
+}
+
+.pagination {
+  display: flex;
+  color: var(--light-color);
+  justify-content: center;
+  list-style-type: none;
+  gap: 8px;
+}
+
+.page-number {
+  cursor: pointer;
+  padding: 0px 4px;
+}
+
+.loading {
+  color: var(--light-color);
+  display: flex;
+  justify-content: center;
+}
+
+.active {
+  color: var(--theme-color);
+  cursor: default;
+}
+
+.disabled {
+  color: gray;
+  background-color: transparent;
 }

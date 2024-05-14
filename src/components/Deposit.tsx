@@ -37,6 +37,7 @@ const Deposit: React.FC = () => {
   const [showModal, setShowModal] = useState(false)
   const [balance, setBalance] = useState<string>('')
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState('20241133')
   const { data } = useBalance({
@@ -146,6 +147,7 @@ const Deposit: React.FC = () => {
             const receiptETH = await depositETHEREUM.wait()
             if (receiptETH) {
               console.log(receiptETH)
+              setIsDepositSuccessful(true)
               setLoader(false)
               setEthValue('')
               // await callGalxeAPI();
@@ -176,8 +178,13 @@ const Deposit: React.FC = () => {
 
       // Make the POST request using Axios
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials?`,
+        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials`,
         postData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       )
 
       // Handle the response
@@ -538,6 +545,17 @@ const Deposit: React.FC = () => {
               onClick={() => setShowModal(false)}
             />
           )}
+          {/* <p
+            style={{
+              color: '#ffffff',
+              fontSize: '0.8rem',
+              textAlign: 'center',
+              marginTop: '0px',
+              marginBottom: '20px',
+            }}
+          >
+            {isDepositSuccessful ? 'Deposit success!' : ''}
+          </p> */}
           <Modal
             show={showModal}
             onHide={() => setShowModal(false)}

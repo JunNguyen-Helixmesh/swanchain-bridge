@@ -101,11 +101,7 @@ const HeaderNew: FunctionComponent = () => {
   return (
     <>
       <header className="app_header flex-row">
-        <a
-          href="https://swanchain.io"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="/">
           <svg
             className="logo-svg"
             viewBox="0 0 107 38"

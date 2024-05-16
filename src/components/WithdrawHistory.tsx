@@ -59,7 +59,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         //   { shallow: true },
         // )
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
@@ -74,11 +74,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
         const saturnProvider = new ethers.providers.JsonRpcProvider(
           saturnUrl,
-          'any'
+          'any',
         )
         const proximaProvider = new ethers.providers.JsonRpcProvider(
           proximaUrl,
-          'any'
+          'any',
         )
 
         withdrawal_list = await Promise.all(
@@ -106,7 +106,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
               block_number: receipt.blockNumber,
               // receipt: await l2Provider.getTransaction(tx_hash),
             }
-          })
+          }),
         )
 
         // let receipt = await l2Provider.getTransaction(
@@ -162,16 +162,16 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const outputOracleContract = new ethers.Contract(
       L2OutputOracle,
       OUTPUT_ORACLE_ABI,
-      l1Provider
+      l1Provider,
     )
 
     try {
       rowData.latestOutputtedBlockNumber = Number(
-        await outputOracleContract.latestBlockNumber()
+        await outputOracleContract.latestBlockNumber(),
       )
       console.log(
         'Result of the view function:',
-        rowData.latestOutputtedBlockNumber
+        rowData.latestOutputtedBlockNumber,
       )
       console.log(rowData)
 
@@ -252,42 +252,43 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       setLoader(true)
 
       // Create a FormData object
-      const formData = new FormData()
-      formData.append('chain_id', modalData.chain_id)
-      formData.append('tx_hash', modalData.tx_hash)
+      // const formData = new FormData()
+      // formData.append('chain_id', modalData.chain_id)
+      // formData.append('tx_hash', modalData.tx_hash)
 
-      const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/update_status`
+      // const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/update_status`
 
       let response = null
       if (modalData.status == 'initiated') {
         response = await crossChainMessenger.proveMessage(modalData.tx_hash)
-        formData.append('stauts', 'proven')
+        // formData.append('status', 'proven')
       } else if (modalData.status == 'proven') {
         response = await crossChainMessenger.finalizeMessage(modalData.tx_hash)
-        formData.append('stauts', 'finalized')
+        // formData.append('status', 'finalized')
       }
       await response.wait()
 
       console.log('sdk response:', response)
 
-      const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
-        response
-      )
+      // const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
+      //   response,
+      // )
 
-      console.log('crosschain message:', crossChainMessage)
-      const transactionHash = crossChainMessage.transactionHash
+      // console.log('crosschain message:', crossChainMessage)
+      // const transactionHash = crossChainMessage.transactionHash
+      const transactionHash = response.hash
 
       if (transactionHash !== null) {
         setLoader(false)
       }
 
-      let result = await axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      // let result = await axios.post(url, formData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // })
 
-      console.log(result.data)
+      // console.log(result.data)
     } catch (error) {
       setLoader(false)
       console.error('Error:', error)
@@ -299,15 +300,15 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     <>
       <Head>
         <title>Withdraw History</title>
-        <meta name='description' content='Withdraw History' />
+        <meta name="description" content="Withdraw History" />
       </Head>
 
-      <div className='history_wrap'>
+      <div className="history_wrap">
         <div>
           <h2>Withdrawal History {isConnected}</h2>
           {loader && !modalData ? (
-            <div className='loading'>
-              <div className='loading-text'>Loading...</div>
+            <div className="loading">
+              <div className="loading-text">Loading...</div>
             </div>
           ) : (
             <table>
@@ -342,14 +343,14 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     </td>
                     <td>
                       <a
-                        className='tx_hash'
-                        target='_blank'
+                        className="tx_hash"
+                        target="_blank"
                         href={
                           withdrawal.chain_id == '2024'
                             ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
                             : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
                         }
-                        rel='noopener noreferrer'
+                        rel="noopener noreferrer"
                       >
                         {withdrawal.tx_hash.slice(0, 6)}...
                         {withdrawal.tx_hash.slice(-4)}{' '}
@@ -363,45 +364,45 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           )}
         </div>
         <ReactPaginate
-          className='pagination'
-          pageClassName='page-number'
-          activeClassName='active page-number'
-          previousClassName='page-number'
-          nextClassName='page-number'
-          disabledClassName='disabled'
-          breakLabel='...'
-          nextLabel='>'
+          className="pagination"
+          pageClassName="page-number"
+          activeClassName="active page-number"
+          previousClassName="page-number"
+          nextClassName="page-number"
+          disabledClassName="disabled"
+          breakLabel="..."
+          nextLabel=">"
           onPageChange={handlePageClick}
           pageRangeDisplayed={5}
           pageCount={Math.ceil(totalRows / 10)}
-          previousLabel='<'
+          previousLabel="<"
           renderOnZeroPageCount={null}
         />
       </div>
       {modalData && (
-        <div className='modal-container' onClick={checkModalClick}>
-          <div className='modal'>
-            <div className='modal-content'>
-              <div className='modal-content-header'>
+        <div className="modal-container" onClick={checkModalClick}>
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-content-header">
                 <h2>Withdrawal</h2>
-                <span className='close' onClick={closeModal}>
+                <span className="close" onClick={closeModal}>
                   &times;
                 </span>
               </div>
-              <div className='modal-amoumt'>
-                <span className='title'>Amount to withdraw</span>
-                <span className='text'>{modalData.amount} swanETH</span>
+              <div className="modal-amoumt">
+                <span className="title">Amount to withdraw</span>
+                <span className="text">{modalData.amount} swanETH</span>
               </div>
-              <div className='withdraw-flow'>
+              <div className="withdraw-flow">
                 <ul>
                   <li
-                    className='withdraw-step done'
+                    className="withdraw-step done"
                     onClick={() => console.log(modalData.isButtonDisabled)}
                   >
                     <GrSend size={28} />
                     Initiate withdraw
                   </li>
-                  <li className='vertical-dots'>
+                  <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
                   <li
@@ -415,7 +416,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <IoMdTime size={28} />
                     Wait for the published withdraw on L1
                   </li>
-                  <li className='vertical-dots'>
+                  <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
                   <li
@@ -429,7 +430,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <LuShield size={28} />
                     Prove withdrawal
                   </li>
-                  <li className='vertical-dots'>
+                  <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
                   <li
@@ -443,7 +444,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <IoMdTime size={28} />
                     Wait the fault challenge period
                   </li>
-                  <li className='vertical-dots'>
+                  <li className="vertical-dots">
                     <HiDotsVertical />
                   </li>
                   <li
@@ -458,7 +459,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   </li>
                 </ul>
               </div>
-              <div className='modal-btn-container'>
+              <div className="modal-btn-container">
                 <button
                   className={
                     modalData.isButtonDisabled
@@ -469,11 +470,13 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   onClick={() => handleModalButton()}
                 >
                   {loader ? (
-                    <Spinner animation='border' role='status'>
-                      <span className='visually-hidden'>Loading...</span>
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
                     </Spinner>
                   ) : modalData.status == 'initiated' ? (
                     'Prove withdrawal'
+                  ) : modalData.status == 'finalized' ? (
+                    'Withdrawal claimed'
                   ) : (
                     'Claim withdrawal'
                   )}

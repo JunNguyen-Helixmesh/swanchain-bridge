@@ -109,7 +109,7 @@ createWeb3Modal({
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
   themeVariables: {
     '--w3m-accent': '#447dff',
-    '--w3m-border-radius-master': '4px',
+    '--w3m-border-radius-master': '2px',
   },
 })
 

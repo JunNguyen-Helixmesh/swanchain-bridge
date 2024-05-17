@@ -232,3 +232,9 @@ tbody td {
   background-color: transparent;
   cursor: default;
 }
+
+@media only screen and (max-width: 600px) {
+  table {
+    width: 100%;
+  }
+}

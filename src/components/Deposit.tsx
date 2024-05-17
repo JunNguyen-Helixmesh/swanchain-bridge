@@ -3,7 +3,6 @@ import axios from 'axios'
 import { Form, Image, Spinner, Modal, Button } from 'react-bootstrap'
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons'
 import toIcn from '../assets/images/swantoken.png'
-import { IoMdWallet } from 'react-icons/io'
 import { FaEthereum } from 'react-icons/fa'
 import {
   useAccount,
@@ -13,12 +12,9 @@ import {
   useBalance,
   useChainId,
 } from 'wagmi'
-import { injected } from 'wagmi/connectors'
 import TabMenu from './TabMenu'
 import { HiSwitchHorizontal } from 'react-icons/hi'
-import Web3 from 'web3'
 import NextImage from 'next/image'
-import { FC } from 'react'
 import { formatUnits } from 'viem'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
@@ -29,42 +25,19 @@ const Deposit: React.FC = () => {
   const { address, isConnected } = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
   const [loader, setLoader] = useState<boolean>(false)
-  const [SepoliaBalance, setSepoliaBalance] = useState<number>(0)
   const { chain } = useAccount()
   const [checkMetaMask, setCheckMetaMask] = useState<string>('')
-  const { connect } = useConnect()
   const { chains, switchChain } = useSwitchChain()
   const [showModal, setShowModal] = useState(false)
-  const [balance, setBalance] = useState<string>('')
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState('20241133')
-  const { data } = useBalance({
+  const balance = useBalance({
     address: address,
-    chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-  })
+    chainId: chainId,
+  }).data
 
-  const dataUSDT = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L1_USDT}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-  })
-  const dataDAI = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L1_DAI}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-  })
-  const dataUSDC = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L1_USDC}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-  })
-  const datawBTC = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L1_wBTC}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-  })
+  console.log(balance)
 
   const handleDeposit = async () => {
     try {
@@ -111,18 +84,7 @@ const Deposit: React.FC = () => {
             OptimismPortal,
             L2OutputOracle,
           }
-          // const bridges = {
-          //   Standard: {
-          //     l1Bridge: l1Contracts.L1StandardBridge,
-          //     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
-          //     Adapter: optimismSDK.StandardBridgeAdapter,
-          //   },
-          //   ETH: {
-          //     l1Bridge: l1Contracts.L1StandardBridge,
-          //     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
-          //     Adapter: optimismSDK.ETHBridgeAdapter,
-          //   },
-          // }
+
           const crossChainMessenger = new optimismSDK.CrossChainMessenger({
             contracts: {
               l1: l1Contracts,
@@ -148,10 +110,8 @@ const Deposit: React.FC = () => {
             if (receiptETH) {
               console.log(receiptETH)
               setIsDepositSuccessful(true)
-              setLoader(false)
-              setEthValue('')
               // await callGalxeAPI();
-              setTimeout(fetchBalance, 3000)
+              // setTimeout(fetchBalance, 3000)
 
               if (destinationChainId == '20241133') {
                 await callGalxeAPI()
@@ -161,11 +121,11 @@ const Deposit: React.FC = () => {
         }
       }
     } catch (error) {
-      setLoader(false)
       console.log({ error }, 98)
     } finally {
       setLoader(false)
-      fetchBalance()
+      setEthValue('')
+      // fetchBalance()
     }
   }
 
@@ -199,8 +159,9 @@ const Deposit: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == 'ETH') {
       if (
-        data?.value &&
-        Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
+        balance?.value &&
+        Number(formatUnits(balance.value, balance.decimals)) <
+          Number(e.target.value)
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
@@ -216,57 +177,10 @@ const Deposit: React.FC = () => {
     const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6)
     return balance
   }
-  // ============= Get and update balance =========================
-  const updateWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      const balance = formatBalance(
-        await window.ethereum.request({
-          method: 'eth_getBalance',
-          params: [address, 'latest'],
-        }),
-      )
-      setSepoliaBalance(Number(balance))
-    } else {
-      console.error('Ethereum provider is not available')
-    }
-  }
-
-  const fetchBalance = async () => {
-    if (address) {
-      const web3 = new Web3(window.ethereum)
-      const balance = await web3.eth.getBalance(address)
-      const balanceInEther = web3.utils.fromWei(balance, 'ether')
-      const formattedBalance = parseFloat(balanceInEther).toFixed(6)
-      setBalance(formattedBalance)
-    }
-  }
-
-  useEffect(() => {
-    updateWallet()
-  }, [data])
 
   useEffect(() => {
     console.log('Network changed:', chainId)
   }, [chainId])
-  useEffect(() => {
-    const ethereum = window.ethereum
-
-    if (ethereum && ethereum.on && ethereum.removeListener) {
-      const handleChainChanged = async () => {
-        await fetchBalance()
-      }
-
-      ethereum.on('chainChanged', handleChainChanged)
-
-      return () => {
-        ethereum.removeListener('chainChanged', handleChainChanged)
-      }
-    }
-  }, [fetchBalance])
-
-  useEffect(() => {
-    fetchBalance()
-  }, [address])
 
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
@@ -337,60 +251,12 @@ const Deposit: React.FC = () => {
             {errorInput && <small className="text-danger">{errorInput}</small>}
             {sendToken === 'ETH' ? (
               address && (
-                <p className="wallet_bal mt-2">Balance: {balance} ETH</p>
-              )
-            ) : sendToken === 'DAI' ? (
-              address && (
                 <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {dataDAI?.data?.value !== undefined &&
-                    dataDAI?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals),
-                    ).toFixed(5)}{' '}
-                  DAI
-                </p>
-              )
-            ) : sendToken == 'USDT' ? (
-              address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {dataUSDT?.data?.value !== undefined &&
-                    dataUSDT?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(
-                        dataUSDT.data!.value,
-                        dataUSDT.data!.decimals,
-                      ),
-                    ).toFixed(5)}{' '}
-                  USDT
-                </p>
-              )
-            ) : sendToken === 'wBTC' ? (
-              address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {datawBTC?.data?.value !== undefined &&
-                    datawBTC?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(
-                        datawBTC.data!.value,
-                        datawBTC.data!.decimals,
-                      ),
-                    ).toFixed(5)}{' '}
-                  wBTC
+                  Balance: {balance?.formatted} {balance?.symbol}
                 </p>
               )
             ) : (
-              <p className="wallet_bal mt-2">
-                Balance:{' '}
-                {dataUSDC?.data?.value !== undefined &&
-                  dataUSDC?.data?.value !== BigInt(0) &&
-                  Number(
-                    formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals),
-                  ).toFixed(5)}{' '}
-                USDC
-              </p>
+              <></>
             )}
           </div>
           <div className="up flex-row center">
@@ -428,30 +294,10 @@ const Deposit: React.FC = () => {
                   {' '}
                   <Ethereum style={{ fontSize: '1.5rem' }} />
                 </span>
-              ) : sendToken == 'DAI' ? (
-                <span className="input_icn flex-row">
-                  <Dai style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : sendToken == 'USDT' ? (
-                <span className="input_icn flex-row">
-                  {' '}
-                  <Usdt style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : sendToken == 'wBTC' ? (
-                <span className="input_icn flex-row">
-                  {' '}
-                  <Btc style={{ fontSize: '1.5rem' }} />
-                </span>
               ) : (
-                <span className="input_icn flex-row">
-                  {' '}
-                  <Usdc style={{ fontSize: '1.5rem' }} />
-                </span>
+                <></>
               )}{' '}
-              <p>
-                {' '}
-                You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
-              </p>
+              <p> You’ll receive: {ethValue ? ethValue : '0'} sETH</p>
             </div>
           </div>
           <div
@@ -460,6 +306,7 @@ const Deposit: React.FC = () => {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <p
@@ -489,15 +336,16 @@ const Deposit: React.FC = () => {
                 Please Install Metamask Wallet
               </a>
             ) : !isConnected ? (
-              <button
-                className="btn deposit_btn flex-row"
-                onClick={() => {
-                  setIsWalletModalOpen(true)
-                }}
-              >
-                <IoMdWallet />
-                Connect Wallet
-              </button>
+              // <button
+              //   className="btn deposit_btn flex-row"
+              //   onClick={() => {
+              //     setIsWalletModalOpen(true)
+              //   }}
+              // >
+              //   <IoMdWallet />
+              //   Connect Wallet
+              // </button>
+              <w3m-connect-button />
             ) : Number(chain?.id) !==
               Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID) ? (
               <button
@@ -545,149 +393,6 @@ const Deposit: React.FC = () => {
               onClick={() => setShowModal(false)}
             />
           )}
-          {/* <p
-            style={{
-              color: '#ffffff',
-              fontSize: '0.8rem',
-              textAlign: 'center',
-              marginTop: '0px',
-              marginBottom: '20px',
-            }}
-          >
-            {isDepositSuccessful ? 'Deposit success!' : ''}
-          </p> */}
-          <Modal
-            show={showModal}
-            onHide={() => setShowModal(false)}
-            centered
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1000,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'white',
-                borderRadius: '10px',
-                maxWidth: '500px',
-                width: '100%',
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ padding: '20px', color: 'black' }}>
-                <h2>Install MetaMask</h2>
-                <p style={{ marginBottom: '20px' }}>
-                  You need to install MetaMask to use this application. Click
-                  the button below to install it.
-                </p>
-                <a
-                  href="https://metamask.io/"
-                  target="_blank"
-                  style={{
-                    color: 'white',
-                    backgroundColor: '#447dff',
-                    padding: '10px 20px',
-                    borderRadius: '5px',
-                    textDecoration: 'none',
-                    marginTop: '20px',
-                  }}
-                >
-                  Install MetaMask
-                </a>
-              </div>
-            </div>
-          </Modal>
-          {isWalletModalOpen && (
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 1000,
-              }}
-              onClick={() => setIsWalletModalOpen(false)}
-            />
-          )}
-          <Modal
-            show={isWalletModalOpen}
-            onHide={() => setIsWalletModalOpen(false)}
-            centered
-            style={{
-              zIndex: 2000,
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: '#333',
-              color: 'white',
-              borderRadius: '15px',
-              width: '80%',
-              maxWidth: '600px',
-              height: '60%',
-              overflow: 'auto',
-            }}
-          >
-            <Modal.Header>
-              <Modal.Title style={{ textAlign: 'center' }}>
-                Select a Supported Wallet
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div
-                className="wallet-option"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  justifyContent: 'center',
-                  paddingLeft: '20px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => {
-                  if (window.ethereum?.isMetaMask) {
-                    connect({ connector: injected({ target: 'metaMask' }) })
-                    setIsWalletModalOpen(false)
-                  } else {
-                    setIsWalletModalOpen(false)
-                    setShowModal(true)
-                  }
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.opacity = '0.5'
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.opacity = '1'
-                  }}
-                >
-                  <img
-                    src="/assets/images/MetaMask_Fox.png"
-                    alt="MetaMask"
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      transition: 'opacity 0.3s ease',
-                    }}
-                  />
-                  <p>MetaMask</p>
-                </div>
-              </div>
-              {/* Add more wallet options here */}
-            </Modal.Body>
-          </Modal>
         </section>
       </div>
     </>

@@ -20,7 +20,7 @@ const Footer: React.FunctionComponent = () => {
               </Link>
             </li>
             <li>
-              <span>v0.1.0</span>
+              <span>v0.1.1</span>
             </li>
           </ul>
         </div>

@@ -136,76 +136,42 @@ const HeaderNew: FunctionComponent = () => {
           ) : (
             <div className="header-flex">
               <div className="page-select-conatainer">
-                {isConnected ? (
-                  <button
-                    className="btn header_btn flex-row "
-                    onClick={() => {
-                      router.pathname == '/withdraw-history'
-                        ? handleOptionSelect('/deposit')
-                        : handleOptionSelect('/withdraw-history')
-                    }}
-                  >
-                    {/* <HiSwitchHorizontal /> */}
-                    <span>
-                      {router.pathname == '/withdraw-history'
-                        ? 'Bridge'
-                        : 'Withdraw History'}
-                    </span>
-                  </button>
-                ) : (
-                  <></>
-                )}
+                <button
+                  className="btn header_btn flex-row "
+                  onClick={() => {
+                    router.pathname == '/withdraw-history'
+                      ? handleOptionSelect('/deposit')
+                      : handleOptionSelect('/withdraw-history')
+                  }}
+                >
+                  {/* <HiSwitchHorizontal /> */}
+                  <span>
+                    {router.pathname == '/withdraw-history'
+                      ? 'Bridge'
+                      : 'Withdraw History'}
+                  </span>
+                </button>
               </div>
 
-              {/* {isConnected ? (
-                <div className="network-selector-container">
-                  <select
-                    className="network-selector"
-                    value={chainId}
-                    onChange={changeChain}
-                  >
-                    <option value="11155111">Sepolia</option>
-                    <option value="2024">Swan Saturn</option>
-                    <option value="20241133">Swan Proxima</option>
-                  </select>
-                </div>
-              ) : (
-                <></>
-              )} */}
-
               <div className="page-select-conatainer">
-                {!isConnected ? (
+                <div className="w3m-container">
+                  {/* <w3m-network-button /> */}
+                  <w3m-button balance="hide" />
+                </div>
+                {/* {!isConnected ? (
                   <button
                     className="btn header_btn flex-row"
                     onClick={() => {
                       setIsWalletModalOpen(true)
                     }}
                   >
-                    {/* <IoMdWallet /> */}
                     Connect Wallet
                   </button>
                 ) : (
-                  // <div className="page-select-conatainer">
                   <button className="page-select">
                     {address?.slice(0, 6)}...{address?.slice(-4)}
                   </button>
-                  // <select
-                  //   className="page-select"
-                  //   defaultValue=""
-                  //   // href="/withdraw-history"
-                  //   onChange={handleOptionSelect}
-                  // >
-                  //   <option value="" disabled>
-                  //     {address?.slice(0, 6)}...{address?.slice(-4)}
-                  //   </option>
-                  //   <option value="/deposit">Bridge</option>
-                  //   <option value={`/withdraw-history`}>
-                  //     Withdraw History
-                  //   </option>
-                  //   {/* <option value="disconnect">Log out</option> */}
-                  // </select>
-                  // </div>
-                )}
+                )} */}
                 <div>
                   {showModal && (
                     <div

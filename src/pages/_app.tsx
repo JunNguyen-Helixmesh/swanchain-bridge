@@ -1,7 +1,16 @@
 // Temp disable server side rendering for min viable product
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
-import { WagmiProvider, createConfig, http, createStorage } from 'wagmi'
+import { createWeb3Modal } from '@web3modal/wagmi/react'
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
+import {
+  WagmiProvider,
+  createConfig,
+  http,
+  cookieStorage,
+  createStorage,
+  cookieToInitialState,
+} from 'wagmi'
 import { sepolia } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 import Header from '../components/common/Header'
@@ -23,7 +32,7 @@ const queryClient = new QueryClient()
 
 export const SWAN = {
   id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  name: 'Swan Saturn Testnet',
+  name: 'Saturn',
   network: 'SWAN',
   iconUrl: 'https://i.imgur.com/Q3oIdip.png',
   iconBackground: '#000000',
@@ -48,7 +57,7 @@ export const SWAN = {
 
 export const SWAN_PROXIMA = {
   id: Number(process.env.NEXT_PUBLIC_L2_PROXIMA_CHAIN_ID),
-  name: 'Swan Proxima Testnet',
+  name: 'Proxima',
   network: 'SWAN',
   iconUrl: 'https://i.imgur.com/Q3oIdip.png',
   iconBackground: '#000000',
@@ -77,6 +86,33 @@ const noopStorage = {
   removeItem: (_key: any) => {},
 }
 
+const metadata = {
+  name: 'Web3Modal',
+  description: 'Web3Modal Example',
+  url: 'https://web3modal.com', // origin must match your domain & subdomain
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+}
+
+export const wagmiConfig = defaultWagmiConfig({
+  chains: [SWAN, sepolia, SWAN_PROXIMA],
+  projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
+  metadata,
+  ssr: true,
+  // storage: createStorage({
+  //   storage: cookieStorage,
+  // }),
+  // ...wagmiOptions // Optional - Override createConfig parameters
+})
+
+createWeb3Modal({
+  wagmiConfig: wagmiConfig,
+  projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
+  themeVariables: {
+    '--w3m-accent': '#447dff',
+    '--w3m-border-radius-master': '2px',
+  },
+})
+
 export const provider = createConfig({
   chains: [SWAN, sepolia, SWAN_PROXIMA],
   connectors: [injected()],
@@ -102,7 +138,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <WagmiProvider config={provider}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <Head>
           <title>SwanETH Bridge</title>

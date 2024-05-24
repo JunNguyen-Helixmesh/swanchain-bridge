@@ -7,8 +7,8 @@ import { Spinner } from 'react-bootstrap'
 import { GrSend } from 'react-icons/gr'
 import { IoMdTime } from 'react-icons/io'
 import { LuShield } from 'react-icons/lu'
-import { HiDownload, HiDotsVertical } from 'react-icons/hi'
-import { useAccount } from 'wagmi'
+import { HiDownload, HiDotsVertical, HiSwitchHorizontal } from 'react-icons/hi'
+import { useAccount, useSwitchChain } from 'wagmi'
 import axios from 'axios'
 import ReactPaginate from 'react-paginate'
 
@@ -33,7 +33,7 @@ const OUTPUT_ORACLE_ABI = [
 ]
 
 const WithdrawHistory: React.FC = (walletAddress: any) => {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, chain } = useAccount()
   const [withdrawals, setWithdrawals] = useState([])
   const [loader, setLoader] = useState<boolean>(false)
   const [modalData, setModalData] = useState<any>(null)
@@ -42,6 +42,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const [totalRows, setTotalRows] = useState<number>(0)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { chains, switchChain } = useSwitchChain()
 
   useEffect(() => {
     // Fetch data from API
@@ -241,7 +242,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       },
       // bridges: bridges,
       l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-      l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+      l2ChainId: Number(modalData.chain_id),
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
       // bedrock: true,
@@ -251,20 +252,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     try {
       setLoader(true)
 
-      // Create a FormData object
-      // const formData = new FormData()
-      // formData.append('chain_id', modalData.chain_id)
-      // formData.append('tx_hash', modalData.tx_hash)
-
-      // const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/update_status`
-
       let response = null
       if (modalData.status == 'initiated') {
         response = await crossChainMessenger.proveMessage(modalData.tx_hash)
-        // formData.append('status', 'proven')
       } else if (modalData.status == 'proven') {
         response = await crossChainMessenger.finalizeMessage(modalData.tx_hash)
-        // formData.append('status', 'finalized')
       }
       await response.wait()
 
@@ -279,6 +271,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       const transactionHash = response.hash
 
       if (transactionHash !== null) {
+        if (modalData.status == 'initiated') {
+          setModalData({ ...modalData, status: 'proven' })
+        } else if (modalData.status == 'proven') {
+          setModalData({ ...modalData, status: 'finalized' })
+        }
         setLoader(false)
       }
 
@@ -460,27 +457,41 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                 </ul>
               </div>
               <div className="modal-btn-container">
-                <button
-                  className={
-                    modalData.isButtonDisabled
-                      ? 'modal-btn disabled'
-                      : 'modal-btn'
-                  }
-                  disabled={modalData.isButtonDisabled}
-                  onClick={() => handleModalButton()}
-                >
-                  {loader ? (
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                  ) : modalData.status == 'initiated' ? (
-                    'Prove withdrawal'
-                  ) : modalData.status == 'finalized' ? (
-                    'Withdrawal claimed'
-                  ) : (
-                    'Claim withdrawal'
-                  )}
-                </button>
+                {chain?.id == process.env.NEXT_PUBLIC_L1_CHAIN_ID ? (
+                  <button
+                    className={
+                      modalData.isButtonDisabled
+                        ? 'modal-btn disabled'
+                        : 'modal-btn'
+                    }
+                    disabled={modalData.isButtonDisabled}
+                    onClick={() => handleModalButton()}
+                  >
+                    {loader ? (
+                      <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                    ) : modalData.status == 'initiated' ? (
+                      'Prove withdrawal'
+                    ) : modalData.status == 'finalized' ? (
+                      'Withdrawal claimed'
+                    ) : (
+                      'Claim withdrawal'
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    className={'modal-btn'}
+                    onClick={() =>
+                      switchChain({
+                        chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+                      })
+                    }
+                  >
+                    <HiSwitchHorizontal />
+                    Switch to Sepolia
+                  </button>
+                )}
               </div>
             </div>
           </div>

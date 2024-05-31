@@ -176,6 +176,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       )
       console.log(rowData)
 
+      rowData.status = 'initiated'
+
       if (
         rowData.latestOutputtedBlockNumber < Number(rowData.block_number) ||
         rowData.status == 'finalized'
@@ -274,7 +276,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         if (modalData.status == 'initiated') {
           setModalData({ ...modalData, status: 'proven' })
         } else if (modalData.status == 'proven') {
-          setModalData({ ...modalData, status: 'finalized' })
+          setModalData({
+            ...modalData,
+            status: 'finalized',
+            isButtonDisabled: true,
+          })
         }
         setLoader(false)
       }
@@ -286,10 +292,28 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error) {
+    } catch (error: any) {
       setLoader(false)
-      console.error('Error:', error)
-      return 'Error occurred while fetching transaction value'
+      if (
+        error.reason ===
+        'execution reverted: OptimismPortal: withdrawal hash has already been proven'
+      ) {
+        console.error('Withdrawal hash has already been proven')
+        setModalData({ ...modalData, status: 'proven' })
+      } else if (
+        error.reason ===
+        'execution reverted: OptimismPortal: withdrawal has already been finalized'
+      ) {
+        console.error('Withdrawal hash has already been finalized')
+        setModalData({
+          ...modalData,
+          status: 'finalized',
+          isButtonDisabled: true,
+        })
+      } else {
+        console.error('Error:', error.reason)
+        // Handle other errors
+      }
     }
   }
 

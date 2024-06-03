@@ -15,7 +15,8 @@ import {
 import TabMenu from './TabMenu'
 import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
-import { formatUnits } from 'viem'
+import { useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
+import { formatUnits, Address } from 'viem'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
 
@@ -23,6 +24,7 @@ const Deposit: React.FC = () => {
   const [ethValue, setEthValue] = useState<string>('')
   const [sendToken, setSendToken] = useState<string>('ETH')
   const { address, isConnected } = useAccount()
+  const account = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
   const [loader, setLoader] = useState<boolean>(false)
   const { chain } = useAccount()
@@ -32,6 +34,13 @@ const Deposit: React.FC = () => {
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState('20241133')
+  const { data: hash, sendTransaction, isPending } = useSendTransaction()
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  })
   const balance = useBalance({
     address: address,
     chainId: chainId,
@@ -103,20 +112,26 @@ const Deposit: React.FC = () => {
               16,
             )
             setLoader(true)
-            var depositETHEREUM = await crossChainMessenger.depositETH(
-              weiValue.toString(),
-            )
-            const receiptETH = await depositETHEREUM.wait()
-            if (receiptETH) {
-              console.log(receiptETH)
-              setIsDepositSuccessful(true)
-              // await callGalxeAPI();
-              // setTimeout(fetchBalance, 3000)
+            console.log(account)
+            console.log(window.ethereum)
+            sendTransaction({
+              to: L1StandardBridge as Address,
+              value: ethers.utils.parseEther(ethValue),
+            })
+            // var depositETHEREUM = await crossChainMessenger.depositETH(
+            //   weiValue.toString(),
+            // )
+            // const receiptETH = await depositETHEREUM.wait()
+            // if (receiptETH) {
+            //   console.log(receiptETH)
+            //   setIsDepositSuccessful(true)
+            //   // await callGalxeAPI();
+            //   // setTimeout(fetchBalance, 3000)
 
-              if (destinationChainId == '20241133') {
-                await callGalxeAPI()
-              }
-            }
+            //   if (destinationChainId == '20241133') {
+            //     await callGalxeAPI()
+            //   }
+            // }
           }
         }
       }
@@ -367,9 +382,9 @@ const Deposit: React.FC = () => {
               <button
                 className="btn deposit_btn flex-row"
                 onClick={handleDeposit}
-                disabled={loader ? true : false}
+                disabled={loader || isConfirming ? true : false}
               >
-                {loader ? (
+                {loader || isConfirming ? (
                   <Spinner animation="border" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </Spinner>

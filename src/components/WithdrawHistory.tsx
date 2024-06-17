@@ -170,13 +170,13 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       rowData.latestOutputtedBlockNumber = Number(
         await outputOracleContract.latestBlockNumber(),
       )
-      console.log(
-        'Result of the view function:',
-        rowData.latestOutputtedBlockNumber,
-      )
-      console.log(rowData)
+      // console.log(
+      //   'Result of the view function:',
+      //   rowData.latestOutputtedBlockNumber,
+      // )
+      // console.log(rowData)
 
-      rowData.status = 'initiated'
+      // rowData.status = 'initiated'
 
       if (
         rowData.latestOutputtedBlockNumber < Number(rowData.block_number) ||

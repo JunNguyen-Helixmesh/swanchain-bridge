@@ -113,20 +113,20 @@ createWeb3Modal({
   },
 })
 
-export const provider = createConfig({
-  chains: [SWAN, sepolia, SWAN_PROXIMA],
-  connectors: [injected()],
-  multiInjectedProviderDiscovery: true,
-  syncConnectedChain: true,
-  storage: createStorage({
-    storage: typeof window !== 'undefined' ? window.localStorage : noopStorage,
-  }),
-  transports: {
-    [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
-    [SWAN_PROXIMA.id]: http(SWAN_PROXIMA.rpcUrls.default.http[0]),
-    [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
-  },
-})
+// export const provider = createConfig({
+//   chains: [SWAN, sepolia, SWAN_PROXIMA],
+//   connectors: [injected()],
+//   multiInjectedProviderDiscovery: true,
+//   syncConnectedChain: true,
+//   storage: createStorage({
+//     storage: typeof window !== 'undefined' ? window.localStorage : noopStorage,
+//   }),
+//   transports: {
+//     [SWAN.id]: http(SWAN.rpcUrls.default.http[0]),
+//     [SWAN_PROXIMA.id]: http(SWAN_PROXIMA.rpcUrls.default.http[0]),
+//     [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
+//   },
+// })
 
 export const connector = injected({ target: 'metaMask' })
 

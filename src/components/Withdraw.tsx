@@ -47,117 +47,6 @@ const Withdraw: React.FC = () => {
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
   })
-  const dataUSDT = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L2_USDT}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  })
-  const dataDAI = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L2_DAI}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  })
-  const dataUSDC = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L2_USDC}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  })
-  const datawBTC = useBalance({
-    address: address,
-    token: `0x${process.env.NEXT_PUBLIC_L2_wBTC}`,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
-  })
-
-  useEffect(() => {
-    console.log('dataUSDT', data)
-  }, [])
-
-  ////========================================================== WITHDRAW =======================================================================
-  async function callGalxeAPI() {
-    const credId = process.env.NEXT_PUBLIC_GALXE_CRED_ID || ''
-    const operation = 'APPEND'
-    const items = [address as string]
-
-    let result = await axios.post(
-      'https://graphigo.prd.galaxy.eco/query',
-      {
-        operationName: 'credentialItems',
-        query: `
-        mutation credentialItems($credId: ID!, $operation: Operation!, $items: [String!]!) 
-          { 
-            credentialItems(input: { 
-              credId: $credId 
-              operation: $operation 
-              items: $items 
-            }) 
-            { 
-              name 
-            } 
-          }
-        `,
-        variables: {
-          credId: credId,
-          operation: operation,
-          items: items,
-        },
-      },
-      {
-        headers: {
-          'access-token': process.env.NEXT_PUBLIC_GALXE_ACCESS_TOKEN || '',
-        },
-      },
-    )
-
-    if (result.status != 200) {
-      throw new Error(result.data)
-    } else if (result.data.errors && result.data.errors.length > 0) {
-      console.log(result.data.errors)
-      throw new Error(result.data.errors)
-    }
-    console.log(result.data)
-  }
-
-  async function updateWithdrawHistory(
-    chain_id: number,
-    wallet_address: string,
-    tx_hash: string,
-    block_number: number,
-  ) {
-    // Create a FormData object
-    const formData = new FormData()
-    formData.append('chain_id', chain_id.toString())
-    formData.append('tx_hash', tx_hash)
-
-    const url = `${process.env.NEXT_PUBLIC_API_ROUTE}/withdrawal/new_withdrawal`
-
-    try {
-      let result = await axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-
-      if (result.status !== 200) {
-        throw new Error(result.data)
-      } else if (result.data.errors && result.data.errors.length > 0) {
-        console.log(result.data.errors)
-        throw new Error(result.data.errors.join(', '))
-      }
-
-      // console.log(result.data)
-    } catch (error: any) {
-      if (error.response) {
-        console.error(error.response.data)
-        console.error(error.response.status)
-        console.error(error.response.headers)
-      } else if (error.request) {
-        console.error(error.request)
-      } else {
-        console.error('Error', error.message)
-      }
-      console.error(error.config)
-    }
-  }
 
   const handleWithdraw = async () => {
     try {
@@ -255,15 +144,15 @@ const Withdraw: React.FC = () => {
                 setLoader(false)
                 setEthValue('')
 
-                if (isConnected && address) {
-                  await updateWithdrawHistory(
-                    chainId,
-                    address,
-                    transactionHash,
-                    blockNumber,
-                  )
-                  // await callGalxeAPI();
-                }
+                // if (isConnected && address) {
+                //   await updateWithdrawHistory(
+                //     chainId,
+                //     address,
+                //     transactionHash,
+                //     blockNumber,
+                //   )
+                //   // await callGalxeAPI();
+                // }
                 setTimeout(fetchBalance, 3000)
               }
             }
@@ -295,64 +184,6 @@ const Withdraw: React.FC = () => {
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-    if (sendToken == 'DAI') {
-      if (
-        dataDAI.data?.value &&
-        Number(formatUnits(dataDAI.data.value, dataDAI.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient DAI balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-    if (sendToken == 'USDT') {
-      if (
-        dataUSDT.data?.value &&
-        Number(formatUnits(dataUSDT.data.value, dataUSDT.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient USDT balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-
-    if (sendToken == 'wBTC') {
-      if (
-        datawBTC.data?.value &&
-        Number(formatUnits(datawBTC.data.value, datawBTC.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient wBTC balance.')
-      } else {
-        setCheckDisabled(false)
-        setErrorInput('')
-      }
-      setEthValue(e.target.value)
-    }
-
-    if (sendToken == 'USDC') {
-      if (
-        dataUSDC.data?.value &&
-        Number(formatUnits(dataUSDC.data.value, dataUSDC.data.decimals)) <
-          Number(e.target.value)
-      ) {
-        setCheckDisabled(true)
-        setErrorInput('Insufficient USDC balance.')
       } else {
         setCheckDisabled(false)
         setErrorInput('')
@@ -510,58 +341,8 @@ const Withdraw: React.FC = () => {
               address && (
                 <p className="wallet_bal mt-2">Balance: {balance} ETH</p>
               )
-            ) : sendToken === 'DAI' ? (
-              address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {dataDAI?.data?.value !== undefined &&
-                    dataDAI?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(dataDAI.data!.value, dataDAI.data!.decimals),
-                    ).toFixed(5)}{' '}
-                  DAI
-                </p>
-              )
-            ) : sendToken == 'USDT' ? (
-              address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {dataUSDT?.data?.value !== undefined &&
-                    dataUSDT?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(
-                        dataUSDT.data!.value,
-                        dataUSDT.data!.decimals,
-                      ),
-                    ).toFixed(5)}{' '}
-                  USDT
-                </p>
-              )
-            ) : sendToken === 'wBTC' ? (
-              address && (
-                <p className="wallet_bal mt-2">
-                  Balance:{' '}
-                  {datawBTC?.data?.value !== undefined &&
-                    datawBTC?.data?.value !== BigInt(0) &&
-                    Number(
-                      formatUnits(
-                        datawBTC.data!.value,
-                        datawBTC.data!.decimals,
-                      ),
-                    ).toFixed(5)}{' '}
-                  wBTC
-                </p>
-              )
             ) : (
-              <p className="wallet_bal mt-2">
-                Balance:{' '}
-                {dataUSDC?.data?.value !== undefined &&
-                  dataUSDC?.data?.value !== BigInt(0) &&
-                  Number(
-                    formatUnits(dataUSDC.data!.value, dataUSDC.data!.decimals),
-                  ).toFixed(5)}{' '}
-                USDC
-              </p>
+              <></>
             )}
           </div>
           <div className="up flex-row center">

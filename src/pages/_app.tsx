@@ -30,8 +30,8 @@ import '../assets/style/common/_color_variable.scss'
 
 const queryClient = new QueryClient()
 
-export const SWAN = {
-  id: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+export const SWAN_SATURN = {
+  id: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
   name: 'Saturn',
   network: 'SWAN',
   iconUrl: 'https://i.imgur.com/Q3oIdip.png',
@@ -39,20 +39,29 @@ export const SWAN = {
   nativeCurrency: {
     decimals: 18,
     name: 'Swan ETH',
-    symbol: 'sETH',
+    symbol: 'swanETH',
   },
   rpcUrls: {
     default: {
-      http: [String(process.env.NEXT_PUBLIC_L2_RPC_URL)],
+      http: [String(process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL)],
     },
   },
   blockExplorers: {
     default: {
       name: 'Swan Testnet Explorer',
-      url: process.env.NEXT_PUBLIC_L2_EXPLORER_URL || '',
+      url: process.env.NEXT_PUBLIC_L2_SATURN_EXPLORER_URL || '',
     },
   },
   testnet: true,
+  opContracts: {
+    l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
+    optimismPortal: process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY,
+    addressManager: process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER,
+    l1CrossDomainMessenger:
+      process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+    l1StandardBridge: process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE,
+    l2OutputOracle: process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY,
+  },
 }
 
 export const SWAN_PROXIMA = {
@@ -64,7 +73,7 @@ export const SWAN_PROXIMA = {
   nativeCurrency: {
     decimals: 18,
     name: 'Swan ETH',
-    symbol: 'sETH',
+    symbol: 'swanETH',
   },
   rpcUrls: {
     default: {
@@ -78,6 +87,16 @@ export const SWAN_PROXIMA = {
     },
   },
   testnet: true,
+  opContracts: {
+    l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
+    optimismPortal: process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY,
+    addressManager: process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER,
+    l1CrossDomainMessenger:
+      process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+    l1StandardBridge:
+      process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE,
+    l2OutputOracle: process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY,
+  },
 }
 
 const noopStorage = {
@@ -94,7 +113,7 @@ const metadata = {
 }
 
 export const wagmiConfig = defaultWagmiConfig({
-  chains: [SWAN, sepolia, SWAN_PROXIMA],
+  chains: [sepolia, SWAN_PROXIMA, SWAN_SATURN],
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
   metadata,
   ssr: true,

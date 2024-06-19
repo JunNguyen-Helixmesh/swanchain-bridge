@@ -71,7 +71,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         let withdrawal_data = data.data
         let withdrawal_list = withdrawal_data.withdraw_transaction_list
 
-        let saturnUrl = process.env.NEXT_PUBLIC_L2_RPC_URL
+        let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
         let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
         const saturnProvider = new ethers.providers.JsonRpcProvider(
           saturnUrl,
@@ -147,9 +147,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
-    let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
-    // let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
-    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
+    let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
+    // let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
+    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
     if (rowData.chain_id == '20241133') {
       // l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
       L2OutputOracle = process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
@@ -205,14 +205,15 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const handleModalButton = async () => {
-    let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
-    let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
-    let AddressManager = process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER
+    let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
+    let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
+    let AddressManager = process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER
     let L1CrossDomainMessenger =
-      process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER
-    let L1StandardBridge = process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE
-    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
-    let OptimismPortal = process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY
+      process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER
+    let L1StandardBridge =
+      process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE
+    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
+    let OptimismPortal = process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY
     if (modalData.chain_id == '20241133') {
       l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
       AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
@@ -243,7 +244,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         l1: l1Contracts,
       },
       // bridges: bridges,
-      l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+      l1ChainId: Number(process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID),
       l2ChainId: Number(modalData.chain_id),
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
@@ -481,7 +482,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                 </ul>
               </div>
               <div className="modal-btn-container">
-                {chain?.id == process.env.NEXT_PUBLIC_L1_CHAIN_ID ? (
+                {chain?.id == process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID ? (
                   <button
                     className={
                       modalData.isButtonDisabled
@@ -508,7 +509,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     className={'modal-btn'}
                     onClick={() =>
                       switchChain({
-                        chainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
+                        chainId: Number(
+                          process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID,
+                        ),
                       })
                     }
                   >

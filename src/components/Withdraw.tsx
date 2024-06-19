@@ -45,7 +45,7 @@ const Withdraw: React.FC = () => {
 
   const { data } = useBalance({
     address: address,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+    chainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
   })
 
   const handleWithdraw = async () => {
@@ -57,15 +57,17 @@ const Withdraw: React.FC = () => {
           setErrorInput('Invalid Amount Entered!')
         } else {
           setErrorInput('')
-          let l1Url = process.env.NEXT_PUBLIC_L1_RPC_URL
-          let l2Url = process.env.NEXT_PUBLIC_L2_RPC_URL
-          let AddressManager = process.env.NEXT_PUBLIC_LIB_ADDRESSMANAGER
+          let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
+          let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
+          let AddressManager = process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER
           let L1CrossDomainMessenger =
-            process.env.NEXT_PUBLIC_PROXY_OVM_L1CROSSDOMAINMESSENGER
+            process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER
           let L1StandardBridge =
-            process.env.NEXT_PUBLIC_PROXY_OVM_L1STANDARDBRIDGE
-          let L2OutputOracle = process.env.NEXT_PUBLIC_L2_OUTPUTORACLE_PROXY
-          let OptimismPortal = process.env.NEXT_PUBLIC_OPTIMISM_PORTAL_PROXY
+            process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE
+          let L2OutputOracle =
+            process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
+          let OptimismPortal =
+            process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY
           if (fromChain == '20241133') {
             l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
             AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
@@ -110,8 +112,8 @@ const Withdraw: React.FC = () => {
               l1: l1Contracts,
             },
             // bridges: bridges,
-            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_CHAIN_ID),
-            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_CHAIN_ID),
+            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID),
+            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
             // bedrock: true,

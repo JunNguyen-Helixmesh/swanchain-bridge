@@ -74,7 +74,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         let withdrawal_list = withdrawal_data.withdraw_transaction_list
 
         const providers = chainInfoFromConfig
-          .slice(1)
+          .slice(2)
           .reduce((acc: any, chainInfo: any) => {
             const provider = new ethers.providers.JsonRpcProvider(
               chainInfoAsObject[chainInfo.id].rpcUrl,
@@ -166,11 +166,14 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
-    let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
+    let l1ChainInfo =
+      chainInfoAsObject[chainInfoAsObject[rowData.chain_id].l1ChainId]
+    let l2ChainInfo = chainInfoAsObject[rowData.chain_id]
+
+    let l1Url = l1ChainInfo.rpcUrl
     const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
 
-    let L2OutputOracle =
-      chainInfoAsObject[rowData.chain_id].contracts.l2OutputOracle
+    let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
 
     const outputOracleContract = new ethers.Contract(
       L2OutputOracle,
@@ -199,6 +202,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         rowData.isButtonDisabled = false
       }
 
+      rowData.l1ChainInfo = l1ChainInfo
+      rowData.l2ChainInfo = l2ChainInfo
+
       // Get withdraw transaction details
       // const transaction = await l2Provider.getTransaction(rowData.tx_hash)
 
@@ -217,18 +223,14 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const handleModalButton = async () => {
-    let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
-    let l2Url = chainInfoAsObject[modalData.chain_id].rpcUrl
-    let AddressManager =
-      chainInfoAsObject[modalData.chain_id].contracts.addressManager
+    let l1Url = modalData.l1ChainInfo.rpcUrl
+    let l2Url = modalData.l2ChainInfo.rpcUrl
+    let AddressManager = modalData.l2ChainInfo.contracts.addressManager
     let L1CrossDomainMessenger =
-      chainInfoAsObject[modalData.chain_id].contracts.l1CrossDomainMessenger
-    let L1StandardBridge =
-      chainInfoAsObject[modalData.chain_id].contracts.l1StandardBridge
-    let L2OutputOracle =
-      chainInfoAsObject[modalData.chain_id].contracts.l2OutputOracle
-    let OptimismPortal =
-      chainInfoAsObject[modalData.chain_id].contracts.optimismPortal
+      modalData.l2ChainInfo.contracts.l1CrossDomainMessenger
+    let L1StandardBridge = modalData.l2ChainInfo.contracts.l1StandardBridge
+    let L2OutputOracle = modalData.l2ChainInfo.contracts.l2OutputOracle
+    let OptimismPortal = modalData.l2ChainInfo.contracts.optimismPortal
 
     const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
     const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
@@ -250,7 +252,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         l1: l1Contracts,
       },
       // bridges: bridges,
-      l1ChainId: Number(chainInfoFromConfig[0].id),
+      l1ChainId: Number(modalData.l1ChainInfo.chainId),
       l2ChainId: Number(modalData.chain_id),
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
@@ -299,7 +301,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error:any) {
+    } catch (error: any) {
       setLoader(false)
       if (
         error.reason ===
@@ -491,7 +493,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   </ul>
                 </div>
                 <div className="modal-btn-container">
-                  {chain?.id == chainInfoFromConfig[0].id ? (
+                  {chain?.id == modalData.l1ChainInfo.chainId ? (
                     <button
                       className={
                         modalData.isButtonDisabled
@@ -518,12 +520,12 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       className={'modal-btn'}
                       onClick={() =>
                         switchChain({
-                          chainId: Number(chainInfoFromConfig[0].id),
+                          chainId: Number(modalData.l1ChainInfo.chainId),
                         })
                       }
                     >
                       <HiSwitchHorizontal />
-                      Switch to {chainInfoFromConfig[0].name}
+                      Switch to {modalData.l1ChainInfo.name}
                     </button>
                   )}
                 </div>

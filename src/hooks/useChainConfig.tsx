@@ -13,6 +13,7 @@ export function useChainConfig() {
           name: chain.name,
           nativeCurrency: chain.nativeCurrency,
           testnet: chain.testnet,
+          l1ChainId: chain.l1ChainId,
           blockExplorer: chain.blockExplorers?.default.url,
           rpcUrl: chain.rpcUrls?.default.http[0],
           contracts: chain.opContracts,

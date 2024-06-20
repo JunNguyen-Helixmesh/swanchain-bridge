@@ -35,6 +35,8 @@ const Withdraw: React.FC = () => {
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
+  const [l1ChainInfo, setL1ChainInfo] = useState<any>({})
+  const [l2ChainInfo, setL2ChainInfo] = useState<any>({})
   const [SwanBalance, setSwanBalance] = useState<number>(0)
   const [metaMastError, setMetaMaskError] = useState<string>('')
   const { connect } = useConnect()
@@ -43,14 +45,26 @@ const Withdraw: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
   const [balance, setBalance] = useState<string>('')
-  const [fromChain, setFromChain] = useState(
-    chainInfoFromConfig[chainInfoFromConfig.length - 1].id,
-  )
+  const [fromChain, setFromChain] = useState('2024')
 
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
   })
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
+      setL2ChainInfo(chainInfoAsObject[fromChain])
+    }
+  }, [chainInfoAsObject])
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain]?.l1ChainId])
+      setL2ChainInfo(chainInfoAsObject[fromChain])
+    }
+  }, [fromChain])
 
   const handleWithdraw = async () => {
     try {
@@ -61,18 +75,14 @@ const Withdraw: React.FC = () => {
           setErrorInput('Invalid Amount Entered!')
         } else {
           setErrorInput('')
-          let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
-          let l2Url = chainInfoAsObject[fromChain].rpcUrl
-          let AddressManager =
-            chainInfoAsObject[fromChain].contracts.addressManager
+          let l1Url = l1ChainInfo.rpcUrl
+          let l2Url = l2ChainInfo.rpcUrl
+          let AddressManager = l2ChainInfo.contracts.addressManager
           let L1CrossDomainMessenger =
-            chainInfoAsObject[fromChain].contracts.l1CrossDomainMessenger
-          let L1StandardBridge =
-            chainInfoAsObject[fromChain].contracts.l1StandardBridge
-          let L2OutputOracle =
-            chainInfoAsObject[fromChain].contracts.l2OutputOracle
-          let OptimismPortal =
-            chainInfoAsObject[fromChain].contracts.optimismPortal
+            l2ChainInfo.contracts.l1CrossDomainMessenger
+          let L1StandardBridge = l2ChainInfo.contracts.l1StandardBridge
+          let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
+          let OptimismPortal = l2ChainInfo.contracts.optimismPortal
 
           // const bridges = {
           //   Standard: {
@@ -106,7 +116,7 @@ const Withdraw: React.FC = () => {
               l1: l1Contracts,
             },
             // bridges: bridges,
-            l1ChainId: Number(chainInfoFromConfig[0].id),
+            l1ChainId: Number(l1ChainInfo.chainId),
             l2ChainId: Number(fromChain),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
@@ -249,7 +259,8 @@ const Withdraw: React.FC = () => {
   useEffect(() => {
     fetchBalance()
   }, [address])
-  if (chainInfoAsObject) {
+
+  if (chainInfoAsObject && l1ChainInfo && l2ChainInfo) {
     return (
       <>
         <Head>
@@ -276,15 +287,16 @@ const Withdraw: React.FC = () => {
                   {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
 
                   <select value={chainId} onChange={changeChain}>
-                    {chainInfoFromConfig.slice(1).map((chain) =>
-                      chain.id != 20241133 ? (
+                    {chainInfoFromConfig
+                      .slice(2)
+                      .filter(
+                        (chain) => chain.id != 20241133 && chain.id != 254,
+                      )
+                      .map((chain) => (
                         <option key={chain.id} value={chain.id}>
                           {chain.name}
                         </option>
-                      ) : (
-                        <></>
-                      ),
-                    )}
+                      ))}
                     {/* <option value="2024">Swan Saturn</option> */}
                     {/* <option value="20241133">Swan Proxima</option> */}
                   </select>
@@ -309,9 +321,7 @@ const Withdraw: React.FC = () => {
                         setSendToken(event.target.value)
                       }
                     >
-                      <option>
-                        {chainInfoAsObject[fromChain]?.nativeCurrency.symbol}
-                      </option>
+                      <option>{l2ChainInfo?.nativeCurrency?.symbol}</option>
                     </Form.Select>
                   </div>
                   <div className="input_icn_wrap">
@@ -331,8 +341,7 @@ const Withdraw: React.FC = () => {
               {sendToken === 'ETH' ? (
                 address && (
                   <p className="wallet_bal mt-2">
-                    Balance: {balance}{' '}
-                    {chainInfoAsObject[fromChain]?.nativeCurrency.symbol}
+                    Balance: {balance} {l2ChainInfo?.nativeCurrency?.symbol}
                   </p>
                 )
               ) : (
@@ -360,7 +369,7 @@ const Withdraw: React.FC = () => {
               <div className="deposit_details flex-row">
                 <p>To:</p>
                 <h5 className="flex-row">
-                  <FaEthereum /> {chainInfoFromConfig[0].name}
+                  <FaEthereum /> {l1ChainInfo.name}
                 </h5>
               </div>
               <div className="withdraw_bal_sum">
@@ -395,8 +404,7 @@ const Withdraw: React.FC = () => {
                   marginBottom: '20px',
                 }}
               >
-                Please ensure you are connected to MetaMask & Swan Saturn
-                Testnet.
+                {`Please ensure you are connected to MetaMask & the ${l2ChainInfo.name} Network`}
               </p>
               {checkMetaMask === true ? (
                 <a
@@ -425,7 +433,7 @@ const Withdraw: React.FC = () => {
                   }
                 >
                   <HiSwitchHorizontal />
-                  Switch to {chainInfoAsObject[fromChain]?.name}
+                  Switch to {l2ChainInfo?.name}
                 </button>
               ) : checkDisabled ? (
                 <button className="btn deposit_btn flex-row" disabled={true}>

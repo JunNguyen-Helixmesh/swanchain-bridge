@@ -32,13 +32,15 @@ const Deposit: React.FC = () => {
   const [loader, setLoader] = useState<boolean>(false)
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
+  const [l1ChainInfo, setL1ChainInfo] = useState<any>({})
+  const [l2ChainInfo, setL2ChainInfo] = useState<any>({})
   const [checkMetaMask, setCheckMetaMask] = useState<string>('')
   const { chains, switchChain } = useSwitchChain()
   const [showModal, setShowModal] = useState(false)
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState(
-    chainInfoFromConfig[1].id,
+    chainInfoFromConfig[2].id,
   )
   const { data: hash, sendTransaction, isPending } = useSendTransaction()
   const {
@@ -47,12 +49,12 @@ const Deposit: React.FC = () => {
   } = useWaitForTransactionReceipt({
     hash,
   })
-  const balance = useBalance({
+  let balance = useBalance({
     address: address,
     chainId: chainId,
   }).data
 
-  console.log(balance)
+  // console.log(balance)
 
   const handleDeposit = async () => {
     try {
@@ -62,19 +64,14 @@ const Deposit: React.FC = () => {
         if (!(parseFloat(ethValue) > 0)) {
           setErrorInput('Invalid Amount Entered!')
         } else {
-          let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
-          let l2Url = chainInfoAsObject[destinationChainId].rpcUrl
-          let AddressManager =
-            chainInfoAsObject[destinationChainId].contracts.addressManager
+          let l1Url = l1ChainInfo.rpcUrl
+          let l2Url = l2ChainInfo.rpcUrl
+          let AddressManager = l2ChainInfo.contracts.addressManager
           let L1CrossDomainMessenger =
-            chainInfoAsObject[destinationChainId].contracts
-              .l1CrossDomainMessenger
-          let L1StandardBridge =
-            chainInfoAsObject[destinationChainId].contracts.l1StandardBridge
-          let L2OutputOracle =
-            chainInfoAsObject[destinationChainId].contracts.l2OutputOracle
-          let OptimismPortal =
-            chainInfoAsObject[destinationChainId].contracts.optimismPortal
+            l2ChainInfo.contracts.l1CrossDomainMessenger
+          let L1StandardBridge = l2ChainInfo.contracts.l1StandardBridge
+          let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
+          let OptimismPortal = l2ChainInfo.contracts.optimismPortal
 
           const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
           const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
@@ -97,7 +94,7 @@ const Deposit: React.FC = () => {
               l1: l1Contracts,
             },
             // bridges: bridges,
-            l1ChainId: Number(chainInfoFromConfig[0].id),
+            l1ChainId: Number(l1ChainInfo.chainId),
             l2ChainId: Number(destinationChainId),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
@@ -185,15 +182,26 @@ const Deposit: React.FC = () => {
       setEthValue(e.target.value)
     }
   }
-  // ============= For Format balance =========================
-  const formatBalance = (rawBalance: string) => {
-    const balance = (parseInt(rawBalance) / 1000000000000000000).toFixed(6)
-    return balance
-  }
 
   useEffect(() => {
     console.log('Network changed:', chainId)
   }, [chainId])
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
+      setL2ChainInfo(chainInfoAsObject[destinationChainId])
+    }
+  }, [chainInfoAsObject])
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(
+        chainInfoAsObject[chainInfoAsObject[destinationChainId]?.l1ChainId],
+      )
+      setL2ChainInfo(chainInfoAsObject[destinationChainId])
+    }
+  }, [destinationChainId])
 
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
@@ -201,7 +209,7 @@ const Deposit: React.FC = () => {
     setDestinationChainId(targetChainId)
   }
 
-  if (chainInfoAsObject) {
+  if (chainInfoAsObject && l1ChainInfo && l2ChainInfo) {
     return (
       <>
         <div className="bridge_wrap">
@@ -211,7 +219,7 @@ const Deposit: React.FC = () => {
               <div className="deposit_price_title">
                 <p>From</p>
                 <h5 className="flex-row">
-                  <FaEthereum /> {chainInfoFromConfig[0].name}
+                  <FaEthereum /> {l1ChainInfo?.name}
                 </h5>
               </div>
               <div className="deposit_input_wrap">
@@ -285,7 +293,7 @@ const Deposit: React.FC = () => {
                   {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
 
                   <select value={destinationChainId} onChange={changeChain}>
-                    {chainInfoFromConfig.slice(1).map((chain) => (
+                    {chainInfoFromConfig.slice(2).map((chain) => (
                       <option key={chain.id} value={chain.id}>
                         {chain.name}
                       </option>
@@ -307,8 +315,7 @@ const Deposit: React.FC = () => {
                 <p>
                   {' '}
                   You’ll receive: {ethValue ? ethValue : '0'}{' '}
-                  {chainInfoAsObject[destinationChainId]?.nativeCurrency
-                    .symbol || 'ETH'}
+                  {l2ChainInfo?.nativeCurrency?.symbol || 'ETH'}
                 </p>
               </div>
             </div>
@@ -331,7 +338,7 @@ const Deposit: React.FC = () => {
                 }}
               >
                 Please ensure you are connected to MetaMask & the{' '}
-                {chainInfoFromConfig[0].name} Network
+                {l1ChainInfo?.name} Network
               </p>
               {checkMetaMask === 'true' ? (
                 <a
@@ -359,17 +366,17 @@ const Deposit: React.FC = () => {
                 //   Connect Wallet
                 // </button>
                 <w3m-connect-button />
-              ) : Number(chain?.id) !== Number(chainInfoFromConfig[0].id) ? (
+              ) : Number(chain?.id) !== Number(l1ChainInfo.chainId) ? (
                 <button
                   className="btn deposit_btn flex-row"
                   onClick={() =>
                     switchChain({
-                      chainId: Number(chainInfoFromConfig[0].id),
+                      chainId: Number(l1ChainInfo.chainId),
                     })
                   }
                 >
                   <HiSwitchHorizontal />
-                  Switch to {chainInfoFromConfig[0].name}
+                  Switch to {l1ChainInfo.name}
                 </button>
               ) : checkDisabled ? (
                 <button className="btn deposit_btn flex-row" disabled={true}>
@@ -390,12 +397,31 @@ const Deposit: React.FC = () => {
                   )}
                 </button>
               )}
-              {/* 
-              <button
+              {l2ChainInfo.testnet ? (
+                <p
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    textAlign: 'left',
+                    marginTop: '20px',
+                    marginBottom: '0px',
+                  }}
+                >
+                  Warning: This is a mainnet transaction involving real Ethereum
+                </p>
+              ) : (
+                <></>
+              )}
+
+              {/* <button
                 onClick={() =>
                   // console.log(chainInfoFromConfig[1].rpcUrls.default.http[0])
                   // console.log(chainInfoFromConfig)
-                  console.log(chainInfoAsObject)
+                  {
+                    console.log(l1ChainInfo)
+                    console.log(l2ChainInfo)
+                    console.log(balance)
+                  }
                 }
               >
                 My Button

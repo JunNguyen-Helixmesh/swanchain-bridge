@@ -53,6 +53,7 @@ export const SWAN_SATURN = {
     },
   },
   testnet: true,
+  l1ChainId: '11155111',
   opContracts: {
     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
     optimismPortal: process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY,
@@ -87,6 +88,7 @@ export const SWAN_PROXIMA = {
     },
   },
   testnet: true,
+  l1ChainId: '11155111',
   opContracts: {
     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
     optimismPortal: process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY,
@@ -121,7 +123,8 @@ export const SWAN_MAINNET = {
       url: process.env.NEXT_PUBLIC_L2_SWAN_EXPLORER_URL || '',
     },
   },
-  testnet: true,
+  testnet: false,
+  l1ChainId: '1',
   opContracts: {
     l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
     optimismPortal: process.env.NEXT_PUBLIC_SWAN_OPTIMISM_PORTAL_PROXY,
@@ -150,7 +153,7 @@ export const wagmiConfig = defaultWagmiConfig({
   chains:
     process.env.NEXT_PUBLIC_IS_PRODUCTION == 'true'
       ? [mainnet, SWAN_MAINNET]
-      : [sepolia, SWAN_PROXIMA, SWAN_SATURN],
+      : [sepolia, mainnet, SWAN_PROXIMA, SWAN_SATURN, SWAN_MAINNET],
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
   metadata,
   ssr: true,

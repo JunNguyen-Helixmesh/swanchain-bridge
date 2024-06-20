@@ -397,7 +397,7 @@ const Deposit: React.FC = () => {
                   )}
                 </button>
               )}
-              {l2ChainInfo.testnet ? (
+              {!l2ChainInfo.testnet ? (
                 <p
                   style={{
                     color: '#ffffff',

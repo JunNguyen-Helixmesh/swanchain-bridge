@@ -31,6 +31,8 @@ import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai'
 //import { CopyToClipboard } from "react-copy-to-clipboard";
 import NextImage from 'next/image'
 
+import { useChainConfig } from '../../hooks/useChainConfig'
+
 const HeaderNew: FunctionComponent = () => {
   const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>(
     'Copy address to clipboard',
@@ -52,6 +54,8 @@ const HeaderNew: FunctionComponent = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
+  const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
+
   useEffect(() => {
     setHydrationLoad(false)
   }, [])
@@ -68,15 +72,15 @@ const HeaderNew: FunctionComponent = () => {
   // const handleDisconnect = async () => {
   //   await disconnect()
   // }
-  useEffect(() => {
-    if (chain?.id == 11155111 || chain?.id == 20241133 || chain?.id == 2024) {
-      setNetwork(chain.name)
-      console.log(chain.name)
-      console.log(chain)
-    } else {
-      setNetwork('Unsupported Network')
-    }
-  }, [chain])
+  // useEffect(() => {
+  //   if (chainInfoFromConfig.some((chainInfo) => chainInfo.id == chain?.id)) {
+  //     setNetwork(chain?.name)
+  //     console.log(chain?.name)
+  //     console.log(chain)
+  //   } else {
+  //     setNetwork('Unsupported Network')
+  //   }
+  // }, [chain, chainInfoFromConfig, chainInfoAsObject])
   const handleSourceCopy = () => {
     if (copyTextSourceCode === 'Copy address to clipboard') {
       setCopyTextSourceCode('Copied.')

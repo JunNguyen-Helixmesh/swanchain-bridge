@@ -11,6 +11,7 @@ import { HiDownload, HiDotsVertical, HiSwitchHorizontal } from 'react-icons/hi'
 import { useAccount, useSwitchChain } from 'wagmi'
 import axios from 'axios'
 import ReactPaginate from 'react-paginate'
+import { useChainConfig } from '../hooks/useChainConfig'
 
 const { ethers } = require('ethers')
 const optimismSDK = require('@eth-optimism/sdk')
@@ -43,6 +44,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { chains, switchChain } = useSwitchChain()
+  const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
 
   useEffect(() => {
     // Fetch data from API
@@ -71,16 +73,29 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         let withdrawal_data = data.data
         let withdrawal_list = withdrawal_data.withdraw_transaction_list
 
-        let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-        let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-        const saturnProvider = new ethers.providers.JsonRpcProvider(
-          saturnUrl,
-          'any',
-        )
-        const proximaProvider = new ethers.providers.JsonRpcProvider(
-          proximaUrl,
-          'any',
-        )
+        const providers = chainInfoFromConfig
+          .slice(1)
+          .reduce((acc: any, chainInfo: any) => {
+            const provider = new ethers.providers.JsonRpcProvider(
+              chainInfoAsObject[chainInfo.id].rpcUrl,
+              'any',
+            )
+
+            acc[chainInfo.id] = provider
+
+            return acc
+          }, {})
+
+        // let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
+        // let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
+        // const saturnProvider = new ethers.providers.JsonRpcProvider(
+        //   saturnUrl,
+        //   'any',
+        // )
+        // const proximaProvider = new ethers.providers.JsonRpcProvider(
+        //   proximaUrl,
+        //   'any',
+        // )
 
         withdrawal_list = await Promise.all(
           withdrawal_list.map(async (w: any) => {
@@ -89,16 +104,20 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             //   ? w.withdraw_tx_hash
             //   : `0x${w.withdraw_tx_hash}`
 
-            let receipt = null
-            let block = null
+            // let receipt = null
+            // let block = null
 
-            if (w.chain_id == '2024') {
-              receipt = await saturnProvider.getTransaction(tx_hash)
-              block = await saturnProvider.getBlock(receipt.blockNumber)
-            } else if (w.chain_id == '20241133') {
-              receipt = await proximaProvider.getTransaction(tx_hash)
-              block = await proximaProvider.getBlock(receipt.blockNumber)
-            }
+            // if (w.chain_id == '2024') {
+            //   receipt = await saturnProvider.getTransaction(tx_hash)
+            //   block = await saturnProvider.getBlock(receipt.blockNumber)
+            // } else if (w.chain_id == '20241133') {
+            //   receipt = await proximaProvider.getTransaction(tx_hash)
+            //   block = await proximaProvider.getBlock(receipt.blockNumber)
+            // }
+            let receipt = await providers[w.chain_id].getTransaction(tx_hash)
+            let block = await providers[w.chain_id].getBlock(
+              receipt.blockNumber,
+            )
             return {
               ...w,
               tx_hash,
@@ -126,8 +145,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       setLoader(false)
     }
 
-    if (address && isConnected) fetchData()
-  }, [address, isConnected, currentPage])
+    if (address && isConnected && chainInfoAsObject) fetchData()
+  }, [address, isConnected, currentPage, chainInfoAsObject])
 
   const closeModal = () => {
     setModalData(null)
@@ -147,18 +166,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
-    let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
-    // let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
-    if (rowData.chain_id == '20241133') {
-      // l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-      L2OutputOracle = process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
-    }
-
+    let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
     const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
-    // const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
 
-    // const web3 = new Web3(l1Url)
+    let L2OutputOracle =
+      chainInfoAsObject[rowData.chain_id].contracts.l2OutputOracle
 
     const outputOracleContract = new ethers.Contract(
       L2OutputOracle,
@@ -205,25 +217,19 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const handleModalButton = async () => {
-    let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
-    let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-    let AddressManager = process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER
+    let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
+    let l2Url = chainInfoAsObject[modalData.chain_id].rpcUrl
+    let AddressManager =
+      chainInfoAsObject[modalData.chain_id].contracts.addressManager
     let L1CrossDomainMessenger =
-      process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER
+      chainInfoAsObject[modalData.chain_id].contracts.l1CrossDomainMessenger
     let L1StandardBridge =
-      process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE
-    let L2OutputOracle = process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
-    let OptimismPortal = process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY
-    if (modalData.chain_id == '20241133') {
-      l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-      AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
-      L1CrossDomainMessenger =
-        process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
-      L1StandardBridge =
-        process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
-      L2OutputOracle = process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
-      OptimismPortal = process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
-    }
+      chainInfoAsObject[modalData.chain_id].contracts.l1StandardBridge
+    let L2OutputOracle =
+      chainInfoAsObject[modalData.chain_id].contracts.l2OutputOracle
+    let OptimismPortal =
+      chainInfoAsObject[modalData.chain_id].contracts.optimismPortal
+
     const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
     const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
     const l1Signer = l1Provider.getSigner(address)
@@ -244,7 +250,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         l1: l1Contracts,
       },
       // bridges: bridges,
-      l1ChainId: Number(process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID),
+      l1ChainId: Number(chainInfoFromConfig[0].id),
       l2ChainId: Number(modalData.chain_id),
       l1SignerOrProvider: l1Signer,
       l2SignerOrProvider: l2Signer,
@@ -293,7 +299,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error:any) {
       setLoader(false)
       if (
         error.reason ===
@@ -318,214 +324,218 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     }
   }
 
-  return (
-    <>
-      <Head>
-        <title>Withdraw History</title>
-        <meta name="description" content="Withdraw History" />
-      </Head>
+  if (chainInfoAsObject) {
+    return (
+      <>
+        <Head>
+          <title>Withdraw History</title>
+          <meta name="description" content="Withdraw History" />
+        </Head>
 
-      <div className="history_wrap">
-        <div>
-          <h2>Withdrawal History {isConnected}</h2>
-          {loader && !modalData ? (
-            <div className="loading">
-              <div className="loading-text">Loading...</div>
-            </div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Amount</th>
-                  <th>Network</th>
-                  <th>Transaction Hash</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {withdrawals.map((withdrawal: any, index) => (
-                  <tr
-                    key={index}
-                    onClick={async (e: any) => {
-                      if (e.target.className != 'tx_hash')
-                        getModalData(withdrawal)
-                    }}
-                  >
-                    <td>
-                      {new Date(withdrawal.timestamp * 1000).toLocaleString()}
-                    </td>
-                    <td>{withdrawal.amount}</td>
-                    <td>
-                      {withdrawal.chain_id == '2024'
-                        ? 'Saturn'
-                        : withdrawal.chain_id == '20241133'
-                        ? 'Proxima'
-                        : withdrawal.chain_id}
-                    </td>
-                    <td>
-                      <a
-                        className="tx_hash"
-                        target="_blank"
-                        href={
-                          withdrawal.chain_id == '2024'
-                            ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                            : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                        }
-                        rel="noopener noreferrer"
-                      >
-                        {withdrawal.tx_hash.slice(0, 6)}...
-                        {withdrawal.tx_hash.slice(-4)}{' '}
-                      </a>
-                    </td>
-                    <td>{withdrawal.status}</td>
+        <div className="history_wrap">
+          <div>
+            <h2>Withdrawal History {isConnected}</h2>
+            {loader && !modalData ? (
+              <div className="loading">
+                <div className="loading-text">Loading...</div>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Amount</th>
+                    <th>Network</th>
+                    <th>Transaction Hash</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {withdrawals.map((withdrawal: any, index) => (
+                    <tr
+                      key={index}
+                      onClick={async (e: any) => {
+                        if (e.target.className != 'tx_hash')
+                          getModalData(withdrawal)
+                      }}
+                    >
+                      <td>
+                        {new Date(withdrawal.timestamp * 1000).toLocaleString()}
+                      </td>
+                      <td>{withdrawal.amount}</td>
+                      <td>
+                        {chainInfoAsObject[withdrawal.chain_id]
+                          ? chainInfoAsObject[withdrawal.chain_id].name
+                          : withdrawal.chain_id}
+                      </td>
+                      <td>
+                        <a
+                          className="tx_hash"
+                          target="_blank"
+                          href={
+                            `${
+                              chainInfoAsObject[withdrawal.chain_id]
+                                .blockExplorer
+                            }/tx/${withdrawal.tx_hash}`
+                            // withdrawal.chain_id == '2024'
+                            //   ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                            //   : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                          }
+                          rel="noopener noreferrer"
+                        >
+                          {withdrawal.tx_hash.slice(0, 6)}...
+                          {withdrawal.tx_hash.slice(-4)}{' '}
+                        </a>
+                      </td>
+                      <td>{withdrawal.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <ReactPaginate
+            className="pagination"
+            pageClassName="page-number"
+            activeClassName="active page-number"
+            previousClassName="page-number"
+            nextClassName="page-number"
+            disabledClassName="disabled"
+            breakLabel="..."
+            nextLabel=">"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={Math.ceil(totalRows / 10)}
+            previousLabel="<"
+            renderOnZeroPageCount={null}
+          />
         </div>
-        <ReactPaginate
-          className="pagination"
-          pageClassName="page-number"
-          activeClassName="active page-number"
-          previousClassName="page-number"
-          nextClassName="page-number"
-          disabledClassName="disabled"
-          breakLabel="..."
-          nextLabel=">"
-          onPageChange={handlePageClick}
-          pageRangeDisplayed={5}
-          pageCount={Math.ceil(totalRows / 10)}
-          previousLabel="<"
-          renderOnZeroPageCount={null}
-        />
-      </div>
-      {modalData && (
-        <div className="modal-container" onClick={checkModalClick}>
-          <div className="modal">
-            <div className="modal-content">
-              <div className="modal-content-header">
-                <h2>Withdrawal</h2>
-                <span className="close" onClick={closeModal}>
-                  &times;
-                </span>
-              </div>
-              <div className="modal-amoumt">
-                <span className="title">Amount to withdraw</span>
-                <span className="text">{modalData.amount} swanETH</span>
-              </div>
-              <div className="withdraw-flow">
-                <ul>
-                  <li
-                    className="withdraw-step done"
-                    onClick={() => console.log(modalData.isButtonDisabled)}
-                  >
-                    <GrSend size={28} />
-                    Initiate withdraw
-                  </li>
-                  <li className="vertical-dots">
-                    <HiDotsVertical />
-                  </li>
-                  <li
-                    className={
-                      modalData.isButtonDisabled &&
-                      modalData.status == 'initiated'
-                        ? 'withdraw-step'
-                        : 'withdraw-step done'
-                    }
-                  >
-                    <IoMdTime size={28} />
-                    Wait for the published withdraw on L1
-                  </li>
-                  <li className="vertical-dots">
-                    <HiDotsVertical />
-                  </li>
-                  <li
-                    className={
-                      modalData.status == 'proven' ||
-                      modalData.status == 'finalized'
-                        ? 'withdraw-step done'
-                        : 'withdraw-step'
-                    }
-                  >
-                    <LuShield size={28} />
-                    Prove withdrawal
-                  </li>
-                  <li className="vertical-dots">
-                    <HiDotsVertical />
-                  </li>
-                  <li
-                    className={
-                      modalData.status == 'proven' ||
-                      modalData.status == 'finalized'
-                        ? 'withdraw-step done'
-                        : 'withdraw-step'
-                    }
-                  >
-                    <IoMdTime size={28} />
-                    Wait the fault challenge period
-                  </li>
-                  <li className="vertical-dots">
-                    <HiDotsVertical />
-                  </li>
-                  <li
-                    className={
-                      modalData.status == 'finalized'
-                        ? 'withdraw-step done'
-                        : 'withdraw-step'
-                    }
-                  >
-                    <HiDownload size={28} />
-                    Claim withdrawal
-                  </li>
-                </ul>
-              </div>
-              <div className="modal-btn-container">
-                {chain?.id == process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID ? (
-                  <button
-                    className={
-                      modalData.isButtonDisabled
-                        ? 'modal-btn disabled'
-                        : 'modal-btn'
-                    }
-                    disabled={modalData.isButtonDisabled}
-                    onClick={() => handleModalButton()}
-                  >
-                    {loader ? (
-                      <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                    ) : modalData.status == 'initiated' ? (
-                      'Prove withdrawal'
-                    ) : modalData.status == 'finalized' ? (
-                      'Withdrawal claimed'
-                    ) : (
-                      'Claim withdrawal'
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    className={'modal-btn'}
-                    onClick={() =>
-                      switchChain({
-                        chainId: Number(
-                          process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID,
-                        ),
-                      })
-                    }
-                  >
-                    <HiSwitchHorizontal />
-                    Switch to Sepolia
-                  </button>
-                )}
+        {modalData && (
+          <div className="modal-container" onClick={checkModalClick}>
+            <div className="modal">
+              <div className="modal-content">
+                <div className="modal-content-header">
+                  <h2>Withdrawal</h2>
+                  <span className="close" onClick={closeModal}>
+                    &times;
+                  </span>
+                </div>
+                <div className="modal-amoumt">
+                  <span className="title">Amount to withdraw</span>
+                  <span className="text">{modalData.amount} swanETH</span>
+                </div>
+                <div className="withdraw-flow">
+                  <ul>
+                    <li
+                      className="withdraw-step done"
+                      onClick={() => console.log(modalData.isButtonDisabled)}
+                    >
+                      <GrSend size={28} />
+                      Initiate withdraw
+                    </li>
+                    <li className="vertical-dots">
+                      <HiDotsVertical />
+                    </li>
+                    <li
+                      className={
+                        modalData.isButtonDisabled &&
+                        modalData.status == 'initiated'
+                          ? 'withdraw-step'
+                          : 'withdraw-step done'
+                      }
+                    >
+                      <IoMdTime size={28} />
+                      Wait for the published withdraw on L1
+                    </li>
+                    <li className="vertical-dots">
+                      <HiDotsVertical />
+                    </li>
+                    <li
+                      className={
+                        modalData.status == 'proven' ||
+                        modalData.status == 'finalized'
+                          ? 'withdraw-step done'
+                          : 'withdraw-step'
+                      }
+                    >
+                      <LuShield size={28} />
+                      Prove withdrawal
+                    </li>
+                    <li className="vertical-dots">
+                      <HiDotsVertical />
+                    </li>
+                    <li
+                      className={
+                        modalData.status == 'proven' ||
+                        modalData.status == 'finalized'
+                          ? 'withdraw-step done'
+                          : 'withdraw-step'
+                      }
+                    >
+                      <IoMdTime size={28} />
+                      Wait the fault challenge period
+                    </li>
+                    <li className="vertical-dots">
+                      <HiDotsVertical />
+                    </li>
+                    <li
+                      className={
+                        modalData.status == 'finalized'
+                          ? 'withdraw-step done'
+                          : 'withdraw-step'
+                      }
+                    >
+                      <HiDownload size={28} />
+                      Claim withdrawal
+                    </li>
+                  </ul>
+                </div>
+                <div className="modal-btn-container">
+                  {chain?.id == process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID ? (
+                    <button
+                      className={
+                        modalData.isButtonDisabled
+                          ? 'modal-btn disabled'
+                          : 'modal-btn'
+                      }
+                      disabled={modalData.isButtonDisabled}
+                      onClick={() => handleModalButton()}
+                    >
+                      {loader ? (
+                        <Spinner animation="border" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                      ) : modalData.status == 'initiated' ? (
+                        'Prove withdrawal'
+                      ) : modalData.status == 'finalized' ? (
+                        'Withdrawal claimed'
+                      ) : (
+                        'Claim withdrawal'
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      className={'modal-btn'}
+                      onClick={() =>
+                        switchChain({
+                          chainId: Number(
+                            process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID,
+                          ),
+                        })
+                      }
+                    >
+                      <HiSwitchHorizontal />
+                      Switch to Sepolia
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
-  )
+        )}
+      </>
+    )
+  } else return <div>Loading...</div>
 }
 
 export default WithdrawHistory

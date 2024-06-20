@@ -11,16 +11,15 @@ import {
   useConfig,
   useBalance,
   useChainId,
-} from 'wagmi'
-import TabMenu from './TabMenu'
-import { HiSwitchHorizontal } from 'react-icons/hi'
-import NextImage from 'next/image'
-import {
   useSendTransaction,
   useWaitForTransactionReceipt,
   useChains,
 } from 'wagmi'
+import TabMenu from './TabMenu'
+import { HiSwitchHorizontal } from 'react-icons/hi'
+import NextImage from 'next/image'
 import { formatUnits, Address } from 'viem'
+import { useChainConfig } from '../hooks/useChainConfig'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
 
@@ -32,8 +31,7 @@ const Deposit: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [loader, setLoader] = useState<boolean>(false)
   const { chain } = useAccount()
-  const chainInfoFromConfig = useChains()
-  const [chainInfo, setChainInfo] = useState<any>({})
+  const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
   const [checkMetaMask, setCheckMetaMask] = useState<string>('')
   const { chains, switchChain } = useSwitchChain()
   const [showModal, setShowModal] = useState(false)
@@ -64,42 +62,19 @@ const Deposit: React.FC = () => {
         if (!(parseFloat(ethValue) > 0)) {
           setErrorInput('Invalid Amount Entered!')
         } else {
-          let l1Url = chainInfo[chainInfoFromConfig[0].id].rpcUrl
-          let l2Url = chainInfo[destinationChainId].rpcUrl
+          let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
+          let l2Url = chainInfoAsObject[destinationChainId].rpcUrl
           let AddressManager =
-            chainInfo[destinationChainId].contracts.addressManager
+            chainInfoAsObject[destinationChainId].contracts.addressManager
           let L1CrossDomainMessenger =
-            chainInfo[destinationChainId].contracts.l1CrossDomainMessenger
+            chainInfoAsObject[destinationChainId].contracts
+              .l1CrossDomainMessenger
           let L1StandardBridge =
-            chainInfo[destinationChainId].contracts.l1StandardBridge
+            chainInfoAsObject[destinationChainId].contracts.l1StandardBridge
           let L2OutputOracle =
-            chainInfo[destinationChainId].contracts.l2OutputOracle
+            chainInfoAsObject[destinationChainId].contracts.l2OutputOracle
           let OptimismPortal =
-            chainInfo[destinationChainId].contracts.optimismPortal
-
-          // let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
-          // let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-          // let AddressManager = process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER
-          // let L1CrossDomainMessenger =
-          //   process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER
-          // let L1StandardBridge =
-          //   process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE
-          // let L2OutputOracle =
-          //   process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
-          // let OptimismPortal =
-          //   process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY
-          // if (destinationChainId == '20241133') {
-          //   l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-          //   AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
-          //   L1CrossDomainMessenger =
-          //     process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
-          //   L1StandardBridge =
-          //     process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
-          //   L2OutputOracle =
-          //     process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
-          //   OptimismPortal =
-          //     process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
-          // }
+            chainInfoAsObject[destinationChainId].contracts.optimismPortal
 
           const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
           const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
@@ -220,34 +195,13 @@ const Deposit: React.FC = () => {
     console.log('Network changed:', chainId)
   }, [chainId])
 
-  useEffect(() => {
-    let chainObj: { [key: string]: Object } = chainInfoFromConfig.reduce(
-      (acc: any, chain: any) => {
-        acc[chain.id] = {
-          chainId: chain.id,
-          name: chain.name,
-          nativeCurrency: chain.nativeCurrency,
-          testnet: chain.testnet,
-          blockExplorer: chain.blockExplorers?.default.url,
-          rpcUrl: chain.rpcUrls?.default.http[0],
-          contracts: chain.opContracts,
-        }
-
-        return acc
-      },
-      {},
-    )
-
-    setChainInfo(chainObj)
-  }, [])
-
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
     // switchChain({ chainId: Number(targetChainId) })
     setDestinationChainId(targetChainId)
   }
 
-  if (chainInfo) {
+  if (chainInfoAsObject) {
     return (
       <>
         <div className="bridge_wrap">
@@ -353,8 +307,8 @@ const Deposit: React.FC = () => {
                 <p>
                   {' '}
                   You’ll receive: {ethValue ? ethValue : '0'}{' '}
-                  {chainInfo[destinationChainId]?.nativeCurrency.symbol ||
-                    'ETH'}
+                  {chainInfoAsObject[destinationChainId]?.nativeCurrency
+                    .symbol || 'ETH'}
                 </p>
               </div>
             </div>
@@ -441,7 +395,7 @@ const Deposit: React.FC = () => {
                 onClick={() =>
                   // console.log(chainInfoFromConfig[1].rpcUrls.default.http[0])
                   // console.log(chainInfoFromConfig)
-                  console.log(chainInfo)
+                  console.log(chainInfoAsObject)
                 }
               >
                 My Button

@@ -22,6 +22,7 @@ import NextImage from 'next/image'
 import TabMenu from './TabMenu'
 import { formatUnits } from 'viem'
 import Head from 'next/head'
+import { useChainConfig } from '../hooks/useChainConfig'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
 
@@ -33,6 +34,7 @@ const Withdraw: React.FC = () => {
   const [loader, setLoader] = useState<boolean>(false)
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
+  const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
   const [SwanBalance, setSwanBalance] = useState<number>(0)
   const [metaMastError, setMetaMaskError] = useState<string>('')
   const { connect } = useConnect()
@@ -41,7 +43,9 @@ const Withdraw: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
   const [balance, setBalance] = useState<string>('')
-  const [fromChain, setFromChain] = useState('2024')
+  const [fromChain, setFromChain] = useState(
+    chainInfoFromConfig[chainInfoFromConfig.length - 1].id,
+  )
 
   const { data } = useBalance({
     address: address,
@@ -57,29 +61,19 @@ const Withdraw: React.FC = () => {
           setErrorInput('Invalid Amount Entered!')
         } else {
           setErrorInput('')
-          let l1Url = process.env.NEXT_PUBLIC_L1_SEPOLIA_RPC_URL
-          let l2Url = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-          let AddressManager = process.env.NEXT_PUBLIC_SATURN_LIB_ADDRESSMANAGER
+          let l1Url = chainInfoAsObject[chainInfoFromConfig[0].id].rpcUrl
+          let l2Url = chainInfoAsObject[fromChain].rpcUrl
+          let AddressManager =
+            chainInfoAsObject[fromChain].contracts.addressManager
           let L1CrossDomainMessenger =
-            process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1CROSSDOMAINMESSENGER
+            chainInfoAsObject[fromChain].contracts.l1CrossDomainMessenger
           let L1StandardBridge =
-            process.env.NEXT_PUBLIC_SATURN_PROXY_OVM_L1STANDARDBRIDGE
+            chainInfoAsObject[fromChain].contracts.l1StandardBridge
           let L2OutputOracle =
-            process.env.NEXT_PUBLIC_L2_SATURN_OUTPUTORACLE_PROXY
+            chainInfoAsObject[fromChain].contracts.l2OutputOracle
           let OptimismPortal =
-            process.env.NEXT_PUBLIC_SATURN_OPTIMISM_PORTAL_PROXY
-          if (fromChain == '20241133') {
-            l2Url = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-            AddressManager = process.env.NEXT_PUBLIC_PROXIMA_LIB_ADDRESSMANAGER
-            L1CrossDomainMessenger =
-              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1CROSSDOMAINMESSENGER
-            L1StandardBridge =
-              process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE
-            L2OutputOracle =
-              process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY
-            OptimismPortal =
-              process.env.NEXT_PUBLIC_PROXIMA_OPTIMISM_PORTAL_PROXY
-          }
+            chainInfoAsObject[fromChain].contracts.optimismPortal
+
           // const bridges = {
           //   Standard: {
           //     l1Bridge: l1Contracts.L1StandardBridge,
@@ -112,8 +106,8 @@ const Withdraw: React.FC = () => {
               l1: l1Contracts,
             },
             // bridges: bridges,
-            l1ChainId: Number(process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID),
-            l2ChainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
+            l1ChainId: Number(chainInfoFromConfig[0].id),
+            l2ChainId: Number(fromChain),
             l1SignerOrProvider: l1Signer,
             l2SignerOrProvider: l2Signer,
             // bedrock: true,
@@ -255,17 +249,17 @@ const Withdraw: React.FC = () => {
   useEffect(() => {
     fetchBalance()
   }, [address])
-
-  return (
-    <>
-      <Head>
-        <title>Withdraw</title>
-        <meta name="description" content="Withdraw SwanETH to receive ETH" />
-      </Head>
-      <div className="bridge_wrap">
-        <TabMenu />
-        <section className="deposit_wrap">
-          {/* <div className="withdraw_title_wrap">
+  if (chainInfoAsObject) {
+    return (
+      <>
+        <Head>
+          <title>Withdraw</title>
+          <meta name="description" content="Withdraw SwanETH to receive ETH" />
+        </Head>
+        <div className="bridge_wrap">
+          <TabMenu />
+          <section className="deposit_wrap">
+            {/* <div className="withdraw_title_wrap">
             <div className="withdraw_title_icn">
               <MdOutlineSecurity />
             </div>
@@ -275,228 +269,212 @@ const Withdraw: React.FC = () => {
               <p>Bridge any token to Sepolia Testnet</p>
             </div>
           </div> */}
-          <div className="deposit_price_wrap">
-            <div className="deposit_price_title">
-              <p>From</p>
-              <h5 className="flex-row">
-                {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
+            <div className="deposit_price_wrap">
+              <div className="deposit_price_title">
+                <p>From</p>
+                <h5 className="flex-row">
+                  {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
 
-                <select value={chainId} onChange={changeChain}>
-                  <option value="2024">Swan Saturn</option>
-                  {/* <option value="20241133">Swan Proxima</option> */}
-                </select>
-              </h5>
-            </div>
-            <div className="deposit_input_wrap">
-              <Form>
-                <div className="deposit_inner_input">
-                  <Form.Control
-                    type="number"
-                    name="eth_value"
-                    value={ethValue}
-                    onChange={handleChange}
-                    placeholder="0"
-                    min="0"
-                    step="any"
-                  />
-                  <Form.Select
-                    aria-label="Default select example"
-                    className="select_wrap"
-                    onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-                      setSendToken(event.target.value)
-                    }
-                  >
-                    <option>swanETH</option>
-                    {/* <option value="DAI">DAI</option>
-                    <option value="USDT">USDT</option>
-                    <option value="wBTC">wBTC</option>
-                    <option value="USDC">USDC</option> */}
-                  </Form.Select>
-                </div>
-                <div className="input_icn_wrap">
-                  {sendToken == 'ETH' ? (
-                    <span className="input_icn flex-row">
-                      <Ethereum style={{ fontSize: '1.5rem' }} />
-                    </span>
-                  ) : sendToken == 'DAI' ? (
-                    <span className="input_icn flex-row">
-                      <Dai style={{ fontSize: '1.5rem' }} />
-                    </span>
-                  ) : sendToken == 'USDT' ? (
-                    <span className="input_icn flex-row">
-                      <Usdt style={{ fontSize: '1.5rem' }} />
-                    </span>
-                  ) : sendToken == 'wBTC' ? (
-                    <span className="input_icn flex-row">
-                      <Btc style={{ fontSize: '1.5rem' }} />
-                    </span>
-                  ) : (
-                    <span className="input_icn flex-row">
-                      <Usdc style={{ fontSize: '1.5rem' }} />
-                    </span>
-                  )}
-                </div>
-              </Form>
-            </div>
-            {errorInput && <small className="text-danger">{errorInput}</small>}
-            {sendToken === 'ETH' ? (
-              address && (
-                <p className="wallet_bal mt-2">Balance: {balance} ETH</p>
-              )
-            ) : (
-              <></>
-            )}
-          </div>
-          <div className="up flex-row center">
-            <svg
-              width="17"
-              height="19"
-              viewBox="0 0 17 19"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.5 17.4736L15 11.0696M8.5 17.4736L2 11.0696M8.5 17.4736V1.5"
-                stroke="#447DFF"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <div className="deposit_details_wrap">
-            <div className="deposit_details flex-row">
-              <p>To:</p>
-              <h5 className="flex-row">
-                <FaEthereum /> Sepolia Testnet
-              </h5>
-            </div>
-            <div className="withdraw_bal_sum">
-              {sendToken == 'ETH' ? (
-                <span className="input_icn flex-row">
-                  <Ethereum style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : sendToken == 'DAI' ? (
-                <span className="input_icn flex-row">
-                  <Dai style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : sendToken == 'USDT' ? (
-                <span className="input_icn flex-row">
-                  <Usdt style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : sendToken == 'wBTC' ? (
-                <span className="input_icn flex-row">
-                  <Btc style={{ fontSize: '1.5rem' }} />
-                </span>
-              ) : (
-                <span className="input_icn flex-row">
-                  <Usdc style={{ fontSize: '1.5rem' }} />
-                </span>
+                  <select value={chainId} onChange={changeChain}>
+                    {chainInfoFromConfig.slice(1).map((chain) =>
+                      chain.id != 20241133 ? (
+                        <option key={chain.id} value={chain.id}>
+                          {chain.name}
+                        </option>
+                      ) : (
+                        <></>
+                      ),
+                    )}
+                    {/* <option value="2024">Swan Saturn</option> */}
+                    {/* <option value="20241133">Swan Proxima</option> */}
+                  </select>
+                </h5>
+              </div>
+              <div className="deposit_input_wrap">
+                <Form>
+                  <div className="deposit_inner_input">
+                    <Form.Control
+                      type="number"
+                      name="eth_value"
+                      value={ethValue}
+                      onChange={handleChange}
+                      placeholder="0"
+                      min="0"
+                      step="any"
+                    />
+                    <Form.Select
+                      aria-label="Default select example"
+                      className="select_wrap"
+                      onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                        setSendToken(event.target.value)
+                      }
+                    >
+                      <option>
+                        {chainInfoAsObject[fromChain]?.nativeCurrency.symbol}
+                      </option>
+                    </Form.Select>
+                  </div>
+                  <div className="input_icn_wrap">
+                    {sendToken == 'ETH' ? (
+                      <span className="input_icn flex-row">
+                        <Ethereum style={{ fontSize: '1.5rem' }} />
+                      </span>
+                    ) : (
+                      <span></span>
+                    )}
+                  </div>
+                </Form>
+              </div>
+              {errorInput && (
+                <small className="text-danger">{errorInput}</small>
               )}
-              <p>
-                You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
-              </p>
-              <div></div>
-              {/* <span className='input_title'>ETH</span> */}
+              {sendToken === 'ETH' ? (
+                address && (
+                  <p className="wallet_bal mt-2">
+                    Balance: {balance}{' '}
+                    {chainInfoAsObject[fromChain]?.nativeCurrency.symbol}
+                  </p>
+                )
+              ) : (
+                <></>
+              )}
             </div>
-          </div>
-          <div
-            className="deposit_btn_wrap"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-          >
-            <p
-              style={{
-                color: '#ffffff',
-                fontSize: '0.8rem',
-                textAlign: 'center',
-                marginTop: '0px',
-                marginBottom: '20px',
-              }}
-            >
-              Please ensure you are connected to MetaMask & Swan Saturn Testnet.
-            </p>
-            {checkMetaMask === true ? (
-              <a
-                className="btn deposit_btn flex-row"
-                href="https://metamask.io/"
-                target="_blank"
+            <div className="up flex-row center">
+              <svg
+                width="17"
+                height="19"
+                viewBox="0 0 17 19"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <NextImage
-                  src="/assets/images/metamask.svg"
-                  alt="metamask icn"
-                  layout="responsive"
-                  width={500}
-                  height={300}
+                <path
+                  d="M8.5 17.4736L15 11.0696M8.5 17.4736L2 11.0696M8.5 17.4736V1.5"
+                  stroke="#447DFF"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-                Please Install Metamask Wallet
-              </a>
-            ) : !isConnected ? (
-              <w3m-connect-button />
-            ) : Number(chain?.id) !== Number(fromChain) ? (
-              <button
-                className="btn deposit_btn flex-row"
-                onClick={() =>
-                  switchChain({
-                    chainId: Number(fromChain),
-                  })
-                }
-              >
-                <HiSwitchHorizontal />
-                {fromChain == '2024'
-                  ? 'Switch to Swan Saturn'
-                  : 'Switch to Swan Proxima'}
-              </button>
-            ) : checkDisabled ? (
-              <button className="btn deposit_btn flex-row" disabled={true}>
-                Initiate Withdrawal
-              </button>
-            ) : (
-              <button
-                className="btn deposit_btn flex-row"
-                onClick={handleWithdraw}
-                disabled={loader ? true : false}
-              >
-                {loader ? (
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
+              </svg>
+            </div>
+            <div className="deposit_details_wrap">
+              <div className="deposit_details flex-row">
+                <p>To:</p>
+                <h5 className="flex-row">
+                  <FaEthereum /> {chainInfoFromConfig[0].name}
+                </h5>
+              </div>
+              <div className="withdraw_bal_sum">
+                {sendToken == 'ETH' ? (
+                  <span className="input_icn flex-row">
+                    <Ethereum style={{ fontSize: '1.5rem' }} />
+                  </span>
                 ) : (
-                  'Initiate Withdrawal'
+                  <span></span>
                 )}
-              </button>
-            )}
-            <p
+                <p>
+                  You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
+                </p>
+                <div></div>
+                {/* <span className='input_title'>ETH</span> */}
+              </div>
+            </div>
+            <div
+              className="deposit_btn_wrap"
               style={{
-                color: '#ffffff',
-                fontSize: '0.7rem',
-                textAlign: 'left',
-                marginTop: '20px',
-                marginBottom: '0px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
               }}
             >
-              After you initiate the withdrawal, please go to the Withdraw
-              History page to complete the withdrawal process.
-            </p>
-            <p
-              style={{
-                color: '#ffffff',
-                fontSize: '0.7rem',
-                textAlign: 'left',
-                marginTop: '0px',
-                marginBottom: '0px',
-              }}
-            >
-              You may need to wait for our blockchain scanner to pickup your
-              request.
-            </p>
-          </div>
-        </section>
-      </div>
-    </>
-  )
+              <p
+                style={{
+                  color: '#ffffff',
+                  fontSize: '0.8rem',
+                  textAlign: 'center',
+                  marginTop: '0px',
+                  marginBottom: '20px',
+                }}
+              >
+                Please ensure you are connected to MetaMask & Swan Saturn
+                Testnet.
+              </p>
+              {checkMetaMask === true ? (
+                <a
+                  className="btn deposit_btn flex-row"
+                  href="https://metamask.io/"
+                  target="_blank"
+                >
+                  <NextImage
+                    src="/assets/images/metamask.svg"
+                    alt="metamask icn"
+                    layout="responsive"
+                    width={500}
+                    height={300}
+                  />
+                  Please Install Metamask Wallet
+                </a>
+              ) : !isConnected ? (
+                <w3m-connect-button />
+              ) : Number(chain?.id) !== Number(fromChain) ? (
+                <button
+                  className="btn deposit_btn flex-row"
+                  onClick={() =>
+                    switchChain({
+                      chainId: Number(fromChain),
+                    })
+                  }
+                >
+                  <HiSwitchHorizontal />
+                  Switch to {chainInfoAsObject[fromChain].name}
+                </button>
+              ) : checkDisabled ? (
+                <button className="btn deposit_btn flex-row" disabled={true}>
+                  Initiate Withdrawal
+                </button>
+              ) : (
+                <button
+                  className="btn deposit_btn flex-row"
+                  onClick={handleWithdraw}
+                  disabled={loader ? true : false}
+                >
+                  {loader ? (
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                  ) : (
+                    'Initiate Withdrawal'
+                  )}
+                </button>
+              )}
+              <p
+                style={{
+                  color: '#ffffff',
+                  fontSize: '0.7rem',
+                  textAlign: 'left',
+                  marginTop: '20px',
+                  marginBottom: '0px',
+                }}
+              >
+                After you initiate the withdrawal, please go to the Withdraw
+                History page to complete the withdrawal process.
+              </p>
+              <p
+                style={{
+                  color: '#ffffff',
+                  fontSize: '0.7rem',
+                  textAlign: 'left',
+                  marginTop: '0px',
+                  marginBottom: '0px',
+                }}
+              >
+                You may need to wait for our blockchain scanner to pickup your
+                request.
+              </p>
+            </div>
+          </section>
+        </div>
+      </>
+    )
+  } else return <div>Loading...</div>
 }
 export default Withdraw

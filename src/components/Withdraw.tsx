@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
 import { Form, Image, Spinner, Modal, Button } from 'react-bootstrap'
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons'
@@ -23,6 +23,7 @@ import TabMenu from './TabMenu'
 import { formatUnits } from 'viem'
 import Head from 'next/head'
 import { useChainConfig } from '../hooks/useChainConfig'
+import { MainnetContext } from '@/pages/_app'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
 
@@ -45,12 +46,21 @@ const Withdraw: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
   const chainId = useChainId()
   const [balance, setBalance] = useState<string>('')
-  const [fromChain, setFromChain] = useState('2024')
+  const [fromChain, setFromChain] = useState(chainInfoFromConfig[1].id)
+  const { isMainnet } = useContext(MainnetContext)
 
   const { data } = useBalance({
     address: address,
     chainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
   })
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
+      setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[1].id])
+      setFromChain(chainInfoFromConfig[1].id)
+    }
+  }, [isMainnet])
 
   useEffect(() => {
     if (chainInfoAsObject) {
@@ -288,10 +298,8 @@ const Withdraw: React.FC = () => {
 
                   <select value={chainId} onChange={changeChain}>
                     {chainInfoFromConfig
-                      .slice(2)
-                      .filter(
-                        (chain) => chain.id != 20241133 && chain.id != 254,
-                      )
+                      .slice(1)
+                      .filter((chain) => chain.id != 20241133)
                       .map((chain) => (
                         <option key={chain.id} value={chain.id}>
                           {chain.name}
@@ -423,6 +431,13 @@ const Withdraw: React.FC = () => {
                 </a>
               ) : !isConnected ? (
                 <w3m-connect-button />
+              ) : isMainnet ? (
+                <button
+                  className="btn deposit_btn flex-row disabled"
+                  disabled={true}
+                >
+                  Initate Withdrawal
+                </button>
               ) : Number(chain?.id) !== Number(fromChain) ? (
                 <button
                   className="btn deposit_btn flex-row"
@@ -454,30 +469,46 @@ const Withdraw: React.FC = () => {
                   )}
                 </button>
               )}
-              <p
-                style={{
-                  color: '#ffffff',
-                  fontSize: '0.7rem',
-                  textAlign: 'left',
-                  marginTop: '20px',
-                  marginBottom: '0px',
-                }}
-              >
-                After you initiate the withdrawal, please go to the Withdraw
-                History page to complete the withdrawal process.
-              </p>
-              <p
-                style={{
-                  color: '#ffffff',
-                  fontSize: '0.7rem',
-                  textAlign: 'left',
-                  marginTop: '0px',
-                  marginBottom: '0px',
-                }}
-              >
-                You may need to wait for our blockchain scanner to pickup your
-                request.
-              </p>
+              {isMainnet ? (
+                <p
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    textAlign: 'center',
+                    marginTop: '20px',
+                    marginBottom: '0px',
+                  }}
+                >
+                  Withdrawals from Swan Mainnet are currently unavailable
+                </p>
+              ) : (
+                <>
+                  <p
+                    style={{
+                      color: '#ffffff',
+                      fontSize: '0.7rem',
+                      textAlign: 'left',
+                      marginTop: '20px',
+                      marginBottom: '0px',
+                    }}
+                  >
+                    After you initiate the withdrawal, please go to the Withdraw
+                    History page to complete the withdrawal process.
+                  </p>
+                  <p
+                    style={{
+                      color: '#ffffff',
+                      fontSize: '0.7rem',
+                      textAlign: 'left',
+                      marginTop: '0px',
+                      marginBottom: '0px',
+                    }}
+                  >
+                    You may need to wait for our blockchain scanner to pickup
+                    your request.
+                  </p>
+                </>
+              )}
             </div>
           </section>
         </div>

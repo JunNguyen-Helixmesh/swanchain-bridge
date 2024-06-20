@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { useSearchParams } from 'next/navigation'
 import Head from 'next/head'
@@ -12,6 +12,7 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import axios from 'axios'
 import ReactPaginate from 'react-paginate'
 import { useChainConfig } from '../hooks/useChainConfig'
+import { MainnetContext } from '@/pages/_app'
 
 const { ethers } = require('ethers')
 const optimismSDK = require('@eth-optimism/sdk')
@@ -44,7 +45,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { chains, switchChain } = useSwitchChain()
-  const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
+  const {
+    allChainInfoFromConfig: chainInfoFromConfig,
+    allChainInfoAsObject: chainInfoAsObject,
+  } = useChainConfig()
+  const { isMainnet } = useContext(MainnetContext)
 
   useEffect(() => {
     // Fetch data from API
@@ -62,14 +67,17 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         //   { shallow: true },
         // )
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
+          `${
+            isMainnet
+              ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
+              : process.env.NEXT_PUBLIC_TESTNET_API_ROUTE
+          }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch data')
         }
         let data = await response.json()
-        // console.log(data)
         let withdrawal_data = data.data
         let withdrawal_list = withdrawal_data.withdraw_transaction_list
 
@@ -85,6 +93,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
             return acc
           }, {})
+
 
         // let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
         // let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
@@ -166,9 +175,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
-    let l1ChainInfo =
-      chainInfoAsObject[chainInfoAsObject[rowData.chain_id].l1ChainId]
     let l2ChainInfo = chainInfoAsObject[rowData.chain_id]
+    let l1ChainInfo = chainInfoAsObject[l2ChainInfo.l1ChainId]
 
     let l1Url = l1ChainInfo.rpcUrl
     const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
@@ -258,7 +266,6 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       l2SignerOrProvider: l2Signer,
       // bedrock: true,
     })
-    console.log(address)
 
     try {
       setLoader(true)
@@ -301,7 +308,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error:any) {
       setLoader(false)
       if (
         error.reason ===

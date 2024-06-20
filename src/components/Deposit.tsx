@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { Form, Image, Spinner, Modal, Button } from 'react-bootstrap'
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons'
@@ -20,6 +20,7 @@ import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import { formatUnits, Address } from 'viem'
 import { useChainConfig } from '../hooks/useChainConfig'
+import { MainnetContext } from '@/pages/_app'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
 
@@ -40,7 +41,7 @@ const Deposit: React.FC = () => {
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState(
-    chainInfoFromConfig[2].id,
+    chainInfoFromConfig[1].id,
   )
   const { data: hash, sendTransaction, isPending } = useSendTransaction()
   const {
@@ -53,6 +54,8 @@ const Deposit: React.FC = () => {
     address: address,
     chainId: chainId,
   }).data
+
+  const { isMainnet } = useContext(MainnetContext)
 
   // console.log(balance)
 
@@ -148,7 +151,7 @@ const Deposit: React.FC = () => {
 
       // Make the POST request using Axios
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials`,
+        `${process.env.NEXT_PUBLIC_TESTNET_API_ROUTE}/galxe/update_credentials`,
         postData,
         {
           headers: {
@@ -186,6 +189,14 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     console.log('Network changed:', chainId)
   }, [chainId])
+
+  useEffect(() => {
+    if (chainInfoAsObject) {
+      setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
+      setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[1].id])
+      setDestinationChainId(chainInfoFromConfig[1].id)
+    }
+  }, [isMainnet])
 
   useEffect(() => {
     if (chainInfoAsObject) {
@@ -293,7 +304,7 @@ const Deposit: React.FC = () => {
                   {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
 
                   <select value={destinationChainId} onChange={changeChain}>
-                    {chainInfoFromConfig.slice(2).map((chain) => (
+                    {chainInfoFromConfig.slice(1).map((chain) => (
                       <option key={chain.id} value={chain.id}>
                         {chain.name}
                       </option>
@@ -445,7 +456,21 @@ const Deposit: React.FC = () => {
         </div>
       </>
     )
-  } else return <div>Loading...</div>
+  } else
+    return (
+      <div>
+        Loading...
+        {/* <button
+          onClick={() => {
+            console.log(chainInfoAsObject)
+            console.log(l1ChainInfo)
+            console.log(l2ChainInfo)
+          }}
+        >
+          TEST
+        </button> */}
+      </div>
+    )
 }
 
 export default Deposit

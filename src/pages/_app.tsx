@@ -16,7 +16,7 @@ import { injected } from 'wagmi/connectors'
 import Header from '../components/common/Header'
 import Footer from '../components/common/Footer'
 import type { AppProps } from 'next/app'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '../assets/style/account/account.scss'
 import '../assets/style/account/withdrawAccount.scss'
@@ -150,10 +150,13 @@ const metadata = {
 }
 
 export const wagmiConfig = defaultWagmiConfig({
-  chains:
-    process.env.NEXT_PUBLIC_IS_PRODUCTION == 'true'
-      ? [mainnet, SWAN_MAINNET]
-      : [sepolia, mainnet, SWAN_PROXIMA, SWAN_SATURN, SWAN_MAINNET],
+  chains: [
+    sepolia,
+    { ...mainnet, testnet: false },
+    SWAN_PROXIMA,
+    SWAN_SATURN,
+    SWAN_MAINNET,
+  ],
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
   metadata,
   ssr: true,
@@ -188,32 +191,36 @@ createWeb3Modal({
 // })
 
 export const connector = injected({ target: 'metaMask' })
+export const MainnetContext = createContext<any>(null)
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [isMounted, setIsMounted] = useState(false)
+  const [isMainnet, setIsMainnet] = useState<any>(true)
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <Head>
-          <title>SwanETH Bridge</title>
-          <meta
-            name="description"
-            content="Welcome to the Swan Bridge. We will NEVER ask for your private keys or seed phrase."
-          />
-          <link rel="icon" href="/assets/images/swantoken.png" />
-        </Head>
-        <Header />
-        <div className="main_wrap">
-          {isMounted && <Component {...pageProps} />}
-        </div>
-        <Footer />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <MainnetContext.Provider value={{ isMainnet, setIsMainnet }}>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <Head>
+            <title>SwanETH Bridge</title>
+            <meta
+              name="description"
+              content="Welcome to the Swan Bridge. We will NEVER ask for your private keys or seed phrase."
+            />
+            <link rel="icon" href="/assets/images/swantoken.png" />
+          </Head>
+          <Header />
+          <div className="main_wrap">
+            {isMounted && <Component {...pageProps} />}
+          </div>
+          <Footer />
+        </QueryClientProvider>
+      </WagmiProvider>
+    </MainnetContext.Provider>
   )
 }
 

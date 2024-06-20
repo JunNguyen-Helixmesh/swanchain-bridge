@@ -201,6 +201,11 @@
         background-color: var(--button-color);
         color: var(--light-color);
       }
+      &.disabled {
+        background-color: grey;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
     }
   }
   .transaction_hash {

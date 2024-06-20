@@ -11,7 +11,7 @@ import {
   createStorage,
   cookieToInitialState,
 } from 'wagmi'
-import { sepolia } from 'wagmi/chains'
+import { sepolia, mainnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 import Header from '../components/common/Header'
 import Footer from '../components/common/Footer'
@@ -99,6 +99,40 @@ export const SWAN_PROXIMA = {
   },
 }
 
+export const SWAN_MAINNET = {
+  id: Number(process.env.NEXT_PUBLIC_L2_SWAN_CHAIN_ID),
+  name: 'Swan',
+  network: 'SWAN',
+  iconUrl: 'https://i.imgur.com/Q3oIdip.png',
+  iconBackground: '#000000',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Swan ETH',
+    symbol: 'swanETH',
+  },
+  rpcUrls: {
+    default: {
+      http: [String(process.env.NEXT_PUBLIC_L2_SWAN_RPC_URL)],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Swan Mainnet Explorer',
+      url: process.env.NEXT_PUBLIC_L2_SWAN_EXPLORER_URL || '',
+    },
+  },
+  testnet: true,
+  opContracts: {
+    l2Bridge: process.env.NEXT_PUBLIC_L2_BRIDGE,
+    optimismPortal: process.env.NEXT_PUBLIC_SWAN_OPTIMISM_PORTAL_PROXY,
+    addressManager: process.env.NEXT_PUBLIC_SWAN_LIB_ADDRESSMANAGER,
+    l1CrossDomainMessenger:
+      process.env.NEXT_PUBLIC_SWAN_PROXY_OVM_L1CROSSDOMAINMESSENGER,
+    l1StandardBridge: process.env.NEXT_PUBLIC_SWAN_PROXY_OVM_L1STANDARDBRIDGE,
+    l2OutputOracle: process.env.NEXT_PUBLIC_L2_SWAN_OUTPUTORACLE_PROXY,
+  },
+}
+
 const noopStorage = {
   getItem: (_key: any) => '',
   setItem: (_key: any, _value: any) => {},
@@ -113,7 +147,10 @@ const metadata = {
 }
 
 export const wagmiConfig = defaultWagmiConfig({
-  chains: [sepolia, SWAN_PROXIMA, SWAN_SATURN],
+  chains:
+    process.env.NEXT_PUBLIC_IS_PRODUCTION == 'true'
+      ? [mainnet, SWAN_MAINNET]
+      : [sepolia, SWAN_PROXIMA, SWAN_SATURN],
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),
   metadata,
   ssr: true,

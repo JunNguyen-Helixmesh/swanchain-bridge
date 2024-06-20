@@ -211,7 +211,7 @@ const Deposit: React.FC = () => {
               <div className="deposit_price_title">
                 <p>From</p>
                 <h5 className="flex-row">
-                  <FaEthereum /> Sepolia Testnet
+                  <FaEthereum /> {chainInfoFromConfig[0].name}
                 </h5>
               </div>
               <div className="deposit_input_wrap">
@@ -330,8 +330,8 @@ const Deposit: React.FC = () => {
                   marginBottom: '20px',
                 }}
               >
-                Please ensure you are connected to MetaMask & the Sepolia
-                Testnet.
+                Please ensure you are connected to MetaMask & the{' '}
+                {chainInfoFromConfig[0].name} Network
               </p>
               {checkMetaMask === 'true' ? (
                 <a
@@ -390,7 +390,7 @@ const Deposit: React.FC = () => {
                   )}
                 </button>
               )}
-
+              {/* 
               <button
                 onClick={() =>
                   // console.log(chainInfoFromConfig[1].rpcUrls.default.http[0])
@@ -399,7 +399,7 @@ const Deposit: React.FC = () => {
                 }
               >
                 My Button
-              </button>
+              </button> */}
             </div>{' '}
             {showModal && (
               <div

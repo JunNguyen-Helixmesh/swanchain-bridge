@@ -425,7 +425,7 @@ const Withdraw: React.FC = () => {
                   }
                 >
                   <HiSwitchHorizontal />
-                  Switch to {chainInfoAsObject[fromChain].name}
+                  Switch to {chainInfoAsObject[fromChain]?.name}
                 </button>
               ) : checkDisabled ? (
                 <button className="btn deposit_btn flex-row" disabled={true}>

@@ -491,7 +491,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   </ul>
                 </div>
                 <div className="modal-btn-container">
-                  {chain?.id == process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID ? (
+                  {chain?.id == chainInfoFromConfig[0].id ? (
                     <button
                       className={
                         modalData.isButtonDisabled
@@ -518,14 +518,12 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       className={'modal-btn'}
                       onClick={() =>
                         switchChain({
-                          chainId: Number(
-                            process.env.NEXT_PUBLIC_L1_SEPOLIA_CHAIN_ID,
-                          ),
+                          chainId: Number(chainInfoFromConfig[0].id),
                         })
                       }
                     >
                       <HiSwitchHorizontal />
-                      Switch to Sepolia
+                      Switch to {chainInfoFromConfig[0].name}
                     </button>
                   )}
                 </div>

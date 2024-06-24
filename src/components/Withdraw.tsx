@@ -431,14 +431,15 @@ const Withdraw: React.FC = () => {
                 </a>
               ) : !isConnected ? (
                 <w3m-connect-button />
-              ) : isMainnet ? (
-                <button
-                  className="btn deposit_btn flex-row disabled"
-                  disabled={true}
-                >
-                  Initate Withdrawal
-                </button>
-              ) : Number(chain?.id) !== Number(fromChain) ? (
+              ) : // : isMainnet ? (
+              //   <button
+              //     className="btn deposit_btn flex-row disabled"
+              //     disabled={true}
+              //   >
+              //     Initate Withdrawal
+              //   </button>
+              // )
+              Number(chain?.id) !== Number(fromChain) ? (
                 <button
                   className="btn deposit_btn flex-row"
                   onClick={() =>
@@ -469,7 +470,7 @@ const Withdraw: React.FC = () => {
                   )}
                 </button>
               )}
-              {isMainnet ? (
+              {/* {isMainnet ? (
                 <p
                   style={{
                     color: '#ffffff',
@@ -481,34 +482,34 @@ const Withdraw: React.FC = () => {
                 >
                   Withdrawals from Swan Mainnet are currently unavailable
                 </p>
-              ) : (
-                <>
-                  <p
-                    style={{
-                      color: '#ffffff',
-                      fontSize: '0.7rem',
-                      textAlign: 'left',
-                      marginTop: '20px',
-                      marginBottom: '0px',
-                    }}
-                  >
-                    After you initiate the withdrawal, please go to the Withdraw
-                    History page to complete the withdrawal process.
-                  </p>
-                  <p
-                    style={{
-                      color: '#ffffff',
-                      fontSize: '0.7rem',
-                      textAlign: 'left',
-                      marginTop: '0px',
-                      marginBottom: '0px',
-                    }}
-                  >
-                    You may need to wait for our blockchain scanner to pickup
-                    your request.
-                  </p>
-                </>
-              )}
+              ) : ( */}
+              <>
+                <p
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    textAlign: 'left',
+                    marginTop: '20px',
+                    marginBottom: '0px',
+                  }}
+                >
+                  After you initiate the withdrawal, please go to the Withdraw
+                  History page to complete the withdrawal process.
+                </p>
+                <p
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    textAlign: 'left',
+                    marginTop: '0px',
+                    marginBottom: '0px',
+                  }}
+                >
+                  You may need to wait for our blockchain scanner to pickup your
+                  request.
+                </p>
+              </>
+              {/* )} */}
             </div>
           </section>
         </div>

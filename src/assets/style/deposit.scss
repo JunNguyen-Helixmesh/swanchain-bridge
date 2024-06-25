@@ -3,6 +3,7 @@
     margin: 22px auto 10px;
     padding: 20px 9px;
     background: var(--tab-color);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     .deposit_price_title {
       display: flex;
@@ -122,6 +123,7 @@
     margin: 10px auto 22px;
     padding: 20px 9px;
     background: var(--tab-color);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     .deposit_details {
       display: flex;

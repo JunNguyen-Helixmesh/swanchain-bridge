@@ -38,6 +38,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const { address, isConnected, chain } = useAccount()
   const [withdrawals, setWithdrawals] = useState([])
   const [loader, setLoader] = useState<boolean>(false)
+  const [loaded, setLoaded] = useState(false);
   const [modalData, setModalData] = useState<any>(null)
   const [offset, setOffset] = useState<Number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -68,9 +69,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         // )
         const response = await fetch(
           `${
-            isMainnet
-              ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
-              : process.env.NEXT_PUBLIC_TESTNET_API_ROUTE
+          isMainnet
+            ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
+            : process.env.NEXT_PUBLIC_TESTNET_API_ROUTE
           }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
@@ -308,7 +309,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error:any) {
+    } catch (error: any) {
       setLoader(false)
       if (
         error.reason ===
@@ -333,6 +334,16 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     }
   }
 
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      console.log('load complete');
+    }
+  }, [loaded]);
+
   if (chainInfoAsObject) {
     return (
       <>
@@ -341,7 +352,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           <meta name="description" content="Withdraw History" />
         </Head>
 
-        <div className="history_wrap">
+        <div className={loaded ? 'loaded history_wrap' : 'history_wrap'}>
           <div>
             <h2>Withdrawal History {isConnected}</h2>
             {loader && !modalData ? (
@@ -349,59 +360,57 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                 <div className="loading-text">Loading...</div>
               </div>
             ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Amount</th>
-                    <th>Network</th>
-                    <th>Transaction Hash</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {withdrawals.map((withdrawal: any, index) => (
-                    <tr
-                      key={index}
-                      onClick={async (e: any) => {
-                        if (e.target.className != 'tx_hash')
-                          getModalData(withdrawal)
-                      }}
-                    >
-                      <td>
-                        {new Date(withdrawal.timestamp * 1000).toLocaleString()}
-                      </td>
-                      <td>{withdrawal.amount}</td>
-                      <td>
-                        {chainInfoAsObject[withdrawal.chain_id]
-                          ? chainInfoAsObject[withdrawal.chain_id].name
-                          : withdrawal.chain_id}
-                      </td>
-                      <td>
-                        <a
-                          className="tx_hash"
-                          target="_blank"
-                          href={
-                            `${
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Amount</th>
+                      <th>Network</th>
+                      <th>Transaction Hash</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {withdrawals.map((withdrawal: any, index) => (
+                      <tr
+                        key={index}
+                        onClick={async (e: any) => {
+                          console.log('td:', e.target.className)
+                          if (e.target.className != 'tx_hash') {
+                            getModalData(withdrawal)
+                          }
+                        }}
+                      >
+                        <td>{withdrawal.amount}</td>
+                        <td>
+                          {chainInfoAsObject[withdrawal.chain_id]
+                            ? chainInfoAsObject[withdrawal.chain_id].name
+                            : withdrawal.chain_id}
+                        </td>
+                        <td>
+                          <a
+                            className="tx_hash"
+                            target="_blank"
+                            href={
+                              `${
                               chainInfoAsObject[withdrawal.chain_id]
                                 .blockExplorer
-                            }/tx/${withdrawal.tx_hash}`
-                            // withdrawal.chain_id == '2024'
-                            //   ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                            //   : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                          }
-                          rel="noopener noreferrer"
-                        >
-                          {withdrawal.tx_hash.slice(0, 6)}...
+                              }/tx/${withdrawal.tx_hash}`
+                              // withdrawal.chain_id == '2024'
+                              //   ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                              //   : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                            }
+                            rel="noopener noreferrer"
+                          >
+                            {withdrawal.tx_hash.slice(0, 6)}...
                           {withdrawal.tx_hash.slice(-4)}{' '}
-                        </a>
-                      </td>
-                      <td>{withdrawal.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                          </a>
+                        </td>
+                        <td>{withdrawal.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
           </div>
           <ReactPaginate
             className="pagination"
@@ -448,7 +457,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <li
                       className={
                         modalData.isButtonDisabled &&
-                        modalData.status == 'initiated'
+                          modalData.status == 'initiated'
                           ? 'withdraw-step'
                           : 'withdraw-step done'
                       }
@@ -462,7 +471,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <li
                       className={
                         modalData.status == 'proven' ||
-                        modalData.status == 'finalized'
+                          modalData.status == 'finalized'
                           ? 'withdraw-step done'
                           : 'withdraw-step'
                       }
@@ -476,7 +485,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <li
                       className={
                         modalData.status == 'proven' ||
-                        modalData.status == 'finalized'
+                          modalData.status == 'finalized'
                           ? 'withdraw-step done'
                           : 'withdraw-step'
                       }
@@ -500,7 +509,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   </ul>
                 </div>
                 <div className="modal-btn-container">
-                  {chain?.id == modalData.l1ChainInfo.chainId ? (
+                  {chain ?.id == modalData.l1ChainInfo.chainId ? (
                     <button
                       className={
                         modalData.isButtonDisabled
@@ -519,22 +528,22 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       ) : modalData.status == 'finalized' ? (
                         'Withdrawal claimed'
                       ) : (
-                        'Claim withdrawal'
-                      )}
+                              'Claim withdrawal'
+                            )}
                     </button>
                   ) : (
-                    <button
-                      className={'modal-btn'}
-                      onClick={() =>
-                        switchChain({
-                          chainId: Number(modalData.l1ChainInfo.chainId),
-                        })
-                      }
-                    >
-                      <HiSwitchHorizontal />
-                      Switch to {modalData.l1ChainInfo.name}
-                    </button>
-                  )}
+                      <button
+                        className={'modal-btn'}
+                        onClick={() =>
+                          switchChain({
+                            chainId: Number(modalData.l1ChainInfo.chainId),
+                          })
+                        }
+                      >
+                        <HiSwitchHorizontal />
+                        Switch to {modalData.l1ChainInfo.name}
+                      </button>
+                    )}
                 </div>
               </div>
             </div>

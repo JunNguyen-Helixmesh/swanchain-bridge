@@ -31,6 +31,7 @@ const Deposit: React.FC = () => {
   const account = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
   const [loader, setLoader] = useState<boolean>(false)
+  const [loaded, setLoaded] = useState(false);
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
   const [l1ChainInfo, setL1ChainInfo] = useState<any>({})
@@ -172,8 +173,8 @@ const Deposit: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == 'ETH') {
       if (
-        balance?.value &&
-        Number(formatUnits(balance.value, balance.decimals)) <
+        balance ?.value &&
+          Number(formatUnits(balance.value, balance.decimals)) <
           Number(e.target.value)
       ) {
         setCheckDisabled(true)
@@ -208,11 +209,21 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     if (chainInfoAsObject) {
       setL1ChainInfo(
-        chainInfoAsObject[chainInfoAsObject[destinationChainId]?.l1ChainId],
+        chainInfoAsObject[chainInfoAsObject[destinationChainId] ?.l1ChainId],
       )
       setL2ChainInfo(chainInfoAsObject[destinationChainId])
     }
   }, [destinationChainId])
+
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      console.log('load complete');
+    }
+  }, [loaded]);
 
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
@@ -223,14 +234,14 @@ const Deposit: React.FC = () => {
   if (chainInfoAsObject && l1ChainInfo && l2ChainInfo) {
     return (
       <>
-        <div className="bridge_wrap">
+        <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
           <TabMenu />
           <section className="deposit_wrap">
             <div className="deposit_price_wrap">
               <div className="deposit_price_title">
                 <p>From</p>
                 <h5 className="flex-row">
-                  <FaEthereum /> {l1ChainInfo?.name}
+                  <FaEthereum /> {l1ChainInfo ?.name}
                 </h5>
               </div>
               <div className="deposit_input_wrap">
@@ -262,8 +273,8 @@ const Deposit: React.FC = () => {
                         <Ethereum style={{ fontSize: '1.5rem' }} />
                       </span>
                     ) : (
-                      <span></span>
-                    )}
+                        <span></span>
+                      )}
                   </div>
                 </Form>
               </div>
@@ -273,12 +284,12 @@ const Deposit: React.FC = () => {
               {sendToken === 'ETH' ? (
                 address && (
                   <p className="wallet_bal mt-2">
-                    Balance: {balance?.formatted} {balance?.symbol}
+                    Balance: {balance ?.formatted} {balance ?.symbol}
                   </p>
                 )
               ) : (
-                <></>
-              )}
+                  <></>
+                )}
             </div>
             <div className="up flex-row center">
               <svg
@@ -321,12 +332,12 @@ const Deposit: React.FC = () => {
                     <Ethereum style={{ fontSize: '1.5rem' }} />
                   </span>
                 ) : (
-                  <></>
-                )}{' '}
+                    <></>
+                  )}{' '}
                 <p>
                   {' '}
                   You’ll receive: {ethValue ? ethValue : '0'}{' '}
-                  {l2ChainInfo?.nativeCurrency?.symbol || 'ETH'}
+                  {l2ChainInfo ?.nativeCurrency ?.symbol || 'ETH'}
                 </p>
               </div>
             </div>
@@ -349,7 +360,7 @@ const Deposit: React.FC = () => {
                 }}
               >
                 Please ensure you are connected to MetaMask & the{' '}
-                {l1ChainInfo?.name} Network
+                {l1ChainInfo ?.name} Network
               </p>
               {checkMetaMask === 'true' ? (
                 <a
@@ -377,7 +388,7 @@ const Deposit: React.FC = () => {
                 //   Connect Wallet
                 // </button>
                 <w3m-connect-button />
-              ) : Number(chain?.id) !== Number(l1ChainInfo.chainId) ? (
+              ) : Number(chain ?.id) !== Number(l1ChainInfo.chainId) ? (
                 <button
                   className="btn deposit_btn flex-row"
                   onClick={() =>
@@ -394,20 +405,20 @@ const Deposit: React.FC = () => {
                   Deposit
                 </button>
               ) : (
-                <button
-                  className="btn deposit_btn flex-row"
-                  onClick={handleDeposit}
-                  disabled={loader || isConfirming ? true : false}
-                >
-                  {loader || isConfirming ? (
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                  ) : (
-                    'Deposit'
-                  )}
-                </button>
-              )}
+                        <button
+                          className="btn deposit_btn flex-row"
+                          onClick={handleDeposit}
+                          disabled={loader || isConfirming ? true : false}
+                        >
+                          {loader || isConfirming ? (
+                            <Spinner animation="border" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                          ) : (
+                              'Deposit'
+                            )}
+                        </button>
+                      )}
               {!l2ChainInfo.testnet ? (
                 <p
                   style={{
@@ -418,11 +429,11 @@ const Deposit: React.FC = () => {
                     marginBottom: '0px',
                   }}
                 >
-                  Warning: This is a mainnet transaction involving real Ethereum
+                  {/* Warning: This is a mainnet transaction involving real Ethereum */}
                 </p>
               ) : (
-                <></>
-              )}
+                  <></>
+                )}
 
               {/* <button
                 onClick={() =>

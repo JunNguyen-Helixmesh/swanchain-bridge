@@ -33,6 +33,7 @@ const Withdraw: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
   const [loader, setLoader] = useState<boolean>(false)
+  const [loaded, setLoaded] = useState(false);
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
@@ -71,7 +72,7 @@ const Withdraw: React.FC = () => {
 
   useEffect(() => {
     if (chainInfoAsObject) {
-      setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain]?.l1ChainId])
+      setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain] ?.l1ChainId])
       setL2ChainInfo(chainInfoAsObject[fromChain])
     }
   }, [fromChain])
@@ -195,8 +196,8 @@ const Withdraw: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == 'ETH') {
       if (
-        data?.value &&
-        Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
+        data ?.value &&
+          Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
@@ -222,13 +223,15 @@ const Withdraw: React.FC = () => {
   // ============= Get and update balance =========================
   const updateWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
-      const balance = formatBalance(
-        await window.ethereum.request({
-          method: 'eth_getBalance',
-          params: [address, 'latest'],
-        }),
-      )
-      setSwanBalance(Number(balance))
+      try {
+        const balance = formatBalance(
+          await window.ethereum.request({
+            method: 'eth_getBalance',
+            params: [address, 'latest'],
+          }),
+        )
+        setSwanBalance(Number(balance))
+      } catch{ }
     } else {
       console.error('Ethereum provider is not available')
     }
@@ -270,6 +273,16 @@ const Withdraw: React.FC = () => {
     fetchBalance()
   }, [address])
 
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      console.log('load complete');
+    }
+  }, [loaded]);
+
   if (chainInfoAsObject && l1ChainInfo && l2ChainInfo) {
     return (
       <>
@@ -277,7 +290,7 @@ const Withdraw: React.FC = () => {
           <title>Withdraw</title>
           <meta name="description" content="Withdraw SwanETH to receive ETH" />
         </Head>
-        <div className="bridge_wrap">
+        <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
           <TabMenu />
           <section className="deposit_wrap">
             {/* <div className="withdraw_title_wrap">
@@ -329,7 +342,7 @@ const Withdraw: React.FC = () => {
                         setSendToken(event.target.value)
                       }
                     >
-                      <option>{l2ChainInfo?.nativeCurrency?.symbol}</option>
+                      <option>{l2ChainInfo ?.nativeCurrency ?.symbol}</option>
                     </Form.Select>
                   </div>
                   <div className="input_icn_wrap">
@@ -338,8 +351,8 @@ const Withdraw: React.FC = () => {
                         <Ethereum style={{ fontSize: '1.5rem' }} />
                       </span>
                     ) : (
-                      <span></span>
-                    )}
+                        <span></span>
+                      )}
                   </div>
                 </Form>
               </div>
@@ -349,12 +362,12 @@ const Withdraw: React.FC = () => {
               {sendToken === 'ETH' ? (
                 address && (
                   <p className="wallet_bal mt-2">
-                    Balance: {balance} {l2ChainInfo?.nativeCurrency?.symbol}
+                    Balance: {balance} {l2ChainInfo ?.nativeCurrency ?.symbol}
                   </p>
                 )
               ) : (
-                <></>
-              )}
+                  <></>
+                )}
             </div>
             <div className="up flex-row center">
               <svg
@@ -386,8 +399,8 @@ const Withdraw: React.FC = () => {
                     <Ethereum style={{ fontSize: '1.5rem' }} />
                   </span>
                 ) : (
-                  <span></span>
-                )}
+                    <span></span>
+                  )}
                 <p>
                   You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
                 </p>
@@ -432,44 +445,44 @@ const Withdraw: React.FC = () => {
               ) : !isConnected ? (
                 <w3m-connect-button />
               ) : // : isMainnet ? (
-              //   <button
-              //     className="btn deposit_btn flex-row disabled"
-              //     disabled={true}
-              //   >
-              //     Initate Withdrawal
-              //   </button>
-              // )
-              Number(chain?.id) !== Number(fromChain) ? (
-                <button
-                  className="btn deposit_btn flex-row"
-                  onClick={() =>
-                    switchChain({
-                      chainId: Number(fromChain),
-                    })
-                  }
-                >
-                  <HiSwitchHorizontal />
-                  Switch to {l2ChainInfo?.name}
+                  //   <button
+                  //     className="btn deposit_btn flex-row disabled"
+                  //     disabled={true}
+                  //   >
+                  //     Initate Withdrawal
+                  //   </button>
+                  // )
+                  Number(chain ?.id) !== Number(fromChain) ? (
+                    <button
+                      className="btn deposit_btn flex-row"
+                      onClick={() =>
+                        switchChain({
+                          chainId: Number(fromChain),
+                        })
+                      }
+                    >
+                      <HiSwitchHorizontal />
+                      Switch to {l2ChainInfo ?.name}
+                    </button>
+                  ) : checkDisabled ? (
+                    <button className="btn deposit_btn flex-row" disabled={true}>
+                      Initiate Withdrawal
                 </button>
-              ) : checkDisabled ? (
-                <button className="btn deposit_btn flex-row" disabled={true}>
-                  Initiate Withdrawal
-                </button>
-              ) : (
-                <button
-                  className="btn deposit_btn flex-row"
-                  onClick={handleWithdraw}
-                  disabled={loader ? true : false}
-                >
-                  {loader ? (
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
                   ) : (
-                    'Initiate Withdrawal'
-                  )}
-                </button>
-              )}
+                        <button
+                          className="btn deposit_btn flex-row"
+                          onClick={handleWithdraw}
+                          disabled={loader ? true : false}
+                        >
+                          {loader ? (
+                            <Spinner animation="border" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                          ) : (
+                              'Initiate Withdrawal'
+                            )}
+                        </button>
+                      )}
               {/* {isMainnet ? (
                 <p
                   style={{
@@ -483,32 +496,6 @@ const Withdraw: React.FC = () => {
                   Withdrawals from Swan Mainnet are currently unavailable
                 </p>
               ) : ( */}
-              <>
-                <p
-                  style={{
-                    color: '#ffffff',
-                    fontSize: '0.7rem',
-                    textAlign: 'left',
-                    marginTop: '20px',
-                    marginBottom: '0px',
-                  }}
-                >
-                  After you initiate the withdrawal, please go to the Withdraw
-                  History page to complete the withdrawal process.
-                </p>
-                <p
-                  style={{
-                    color: '#ffffff',
-                    fontSize: '0.7rem',
-                    textAlign: 'left',
-                    marginTop: '0px',
-                    marginBottom: '0px',
-                  }}
-                >
-                  You may need to wait for our blockchain scanner to pickup your
-                  request.
-                </p>
-              </>
               {/* )} */}
             </div>
           </section>

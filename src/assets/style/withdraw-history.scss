@@ -42,18 +42,28 @@ tbody td {
   justify-content: space-between;
   // align-items: center;
   // justify-content: center;
-  min-height: calc(100vh - 210px);
+  min-height: calc(100vh - 170px);
   width: 94%;
-  max-width: 1000px;
-  min-width: 600px;
+  max-width: 420px;
+  min-width: 300px;
   // margin: 0px auto;
   background-color: var(--card-color);
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 36px;
   box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
   gap: 10px;
-  @media screen and (max-width: 1600px) {
-    max-width: 1000px;
+  // @media screen and (max-width: 1600px) {
+  //   max-width: 1000px;
+  // }
+  h2{
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+  }
+  th,td{
+    font-size: 14px;
+    font-weight: 400;
   }
 }
 

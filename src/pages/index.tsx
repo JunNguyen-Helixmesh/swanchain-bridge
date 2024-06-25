@@ -26,9 +26,7 @@ const Home = () => {
 
   return (
     <Provider store={store}>
-      <div className="main_wrap">
-        <Deposit />
-      </div>
+      <Deposit />
     </Provider>
   );
 };

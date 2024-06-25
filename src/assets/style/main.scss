@@ -1,12 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&display=swap');
 @import './common/color_variable';
 body {
+  height: 100vh;
   margin: 0px;
   padding: 0px;
   line-height: 1.7;
   font-weight: 400;
   background-color: var(--secondary-color) !important;
   font-family: 'Rubik', sans-serif;
+  overflow: hidden;
 }
 
 * {
@@ -33,24 +35,48 @@ p {
   font-family: 'Rubik', sans-serif;
 }
 
+.tip{
+  display: none;
+  position: relative;
+  padding: 6px 0 0;
+  z-index: 1;
+  &.show{
+    display: block;
+  }
+  p{
+    margin: 0;
+    font-size: 12px;
+    color: var(--light-color);
+    text-align: center;
+    line-height: 1.1;
+  }
+}
+
+.main_container{
+  height: 100vh;
+   overflow-y: auto;
+}
 .main_wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 210px);
+  min-height: calc(100vh - 170px);
   margin: 40px 0px;
+  z-index: 1;
   .bridge_wrap {
     width: 94%;
-    max-width: 550px;
+    max-width: 420px;
     min-width: 300px;
     margin: 0px auto;
     background-color: var(--card-color);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 36px;
     box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
-    @media screen and (max-width: 1600px) {
-      max-width: 500px;
-    }
+    // transform: translateY(100%);
+    // @media screen and (max-width: 1600px) {
+    //   max-width: 500px;
+    // }
 
     select {
       cursor: pointer;
@@ -114,6 +140,64 @@ p {
       }
     }
   }
+}
+
+.loaded{
+  animation: slide-up 0.7s ease-out forwards;
+}
+@keyframes slide-up {
+  0% {
+    transform: translateY(50%);
+    opacity: 0; 
+  }
+  33% {
+    transform: translateY(-20%);
+    opacity: 1; 
+  }
+  66% {
+    transform: translateY(5%);
+    opacity: 1; 
+  }
+  100% {
+    transform: translateY(0); 
+    opacity: 1;
+  }
+}
+
+.items-center{
+  padding: 4px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 100px;
+  .rounded-btn{
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--grey-color);
+    border-radius: 100px;
+    cursor: pointer;
+    &.active{
+      background-color: var(--light-color);
+      color: var(--dark-color);
+    }
+    a{
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+}
+
+.main_bg{
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0.2;
+  background-image: url(/assets/images/bg.svg);
+  mix-blend-mode: plus-lighter;
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: center bottom;
+  z-index: 0;
 }
 
 .pagination_wrap {

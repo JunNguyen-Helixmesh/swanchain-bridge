@@ -239,7 +239,7 @@ const Deposit: React.FC = () => {
           <section className="deposit_wrap">
             <div className="deposit_price_wrap flex-row jc">
               <div className="deposit_price_title flex-row">
-                {l1ChainInfo.name === 'Ethereum' ? (
+                {l1ChainInfo.name === 'Ethereum' || l1ChainInfo.name === 'Sepolia' ? (
                   <NextImage
                     src="/assets/images/network-ethereum.svg"
                     alt="To icn"

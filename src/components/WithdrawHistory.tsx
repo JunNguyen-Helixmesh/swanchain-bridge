@@ -151,7 +151,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     }
 
     if (address && isConnected && chainInfoAsObject) fetchData()
-  }, [address, isConnected, currentPage, chainInfoAsObject, isMainnet])
+  }, [address, isConnected, currentPage, chainInfoAsObject])
 
   const closeModal = () => {
     setModalData(null)

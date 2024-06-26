@@ -200,6 +200,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [isMainnet, setIsMainnet] = useState<any>(true)
   const router = useRouter()
+  const [boolValue, setBoolValue] = useState(true)
 
   useEffect(() => {
     setIsMounted(true)
@@ -218,17 +219,19 @@ function MyApp({ Component, pageProps }: AppProps) {
             <link rel="icon" href="/assets/images/swantoken.png" />
           </Head>
           <div className="main_container">
-            <div className={router.pathname === "/withdraw" ? 'show tip' : 'tip'}>
-              <>
-                <p>
-                  After you initiate the withdrawal, please go to the Withdraw
-                  History page to complete the withdrawal process.
+            <div className={router.pathname === "/withdraw" && boolValue ? 'show tip' : 'tip'}>
+              <p>
+                After you initiate the withdrawal, please go to the Withdraw
+                History page to complete the withdrawal process.
                 </p>
-                <p>
-                  You may need to wait for our blockchain scanner to pickup your
-                  request.
+              <p>
+                You may need to wait for our blockchain scanner to pickup your
+                request.
                 </p>
-              </></div>
+              <div className="tip_close flex-row center" onClick={() => setBoolValue(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path><path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
+              </div>
+            </div>
             <Header />
             <div className="main_wrap">
               {isMounted && <Component {...pageProps} />}

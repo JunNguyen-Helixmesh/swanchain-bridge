@@ -8,7 +8,7 @@ const TabMenu: React.FC = () => {
         <>
             <div className="tab-header flex-row">
                 <NextImage
-                    src="/assets/images/logo-icon.png"
+                    src="/assets/images/logo.png"
                     alt="SWAN logo"
                     layout="responsive"
                     width={86}

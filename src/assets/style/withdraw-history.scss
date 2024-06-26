@@ -88,7 +88,8 @@ tbody td {
   max-width: 550px;
   min-width: 300px;
   margin: 0px auto;
-  background-color: var(--light-color);
+  background-color: var(--card-color);
+  color: var(--light-color);
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
@@ -117,7 +118,7 @@ tbody td {
   flex-direction: column;
   gap: 18px;
   h2 {
-    color: black;
+    margin: 0;
     font-weight: 500;
   }
   .withdraw-flow {
@@ -134,11 +135,16 @@ tbody td {
         gap: 8px;
         padding: 10px 24px;
         padding-left: 10px;
+        font-size: 14px;
         border-radius: 24px;
         border: 1px solid gray;
+        svg{
+          width: 20px;
+          height: 20px;
+        }
       }
       .done {
-        background-color: var(--tab-color);
+        background-color: #14131d;
         color: var(--text-color);
         border: none;
       }
@@ -192,12 +198,11 @@ tbody td {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
   width: 100%;
-  padding: 16px;
+  padding: 12px 16px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 100px;
   cursor: pointer;
   background-color: var(--theme-color);
   color: var(--light-color);

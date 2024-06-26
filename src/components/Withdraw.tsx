@@ -3,9 +3,7 @@ import axios from 'axios'
 import { Form, Image, Spinner, Modal, Button } from 'react-bootstrap'
 import { Dai, Usdt, Usdc, Ethereum, Btc } from 'react-web3-icons'
 import { MdOutlineSecurity } from 'react-icons/md'
-import { FaEthereum } from 'react-icons/fa'
 import Web3 from 'web3'
-import toIcn from '../assets/images/swantoken.png'
 import {
   useAccount,
   useConnect,
@@ -55,6 +53,8 @@ const Withdraw: React.FC = () => {
     chainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
   })
 
+  const balanceShow = chain ?.id
+
   useEffect(() => {
     if (chainInfoAsObject) {
       setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
@@ -80,7 +80,7 @@ const Withdraw: React.FC = () => {
   const handleWithdraw = async () => {
     try {
       if (!ethValue) {
-        setErrorInput('Please enter the amount')
+        // setErrorInput('Please enter the amount')
       } else {
         if (parseFloat(ethValue) <= 0) {
           setErrorInput('Invalid Amount Entered!')
@@ -303,12 +303,18 @@ const Withdraw: React.FC = () => {
               <p>Bridge any token to Sepolia Testnet</p>
             </div>
           </div> */}
-            <div className="deposit_price_wrap">
-              <div className="deposit_price_title">
-                <p>From</p>
-                <h5 className="flex-row">
-                  {/* <Image src={toIcn.src} alt="To icn" fluid /> Swan */}
-
+            <div className="deposit_price_wrap flex-row jc">
+              <div className="deposit_price_title flex-row">
+                <NextImage
+                  src="/assets/images/swantoken.png"
+                  alt="To icn"
+                  layout="responsive"
+                  width={30}
+                  height={30}
+                  className="img_icon"
+                />
+                <div className="deposit_price_content">
+                  <p>From</p>
                   <select value={chainId} onChange={changeChain}>
                     {chainInfoFromConfig
                       .slice(1)
@@ -321,8 +327,43 @@ const Withdraw: React.FC = () => {
                     {/* <option value="2024">Swan Saturn</option> */}
                     {/* <option value="20241133">Swan Proxima</option> */}
                   </select>
-                </h5>
+                </div>
               </div>
+
+              <div className="up flex-row center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="#a1a1aa" d="M224.49 136.49l-72 72a12 12 0 01-17-17L187 140H40a12 12 0 010-24h147l-51.49-51.52a12 12 0 0117-17l72 72a12 12 0 01-.02 17.01z"></path></svg>
+              </div>
+
+              <div className="deposit_details flex-row end">
+                <div className="deposit_price_content text-right">
+                  <p>To</p>
+                  <h5 className="flex-row">
+                    {l1ChainInfo.name}
+                  </h5>
+                </div>
+                {l1ChainInfo.name === 'Ethereum' ? (
+                  <NextImage
+                    src="/assets/images/network-ethereum.svg"
+                    alt="To icn"
+                    layout="responsive"
+                    width={30}
+                    height={30}
+                    className="img_icon"
+                  />) : (
+                    <NextImage
+                      src="/assets/images/swantoken.png"
+                      alt="To icn"
+                      layout="responsive"
+                      width={30}
+                      height={30}
+                      className="img_icon"
+                    />)}
+              </div>
+            </div>
+
+
+            <div className="deposit_price_wrap balance">
+              <div className="form-title">Withdraw</div>
               <div className="deposit_input_wrap">
                 <Form>
                   <div className="deposit_inner_input">
@@ -345,7 +386,7 @@ const Withdraw: React.FC = () => {
                       <option>{l2ChainInfo ?.nativeCurrency ?.symbol}</option>
                     </Form.Select>
                   </div>
-                  <div className="input_icn_wrap">
+                  {/* <div className="input_icn_wrap">
                     {sendToken == 'ETH' ? (
                       <span className="input_icn flex-row">
                         <Ethereum style={{ fontSize: '1.5rem' }} />
@@ -353,58 +394,46 @@ const Withdraw: React.FC = () => {
                     ) : (
                         <span></span>
                       )}
-                  </div>
+                  </div> */}
                 </Form>
               </div>
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {sendToken === 'ETH' ? (
+              {sendToken === 'ETH' && balanceShow !== undefined ? (
                 address && (
-                  <p className="wallet_bal mt-2">
-                    Balance: {balance} {l2ChainInfo ?.nativeCurrency ?.symbol}
+                  <p className="wallet_bal text-right mt-2">
+                    {balance || null} {l2ChainInfo ?.nativeCurrency ?.symbol} available
                   </p>
                 )
               ) : (
                   <></>
                 )}
             </div>
-            <div className="up flex-row center">
-              <svg
-                width="17"
-                height="19"
-                viewBox="0 0 17 19"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M8.5 17.4736L15 11.0696M8.5 17.4736L2 11.0696M8.5 17.4736V1.5"
-                  stroke="#447DFF"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <div className="deposit_details_wrap">
-              <div className="deposit_details flex-row">
-                <p>To:</p>
-                <h5 className="flex-row">
-                  <FaEthereum /> {l1ChainInfo.name}
-                </h5>
-              </div>
-              <div className="withdraw_bal_sum">
-                {sendToken == 'ETH' ? (
-                  <span className="input_icn flex-row">
-                    <Ethereum style={{ fontSize: '1.5rem' }} />
+
+            <div className="deposit_price_wrap">
+              <div className="withdraw_bal_sum flex-row jc">
+                <span className="input_icn flex-row">
+                  {/* <Ethereum style={{ fontSize: '1.2rem' }} />  */}
+                  <svg t="1719394432999" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8138" width="16" height="16"><path d="M512 558.34857177l0-92.69714354L179.81978607 465.65142823A38.60836029 38.60836029 0 0 0 141.21142578 504.25978851l0 15.48042298A38.60836029 38.60836029 0 0 0 179.81978607 558.34857177L512 558.34857177z" fill="#ffffff" p-id="8139"></path><path d="M570.86268615 707.40557862l259.32025911-159.90257264a38.60836029 38.60836029 0 0 0 0.41713714-65.49053192l-259.3202591-164.21298981A38.60836029 38.60836029 0 0 0 512 350.42887878L512 674.54444122a38.60836029 38.60836029 0 0 0 58.86268615 32.90748597z" fill="#ffffff" p-id="8140"></path></svg>
+                  To address
                   </span>
-                ) : (
-                    <span></span>
-                  )}
+                {l2ChainInfo && l2ChainInfo.contracts && l2ChainInfo.contracts.l1StandardBridge ? (
+                  <p className='green flex-row'>
+                    {l2ChainInfo.contracts.l1StandardBridge ?.slice(0, 4)}...{l2ChainInfo.contracts.l1StandardBridge ?.slice(-4)}
+                    <svg t="1719395134089" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9263" width="14" height="14"><path d="M512.465455 0.116364C230.609455 0.116364 1.210182 229.492364 1.210182 511.371636S230.586182 1022.650182 512.465455 1022.650182s511.278545-229.376 511.278545-511.278546C1023.720727 229.492364 794.344727 0.116364 512.465455 0.116364z m286.091636 413.230545L466.013091 754.222545a42.519273 42.519273 0 0 1-30.254546 12.753455h-0.232727a42.589091 42.589091 0 0 1-30.114909-12.427636l-178.711273-178.827637a42.565818 42.565818 0 0 1 0-60.253091 42.565818 42.565818 0 0 1 60.253091 0l148.363637 148.247273 302.312727-310.062545a42.682182 42.682182 0 0 1 60.253091-0.698182 42.821818 42.821818 0 0 1 0.674909 60.392727z m0 0" p-id="9264" fill="#43b85c"></path></svg>
+                  </p>) : (<p></p>)}
+              </div>
+              <div className="spacing"></div>
+              <div className="withdraw_bal_sum flex-row jc">
+                <span className="input_icn flex-row">
+                  {/* <Ethereum style={{ fontSize: '1.2rem' }} />  */}
+                  <svg t="1719388941988" className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2648" width="16" height="16"><path d="M597.333333 608.085333v89.173334A256 256 0 0 0 256 938.666667H170.666667a341.333333 341.333333 0 0 1 426.666666-330.624zM512 554.666667c-141.44 0-256-114.56-256-256s114.56-256 256-256 256 114.56 256 256-114.56 256-256 256z m0-85.333334c94.293333 0 170.666667-76.373333 170.666667-170.666666s-76.373333-170.666667-170.666667-170.666667-170.666667 76.373333-170.666667 170.666667 76.373333 170.666667 170.666667 170.666666z m316.501333 256h153.002667v85.333334h-153.002667l78.037334 77.994666-60.330667 60.373334L665.173333 768l181.034667-181.034667 60.330667 60.373334L828.501333 725.333333z" p-id="2649" fill="#4177f3"></path></svg>
+                  Receive on {l1ChainInfo.name}
+                </span>
                 <p>
-                  You’ll receive: {ethValue ? ethValue : '0'} {sendToken}
+                  {ethValue ? ethValue : '0'} {sendToken}
                 </p>
-                <div></div>
                 {/* <span className='input_title'>ETH</span> */}
               </div>
             </div>
@@ -422,7 +451,8 @@ const Withdraw: React.FC = () => {
                   fontSize: '0.8rem',
                   textAlign: 'center',
                   marginTop: '0px',
-                  marginBottom: '20px',
+                  marginBottom: '12px',
+                  lineHeight: '1.2'
                 }}
               >
                 {`Please ensure you are connected to MetaMask & the ${l2ChainInfo.name} Network`}
@@ -470,7 +500,7 @@ const Withdraw: React.FC = () => {
                 </button>
                   ) : (
                         <button
-                          className="btn deposit_btn flex-row"
+                          className={ethValue && ethValue > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
                           onClick={handleWithdraw}
                           disabled={loader ? true : false}
                         >
@@ -479,7 +509,7 @@ const Withdraw: React.FC = () => {
                               <span className="visually-hidden">Loading...</span>
                             </Spinner>
                           ) : (
-                              'Initiate Withdrawal'
+                              <span> {ethValue && ethValue > 0 ? 'Initiate Withdrawal' : 'Enter an amount'} </span>
                             )}
                         </button>
                       )}

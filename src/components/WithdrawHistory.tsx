@@ -412,6 +412,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                 </table>
               )}
           </div>
+
           <ReactPaginate
             className="pagination"
             pageClassName="page-number"
@@ -433,7 +434,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             <div className="modal">
               <div className="modal-content">
                 <div className="modal-content-header">
-                  <h2>Withdrawal</h2>
+                  <h2 className="flex-row">Withdrawal</h2>
                   <span className="close" onClick={closeModal}>
                     &times;
                   </span>

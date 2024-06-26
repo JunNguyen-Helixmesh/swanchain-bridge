@@ -199,7 +199,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
       if (
         rowData.latestOutputtedBlockNumber < Number(rowData.block_number) ||
-        (rowData.status == 'proven' &&
+        (!l2ChainInfo.testnet &&
+          rowData.status == 'proven' &&
           !hasSevenDaysPassed(rowData.updated_at)) ||
         rowData.status == 'finalized'
       ) {
@@ -306,7 +307,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error:any) {
       setLoader(false)
       if (
         error.reason ===
@@ -385,7 +386,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <tr
                       key={index}
                       onClick={async (e: any) => {
-                        console.log('td:', e.target.className)
+                        // console.log('td:', e.target.className)
                         if (e.target.className != 'tx_hash') {
                           getModalData(withdrawal)
                         }
@@ -458,7 +459,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   <ul>
                     <li
                       className="withdraw-step done"
-                      onClick={() => console.log(modalData.isButtonDisabled)}
+                      onClick={() => console.log(modalData)}
                     >
                       <GrSend size={28} />
                       Initiate withdraw
@@ -496,7 +497,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     </li>
                     <li
                       className={
-                        (modalData.status == 'proven' &&
+                        (!modalData.l2ChainInfo.testnet &&
+                          modalData.status == 'proven' &&
                           hasSevenDaysPassed(modalData.updated_at)) ||
                         modalData.status == 'finalized'
                           ? 'withdraw-step done'

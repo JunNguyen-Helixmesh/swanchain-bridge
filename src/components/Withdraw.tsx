@@ -12,13 +12,15 @@ import {
   useBalance,
   Connector,
   useChainId,
+  useSendTransaction,
+  useWaitForTransactionReceipt,
 } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { IoMdWallet } from 'react-icons/io'
 import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import TabMenu from './TabMenu'
-import { formatUnits } from 'viem'
+import { formatUnits, Address } from 'viem'
 import Head from 'next/head'
 import { useChainConfig } from '../hooks/useChainConfig'
 import { MainnetContext } from '@/pages/_app'
@@ -30,7 +32,7 @@ const Withdraw: React.FC = () => {
   const [sendToken, setSendToken] = useState<string>('ETH')
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
-  const [loader, setLoader] = useState<boolean>(false)
+  // const [loader, setLoader] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
@@ -48,9 +50,17 @@ const Withdraw: React.FC = () => {
   const [fromChain, setFromChain] = useState(chainInfoFromConfig[1].id)
   const { isMainnet } = useContext(MainnetContext)
 
+  const { data: hash, sendTransaction, isPending } = useSendTransaction()
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  })
+
   const { data } = useBalance({
     address: address,
-    chainId: Number(process.env.NEXT_PUBLIC_L2_SATURN_CHAIN_ID),
+    chainId: chainId,
   })
 
   const balanceShow = chain ?.id
@@ -60,7 +70,12 @@ const Withdraw: React.FC = () => {
       setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
       setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[1].id])
       setFromChain(chainInfoFromConfig[1].id)
+      if (!isMainnet) {
+        setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[2].id])
+        setFromChain(chainInfoFromConfig[2].id)
+      }
     }
+
   }, [isMainnet])
 
   useEffect(() => {
@@ -94,6 +109,7 @@ const Withdraw: React.FC = () => {
           let L1StandardBridge = l2ChainInfo.contracts.l1StandardBridge
           let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
           let OptimismPortal = l2ChainInfo.contracts.optimismPortal
+          let L2StandardBridge = l2ChainInfo.contracts.l2Bridge
 
           // const bridges = {
           //   Standard: {
@@ -137,51 +153,46 @@ const Withdraw: React.FC = () => {
 
           try {
             if (sendToken == 'ETH') {
-              const weiValue = parseInt(
-                ethers.utils.parseEther(ethValue)._hex,
-                16,
-              )
-              setLoader(true)
-              const response = await crossChainMessenger.withdrawETH(
-                weiValue.toString(),
-              )
-              await response.wait()
+              sendTransaction({
+                to: L2StandardBridge as Address,
+                value: ethers.utils.parseEther(ethValue),
+              })
+              // const weiValue = parseInt(
+              //   ethers.utils.parseEther(ethValue)._hex,
+              //   16,
+              // )
+              // setLoader(true)
+              // const response = await crossChainMessenger.withdrawETH(
+              //   weiValue.toString(),
+              // )
+              // await response.wait()
 
-              console.log('withdraw response:', response)
+              // console.log('withdraw response:', response)
 
-              const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
-                response,
-              )
+              // const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
+              //   response,
+              // )
 
-              console.log('crosschain message:', crossChainMessage)
-              const transactionHash = crossChainMessage.transactionHash
-              const blockNumber = crossChainMessage.blockNumber
+              // console.log('crosschain message:', crossChainMessage)
+              // const transactionHash = crossChainMessage.transactionHash
+              // const blockNumber = crossChainMessage.blockNumber
 
-              if (blockNumber !== null) {
-                setLoader(false)
-                setEthValue('')
+              // if (blockNumber !== null) {
+              //   setLoader(false)
+              //   setEthValue('')
 
-                // if (isConnected && address) {
-                //   await updateWithdrawHistory(
-                //     chainId,
-                //     address,
-                //     transactionHash,
-                //     blockNumber,
-                //   )
-                //   // await callGalxeAPI();
-                // }
-                setTimeout(fetchBalance, 3000)
-              }
+              //   setTimeout(fetchBalance, 3000)
+              // }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
-            updateWallet()
+            // updateWallet()
           } catch (error) {
-            setLoader(false)
+            // setLoader(false)
             console.log({ error }, 98)
           } finally {
-            setLoader(false)
-            updateWallet()
-            fetchBalance()
+            // setLoader(false)
+            // updateWallet()
+            // fetchBalance()
           }
         }
       }
@@ -196,7 +207,7 @@ const Withdraw: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == 'ETH') {
       if (
-        data ?.value &&
+        data &&
           Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
       ) {
         setCheckDisabled(true)
@@ -276,6 +287,10 @@ const Withdraw: React.FC = () => {
   useEffect(() => {
     setLoaded(true);
   }, []);
+
+  useEffect(() => {
+    setEthValue('')
+  }, [isConnected, isConfirmed]);
 
   useEffect(() => {
     if (loaded) {
@@ -368,6 +383,7 @@ const Withdraw: React.FC = () => {
                 <Form>
                   <div className="deposit_inner_input">
                     <Form.Control
+                      disabled={!isConnected || Number(chain ?.id) !== Number(l2ChainInfo.chainId)}
                       type="number"
                       name="eth_value"
                       value={ethValue}
@@ -400,7 +416,7 @@ const Withdraw: React.FC = () => {
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {sendToken === 'ETH' && balanceShow !== undefined ? (
+              {Number(chain ?.id) == Number(fromChain) && sendToken === 'ETH' && balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
                     {balance || NaN} {l2ChainInfo ?.nativeCurrency ?.symbol} available
@@ -495,16 +511,16 @@ const Withdraw: React.FC = () => {
                       Switch to {l2ChainInfo ?.name}
                     </button>
                   ) : checkDisabled ? (
-                    <button className="btn deposit_btn flex-row" disabled={true}>
+                    <button className="btn deposit_btn deposit_btn_disabled flex-row" disabled={true}>
                       Initiate Withdrawal
                 </button>
                   ) : (
                         <button
-                          className={ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
+                          className={!isPending && !isConfirming && ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
                           onClick={handleWithdraw}
-                          disabled={loader ? true : false}
+                          disabled={isPending || isConfirming ? true : false}
                         >
-                          {loader ? (
+                          {isConfirming || isPending ? (
                             <Spinner animation="border" role="status">
                               <span className="visually-hidden">Loading...</span>
                             </Spinner>
@@ -512,7 +528,7 @@ const Withdraw: React.FC = () => {
                               <span> {ethValue && Number(ethValue) > 0 ? 'Initiate Withdrawal' : 'Enter an amount'} </span>
                             )}
                         </button>
-                      )}
+                      )} 
               {/* {isMainnet ? (
                 <p
                   style={{

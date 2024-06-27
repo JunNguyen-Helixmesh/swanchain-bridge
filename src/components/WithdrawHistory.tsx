@@ -91,17 +91,6 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             return acc
           }, {})
 
-        // let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
-        // let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
-        // const saturnProvider = new ethers.providers.JsonRpcProvider(
-        //   saturnUrl,
-        //   'any',
-        // )
-        // const proximaProvider = new ethers.providers.JsonRpcProvider(
-        //   proximaUrl,
-        //   'any',
-        // )
-
         withdrawal_list = await Promise.all(
           withdrawal_list.map(async (w: any) => {
             let tx_hash = w.withdraw_tx_hash
@@ -109,25 +98,15 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             //   ? w.withdraw_tx_hash
             //   : `0x${w.withdraw_tx_hash}`
 
-            // let receipt = null
-            // let block = null
-
-            // if (w.chain_id == '2024') {
-            //   receipt = await saturnProvider.getTransaction(tx_hash)
-            //   block = await saturnProvider.getBlock(receipt.blockNumber)
-            // } else if (w.chain_id == '20241133') {
-            //   receipt = await proximaProvider.getTransaction(tx_hash)
-            //   block = await proximaProvider.getBlock(receipt.blockNumber)
-            // }
             let receipt = await providers[w.chain_id].getTransaction(tx_hash)
-            let block = await providers[w.chain_id].getBlock(
-              receipt.blockNumber,
-            )
+            // let block = await providers[w.chain_id].getBlock(
+            //   receipt.blockNumber,
+            // )
             return {
               ...w,
               tx_hash,
               amount: ethers.utils.formatEther(receipt.value),
-              timestamp: block.timestamp,
+              // timestamp: block.timestamp,
               block_number: receipt.blockNumber,
               // receipt: await l2Provider.getTransaction(tx_hash),
             }
@@ -197,11 +176,19 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
       // rowData.status = 'initiated'
 
+      let proveTimestamp = rowData.updated_at
+      if (rowData.status == 'proven' && rowData.prove_tx_hash) {
+        proveTimestamp = await getTimestampFromTxHash(
+          l1Provider,
+          rowData.prove_tx_hash,
+        )
+      }
+
       if (
         rowData.latestOutputtedBlockNumber < Number(rowData.block_number) ||
         (!l2ChainInfo.testnet &&
           rowData.status == 'proven' &&
-          !hasSevenDaysPassed(rowData.updated_at)) ||
+          !hasSevenDaysPassed(proveTimestamp)) ||
         rowData.status == 'finalized'
       ) {
         rowData.isButtonDisabled = true
@@ -342,11 +329,30 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     }
   }, [loaded])
 
+  async function getTimestampFromTxHash(
+    provider: any,
+    txHash: string,
+  ): Promise<number | null> {
+    try {
+      const txReceipt = await provider.getTransactionReceipt(txHash)
+      const blockNumber = txReceipt.blockNumber
+      const block = await provider.getBlock(blockNumber)
+      const timestamp = block.timestamp
+
+      return timestamp
+    } catch (error) {
+      console.error('An error occurred:', error)
+      return 0
+    }
+  }
+
   function hasSevenDaysPassed(unixTimestamp: number): boolean {
     // Convert the Unix timestamp to milliseconds and create a Date object
     const date = new Date(unixTimestamp * 1000)
     // Get the current date
     const now = new Date()
+
+    console.log(date, now)
 
     // Calculate the difference in time (in milliseconds)
     const diffTime = now.getTime() - date.getTime()
@@ -497,9 +503,8 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     </li>
                     <li
                       className={
-                        (!modalData.l2ChainInfo.testnet &&
-                          modalData.status == 'proven' &&
-                          hasSevenDaysPassed(modalData.updated_at)) ||
+                        (modalData.status == 'proven' &&
+                          !modalData.isButtonDisabled) ||
                         modalData.status == 'finalized'
                           ? 'withdraw-step done'
                           : 'withdraw-step'

@@ -51,6 +51,9 @@ p {
     color: var(--dark-color);
     text-align: center;
     line-height: 1.1;
+    @media screen and (max-width: 1600px) {
+      font-size: 12px;
+    }
   }
   .tip_close{
     position: absolute;

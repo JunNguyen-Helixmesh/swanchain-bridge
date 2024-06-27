@@ -354,7 +354,7 @@ const Deposit: React.FC = () => {
                   Receive on  {destinationChainId.toString() === '2024' ? 'Saturn' : destinationChainId.toString() === '20241133' ? 'Proxima' : 'Swan'}
                 </span>
                 <p>
-                  {ethValue ? ethValue : '0'}{' '}
+                  {ethValue && address ? ethValue : '-'}{' '}
                   {l2ChainInfo ?.nativeCurrency ?.symbol || 'ETH'}
                 </p>
               </div>

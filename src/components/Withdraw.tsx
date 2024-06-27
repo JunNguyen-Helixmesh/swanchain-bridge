@@ -432,7 +432,7 @@ const Withdraw: React.FC = () => {
                   Receive on {l1ChainInfo.name}
                 </span>
                 <p>
-                  {ethValue ? ethValue : '0'} {sendToken}
+                  {ethValue && address ? ethValue : '-'} {sendToken}
                 </p>
                 {/* <span className='input_title'>ETH</span> */}
               </div>

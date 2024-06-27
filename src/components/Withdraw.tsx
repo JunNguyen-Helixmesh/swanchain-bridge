@@ -341,7 +341,7 @@ const Withdraw: React.FC = () => {
                     {l1ChainInfo.name}
                   </h5>
                 </div>
-                {l1ChainInfo.name === 'Ethereum' ? (
+                {l1ChainInfo.name === 'Ethereum' || l1ChainInfo.name === 'Sepolia' ? (
                   <NextImage
                     src="/assets/images/network-ethereum.svg"
                     alt="To icn"

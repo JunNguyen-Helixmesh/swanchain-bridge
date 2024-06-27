@@ -152,7 +152,7 @@ const Deposit: React.FC = () => {
 
       // Make the POST request using Axios
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_TESTNET_API_ROUTE}/galxe/update_credentials`,
+        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials`,
         postData,
         {
           headers: {

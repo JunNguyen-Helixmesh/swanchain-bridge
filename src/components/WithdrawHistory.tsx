@@ -38,7 +38,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const { address, isConnected, chain } = useAccount()
   const [withdrawals, setWithdrawals] = useState([])
   const [loader, setLoader] = useState<boolean>(false)
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false)
   const [modalData, setModalData] = useState<any>(null)
   const [offset, setOffset] = useState<Number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
@@ -68,11 +68,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         //   { shallow: true },
         // )
         const response = await fetch(
-          `${
-          isMainnet
-            ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
-            : process.env.NEXT_PUBLIC_TESTNET_API_ROUTE
-          }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
+          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
@@ -80,7 +76,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         }
         let data = await response.json()
         let withdrawal_data = data.data
-        let withdrawal_list = withdrawal_data.withdraw_transaction_list
+        let withdrawal_list = withdrawal_data.withdraw_transaction_list || []
 
         const providers = chainInfoFromConfig
           .slice(2)
@@ -94,7 +90,6 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
             return acc
           }, {})
-
 
         // let saturnUrl = process.env.NEXT_PUBLIC_L2_SATURN_RPC_URL
         // let proximaUrl = process.env.NEXT_PUBLIC_L2_PROXIMA_RPC_URL
@@ -204,6 +199,9 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
       if (
         rowData.latestOutputtedBlockNumber < Number(rowData.block_number) ||
+        (!l2ChainInfo.testnet &&
+          rowData.status == 'proven' &&
+          !hasSevenDaysPassed(rowData.updated_at)) ||
         rowData.status == 'finalized'
       ) {
         rowData.isButtonDisabled = true
@@ -309,7 +307,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error: any) {
+    } catch (error:any) {
       setLoader(false)
       if (
         error.reason ===
@@ -335,14 +333,28 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   useEffect(() => {
-    setLoaded(true);
-  }, []);
+    setLoaded(true)
+  }, [])
 
   useEffect(() => {
     if (loaded) {
-      console.log('load complete');
+      console.log('load complete')
     }
-  }, [loaded]);
+  }, [loaded])
+
+  function hasSevenDaysPassed(unixTimestamp: number): boolean {
+    // Convert the Unix timestamp to milliseconds and create a Date object
+    const date = new Date(unixTimestamp * 1000)
+    // Get the current date
+    const now = new Date()
+
+    // Calculate the difference in time (in milliseconds)
+    const diffTime = now.getTime() - date.getTime()
+    // Convert milliseconds to days
+    const diffDays = diffTime / (1000 * 60 * 60 * 24)
+    // Check if 7 or more days have passed
+    return diffDays >= 7
+  }
 
   if (chainInfoAsObject) {
     return (
@@ -360,57 +372,57 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                 <div className="loading-text">Loading...</div>
               </div>
             ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Amount</th>
-                      <th>Network</th>
-                      <th>Transaction Hash</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {withdrawals.map((withdrawal: any, index) => (
-                      <tr
-                        key={index}
-                        onClick={async (e: any) => {
-                          console.log('td:', e.target.className)
-                          if (e.target.className != 'tx_hash') {
-                            getModalData(withdrawal)
-                          }
-                        }}
-                      >
-                        <td>{withdrawal.amount}</td>
-                        <td>
-                          {chainInfoAsObject[withdrawal.chain_id]
-                            ? chainInfoAsObject[withdrawal.chain_id].name
-                            : withdrawal.chain_id}
-                        </td>
-                        <td>
-                          <a
-                            className="tx_hash"
-                            target="_blank"
-                            href={
-                              `${
+              <table>
+                <thead>
+                  <tr>
+                    <th>Amount</th>
+                    <th>Network</th>
+                    <th>Transaction Hash</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {withdrawals.map((withdrawal: any, index) => (
+                    <tr
+                      key={index}
+                      onClick={async (e: any) => {
+                        // console.log('td:', e.target.className)
+                        if (e.target.className != 'tx_hash') {
+                          getModalData(withdrawal)
+                        }
+                      }}
+                    >
+                      <td>{withdrawal.amount}</td>
+                      <td>
+                        {chainInfoAsObject[withdrawal.chain_id]
+                          ? chainInfoAsObject[withdrawal.chain_id].name
+                          : withdrawal.chain_id}
+                      </td>
+                      <td>
+                        <a
+                          className="tx_hash"
+                          target="_blank"
+                          href={
+                            `${
                               chainInfoAsObject[withdrawal.chain_id]
                                 .blockExplorer
-                              }/tx/${withdrawal.tx_hash}`
-                              // withdrawal.chain_id == '2024'
-                              //   ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                              //   : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
-                            }
-                            rel="noopener noreferrer"
-                          >
-                            {withdrawal.tx_hash.slice(0, 6)}...
+                            }/tx/${withdrawal.tx_hash}`
+                            // withdrawal.chain_id == '2024'
+                            //   ? `https://saturn-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                            //   : `https://proxima-explorer.swanchain.io/tx/${withdrawal.tx_hash}`
+                          }
+                          rel="noopener noreferrer"
+                        >
+                          {withdrawal.tx_hash.slice(0, 6)}...
                           {withdrawal.tx_hash.slice(-4)}{' '}
-                          </a>
-                        </td>
-                        <td>{withdrawal.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                        </a>
+                      </td>
+                      <td>{withdrawal.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           <ReactPaginate
@@ -447,7 +459,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   <ul>
                     <li
                       className="withdraw-step done"
-                      onClick={() => console.log(modalData.isButtonDisabled)}
+                      onClick={() => console.log(modalData)}
                     >
                       <GrSend size={28} />
                       Initiate withdraw
@@ -458,7 +470,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <li
                       className={
                         modalData.isButtonDisabled &&
-                          modalData.status == 'initiated'
+                        modalData.status == 'initiated'
                           ? 'withdraw-step'
                           : 'withdraw-step done'
                       }
@@ -472,7 +484,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     <li
                       className={
                         modalData.status == 'proven' ||
-                          modalData.status == 'finalized'
+                        modalData.status == 'finalized'
                           ? 'withdraw-step done'
                           : 'withdraw-step'
                       }
@@ -485,8 +497,10 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                     </li>
                     <li
                       className={
-                        modalData.status == 'proven' ||
-                          modalData.status == 'finalized'
+                        (!modalData.l2ChainInfo.testnet &&
+                          modalData.status == 'proven' &&
+                          hasSevenDaysPassed(modalData.updated_at)) ||
+                        modalData.status == 'finalized'
                           ? 'withdraw-step done'
                           : 'withdraw-step'
                       }
@@ -510,7 +524,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   </ul>
                 </div>
                 <div className="modal-btn-container">
-                  {chain ?.id == modalData.l1ChainInfo.chainId ? (
+                  {chain?.id == modalData.l1ChainInfo.chainId ? (
                     <button
                       className={
                         modalData.isButtonDisabled
@@ -529,22 +543,22 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       ) : modalData.status == 'finalized' ? (
                         'Withdrawal claimed'
                       ) : (
-                              'Claim withdrawal'
-                            )}
+                        'Claim withdrawal'
+                      )}
                     </button>
                   ) : (
-                      <button
-                        className={'modal-btn'}
-                        onClick={() =>
-                          switchChain({
-                            chainId: Number(modalData.l1ChainInfo.chainId),
-                          })
-                        }
-                      >
-                        <HiSwitchHorizontal />
-                        Switch to {modalData.l1ChainInfo.name}
-                      </button>
-                    )}
+                    <button
+                      className={'modal-btn'}
+                      onClick={() =>
+                        switchChain({
+                          chainId: Number(modalData.l1ChainInfo.chainId),
+                        })
+                      }
+                    >
+                      <HiSwitchHorizontal />
+                      Switch to {modalData.l1ChainInfo.name}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

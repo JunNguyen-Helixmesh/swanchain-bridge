@@ -396,7 +396,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       key={index}
                       onClick={async (e: any) => {
                         // console.log('td:', e.target.className)
-                        if (e.target.className != 'tx_hash') {
+                        if (!showModal && e.target.className != 'tx_hash') {
                           getModalData(withdrawal)
                         }
                       }}

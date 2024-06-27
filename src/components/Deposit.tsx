@@ -298,6 +298,7 @@ const Deposit: React.FC = () => {
                 <Form>
                   <div className="deposit_inner_input">
                     <Form.Control
+                      disabled={!isConnected || Number(chain ?.id) !== Number(l1ChainInfo.chainId)}
                       type="number"
                       value={ethValue}
                       onChange={handleChange}
@@ -421,7 +422,7 @@ const Deposit: React.FC = () => {
                   Switch to {l1ChainInfo.name}
                 </button>
               ) : checkDisabled ? (
-                <button className="btn deposit_btn flex-row" disabled={true}>
+                <button className="btn deposit_btn deposit_btn_disabled flex-row" disabled={true}>
                   Deposit
                 </button>
               ) : (

@@ -352,7 +352,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     // Get the current date
     const now = new Date()
 
-    console.log(date, now)
+    // console.log(date, now)
 
     // Calculate the difference in time (in milliseconds)
     const diffTime = now.getTime() - date.getTime()

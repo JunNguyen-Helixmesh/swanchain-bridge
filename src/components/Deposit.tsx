@@ -28,7 +28,7 @@ const Deposit: React.FC = () => {
   const { address, isConnected } = useAccount()
   const account = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
-  const [loader, setLoader] = useState<boolean>(false)
+  // const [loader, setLoader] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
@@ -110,7 +110,6 @@ const Deposit: React.FC = () => {
               ethers.utils.parseEther(ethValue)._hex,
               16,
             )
-            setLoader(true)
             console.log(account)
             console.log(window.ethereum)
             sendTransaction({
@@ -136,11 +135,7 @@ const Deposit: React.FC = () => {
       }
     } catch (error) {
       console.log({ error }, 98)
-    } finally {
-      setLoader(false)
-      setEthValue('')
-      // fetchBalance()
-    }
+    } 
   }
 
   const callGalxeAPI = async () => {
@@ -218,6 +213,10 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     setLoaded(true);
   }, []);
+
+  useEffect(() => {
+    setEthValue('')
+  }, [isConnected, isConfirmed]);
 
   useEffect(() => {
     if (loaded) {
@@ -323,7 +322,7 @@ const Deposit: React.FC = () => {
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {sendToken === 'ETH' && balanceShow !== undefined ? (
+              {Number(chain ?.id) == Number(l1ChainInfo.chainId) && sendToken === 'ETH' && balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
                     {balance ?.formatted} {balance ?.symbol} available
@@ -427,11 +426,11 @@ const Deposit: React.FC = () => {
                 </button>
               ) : (
                         <button
-                          className={ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
+                          className={!isPending && !isConfirming && ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
                           onClick={handleDeposit}
-                          disabled={loader || isConfirming ? true : false}
+                          disabled={isPending || isConfirming ? true : false}
                         >
-                          {loader || isConfirming ? (
+                          {isConfirming || isPending ? (
                             <Spinner animation="border" role="status">
                               <span className="visually-hidden">Loading...</span>
                             </Spinner>
@@ -485,6 +484,15 @@ const Deposit: React.FC = () => {
               />
             )}
           </section>
+          {/* <button
+          onClick={() => {
+            console.log('pending', isPending)
+            console.log('confirming', isConfirming)
+            
+          }}
+        >
+          TEST
+        </button> */}
         </div>
       </>
     )
@@ -492,15 +500,6 @@ const Deposit: React.FC = () => {
     return (
       <div>
         Loading...
-        {/* <button
-          onClick={() => {
-            console.log(chainInfoAsObject)
-            console.log(l1ChainInfo)
-            console.log(l2ChainInfo)
-          }}
-        >
-          TEST
-        </button> */}
       </div>
     )
 }

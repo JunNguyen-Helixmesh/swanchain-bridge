@@ -14,6 +14,7 @@ import {
   useChains,
 } from 'wagmi'
 import TabMenu from './TabMenu'
+import SuccessIcon from './SuccessIcon'
 import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import { formatUnits, Address } from 'viem'
@@ -28,6 +29,8 @@ const Deposit: React.FC = () => {
   const { address, isConnected } = useAccount()
   const account = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
+  const [iconLoader, setIconLoader] = useState<boolean>(false)
+  const [iconStatus, setIconStatus] = useState<boolean>(false)
   // const [loader, setLoader] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { chain } = useAccount()
@@ -134,8 +137,13 @@ const Deposit: React.FC = () => {
         }
       }
     } catch (error) {
+      setIconStatus(false)
+      setIconLoader(true)
+      setTimeout(() => {
+        setIconLoader(false)
+      }, 3000);
       console.log({ error }, 98)
-    } 
+    }
   }
 
   const callGalxeAPI = async () => {
@@ -169,8 +177,8 @@ const Deposit: React.FC = () => {
     if (sendToken == 'ETH') {
       if (
         balance &&
-          Number(formatUnits(balance.value, balance.decimals)) <
-          Number(e.target.value)
+        Number(formatUnits(balance.value, balance.decimals)) <
+        Number(e.target.value)
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
@@ -216,6 +224,14 @@ const Deposit: React.FC = () => {
 
   useEffect(() => {
     setEthValue('')
+    if (isConfirmed) {
+      console.log('isConfirmed:', isConfirmed)
+      setIconStatus(true)
+      setIconLoader(true)
+      setTimeout(() => {
+        setIconLoader(false)
+      }, 3000);
+    }
   }, [isConnected, isConfirmed]);
 
   useEffect(() => {
@@ -234,6 +250,7 @@ const Deposit: React.FC = () => {
     return (
       <>
         <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
+          {iconLoader ? (<SuccessIcon parentMessage={iconStatus} />) : (<></>)}
           <TabMenu />
           <section className="deposit_wrap">
             <div className="deposit_price_wrap flex-row jc">

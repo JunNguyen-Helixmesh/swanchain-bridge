@@ -20,6 +20,7 @@ import { IoMdWallet } from 'react-icons/io'
 import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import TabMenu from './TabMenu'
+import SuccessIcon from './SuccessIcon'
 import { formatUnits, Address } from 'viem'
 import Head from 'next/head'
 import { useChainConfig } from '../hooks/useChainConfig'
@@ -33,6 +34,8 @@ const Withdraw: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
   // const [loader, setLoader] = useState<boolean>(false)
+  const [iconLoader, setIconLoader] = useState<boolean>(false)
+  const [iconStatus, setIconStatus] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
@@ -54,6 +57,7 @@ const Withdraw: React.FC = () => {
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
+    status: status
   } = useWaitForTransactionReceipt({
     hash,
   })
@@ -188,6 +192,11 @@ const Withdraw: React.FC = () => {
             // updateWallet()
           } catch (error) {
             // setLoader(false)
+            setIconStatus(false)
+            setIconLoader(true)
+            setTimeout(() => {
+              setIconLoader(false)
+            }, 3000);
             console.log({ error }, 98)
           } finally {
             // setLoader(false)
@@ -208,7 +217,7 @@ const Withdraw: React.FC = () => {
     if (sendToken == 'ETH') {
       if (
         data &&
-          Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
+        Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
       ) {
         setCheckDisabled(true)
         setErrorInput('Insufficient ETH balance.')
@@ -290,6 +299,14 @@ const Withdraw: React.FC = () => {
 
   useEffect(() => {
     setEthValue('')
+    if (isConfirmed) {
+      console.log('isConfirmed:', isConfirmed)
+      setIconStatus(true)
+      setIconLoader(true)
+      setTimeout(() => {
+        setIconLoader(false)
+      }, 3000);
+    }
   }, [isConnected, isConfirmed]);
 
   useEffect(() => {
@@ -306,6 +323,7 @@ const Withdraw: React.FC = () => {
           <meta name="description" content="Withdraw SwanETH to receive ETH" />
         </Head>
         <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
+          {iconLoader ? (<SuccessIcon parentMessage={iconStatus} />) : (<></>)}
           <TabMenu />
           <section className="deposit_wrap">
             {/* <div className="withdraw_title_wrap">
@@ -528,7 +546,7 @@ const Withdraw: React.FC = () => {
                               <span> {ethValue && Number(ethValue) > 0 ? 'Initiate Withdrawal' : 'Enter an amount'} </span>
                             )}
                         </button>
-                      )} 
+                      )}
               {/* {isMainnet ? (
                 <p
                   style={{

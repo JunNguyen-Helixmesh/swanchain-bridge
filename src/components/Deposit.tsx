@@ -28,7 +28,7 @@ const Deposit: React.FC = () => {
   const { address, isConnected } = useAccount()
   const account = useAccount()
   const [errorInput, setErrorInput] = useState<string>('')
-  const [loader, setLoader] = useState<boolean>(false)
+  // const [loader, setLoader] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
@@ -106,13 +106,12 @@ const Deposit: React.FC = () => {
           })
           if (sendToken === 'ETH') {
             console.log(sendToken)
-            const weiValue = parseInt(
-              ethers.utils.parseEther(ethValue)._hex,
-              16,
-            )
-            setLoader(true)
-            console.log(account)
-            console.log(window.ethereum)
+            // const weiValue = parseInt(
+            //   ethers.utils.parseEther(ethValue)._hex,
+            //   16,
+            // )
+            // console.log(account)
+            // console.log(window.ethereum)
             sendTransaction({
               to: L1StandardBridge as Address,
               value: ethers.utils.parseEther(ethValue),
@@ -136,11 +135,7 @@ const Deposit: React.FC = () => {
       }
     } catch (error) {
       console.log({ error }, 98)
-    } finally {
-      setLoader(false)
-      setEthValue('')
-      // fetchBalance()
-    }
+    } 
   }
 
   const callGalxeAPI = async () => {
@@ -152,7 +147,7 @@ const Deposit: React.FC = () => {
 
       // Make the POST request using Axios
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_TESTNET_API_ROUTE}/galxe/update_credentials`,
+        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials`,
         postData,
         {
           headers: {
@@ -173,7 +168,7 @@ const Deposit: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (sendToken == 'ETH') {
       if (
-        balance ?.value &&
+        balance &&
           Number(formatUnits(balance.value, balance.decimals)) <
           Number(e.target.value)
       ) {
@@ -218,6 +213,10 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     setLoaded(true);
   }, []);
+
+  useEffect(() => {
+    setEthValue('')
+  }, [isConnected, isConfirmed]);
 
   useEffect(() => {
     if (loaded) {
@@ -298,6 +297,7 @@ const Deposit: React.FC = () => {
                 <Form>
                   <div className="deposit_inner_input">
                     <Form.Control
+                      disabled={!isConnected || Number(chain ?.id) !== Number(l1ChainInfo.chainId)}
                       type="number"
                       value={ethValue}
                       onChange={handleChange}
@@ -322,7 +322,7 @@ const Deposit: React.FC = () => {
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {sendToken === 'ETH' && balanceShow !== undefined ? (
+              {Number(chain ?.id) == Number(l1ChainInfo.chainId) && sendToken === 'ETH' && balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
                     {balance ?.formatted} {balance ?.symbol} available
@@ -351,7 +351,7 @@ const Deposit: React.FC = () => {
                 <span className="input_icn flex-row">
                   {/* <Ethereum style={{ fontSize: '1.2rem' }} />  */}
                   <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2648" width="16" height="16"><path d="M597.333333 608.085333v89.173334A256 256 0 0 0 256 938.666667H170.666667a341.333333 341.333333 0 0 1 426.666666-330.624zM512 554.666667c-141.44 0-256-114.56-256-256s114.56-256 256-256 256 114.56 256 256-114.56 256-256 256z m0-85.333334c94.293333 0 170.666667-76.373333 170.666667-170.666666s-76.373333-170.666667-170.666667-170.666667-170.666667 76.373333-170.666667 170.666667 76.373333 170.666667 170.666667 170.666666z m316.501333 256h153.002667v85.333334h-153.002667l78.037334 77.994666-60.330667 60.373334L665.173333 768l181.034667-181.034667 60.330667 60.373334L828.501333 725.333333z" p-id="2649" fill="#4177f3"></path></svg>
-                  Receive on  {destinationChainId.toString() === '2024' ? 'Saturn' : destinationChainId.toString() === '20241133' ? 'Proxima' : 'Swan'}
+                  Receive on  {l2ChainInfo ?.name}
                 </span>
                 <p>
                   {ethValue && address ? ethValue : '-'}{' '}
@@ -421,16 +421,16 @@ const Deposit: React.FC = () => {
                   Switch to {l1ChainInfo.name}
                 </button>
               ) : checkDisabled ? (
-                <button className="btn deposit_btn flex-row" disabled={true}>
+                <button className="btn deposit_btn deposit_btn_disabled flex-row" disabled={true}>
                   Deposit
                 </button>
               ) : (
                         <button
-                          className={ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
+                          className={!isPending && !isConfirming && ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
                           onClick={handleDeposit}
-                          disabled={loader || isConfirming ? true : false}
+                          disabled={isPending || isConfirming ? true : false}
                         >
-                          {loader || isConfirming ? (
+                          {isConfirming || isPending ? (
                             <Spinner animation="border" role="status">
                               <span className="visually-hidden">Loading...</span>
                             </Spinner>
@@ -484,6 +484,15 @@ const Deposit: React.FC = () => {
               />
             )}
           </section>
+          {/* <button
+          onClick={() => {
+            console.log('pending', isPending)
+            console.log('confirming', isConfirming)
+            
+          }}
+        >
+          TEST
+        </button> */}
         </div>
       </>
     )
@@ -491,15 +500,6 @@ const Deposit: React.FC = () => {
     return (
       <div>
         Loading...
-        {/* <button
-          onClick={() => {
-            console.log(chainInfoAsObject)
-            console.log(l1ChainInfo)
-            console.log(l2ChainInfo)
-          }}
-        >
-          TEST
-        </button> */}
       </div>
     )
 }

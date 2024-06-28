@@ -40,6 +40,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   const [loader, setLoader] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false)
   const [modalData, setModalData] = useState<any>(null)
+  const [showModal, setShowModal] = useState<boolean>(false)
   const [offset, setOffset] = useState<Number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalRows, setTotalRows] = useState<number>(0)
@@ -134,6 +135,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
   const closeModal = () => {
     setModalData(null)
+    setShowModal(false)
   }
 
   const checkModalClick = (e: any) => {
@@ -150,6 +152,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
   }
 
   const getModalData = async (rowData: any) => {
+    setShowModal(true)
     let l2ChainInfo = chainInfoAsObject[rowData.chain_id]
     let l1ChainInfo = chainInfoAsObject[l2ChainInfo.l1ChainId]
 
@@ -393,7 +396,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                       key={index}
                       onClick={async (e: any) => {
                         // console.log('td:', e.target.className)
-                        if (e.target.className != 'tx_hash') {
+                        if (!showModal && e.target.className != 'tx_hash') {
                           getModalData(withdrawal)
                         }
                       }}
@@ -447,9 +450,10 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             renderOnZeroPageCount={null}
           />
         </div>
-        {modalData && (
+        {showModal && (
           <div className="modal-container" onClick={checkModalClick}>
             <div className="modal">
+              { modalData ? 
               <div className="modal-content">
                 <div className="modal-content-header">
                   <h2 className="flex-row">Withdrawal</h2>
@@ -532,7 +536,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   {chain?.id == modalData.l1ChainInfo.chainId ? (
                     <button
                       className={
-                        modalData.isButtonDisabled
+                        modalData.isButtonDisabled || loader
                           ? 'modal-btn disabled'
                           : 'modal-btn'
                       }
@@ -566,6 +570,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
                   )}
                 </div>
               </div>
+              : <div className="modal-loading">Loading...</div> }
             </div>
           </div>
         )}

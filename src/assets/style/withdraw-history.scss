@@ -55,13 +55,14 @@ tbody td {
   // @media screen and (max-width: 1600px) {
   //   max-width: 1000px;
   // }
-  h2{
+  h2 {
     margin: 0 0 12px;
     font-size: 18px;
     font-weight: 600;
     text-align: center;
   }
-  th,td{
+  th,
+  td {
     font-size: 14px;
     font-weight: 400;
   }
@@ -73,11 +74,11 @@ tbody td {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 80vh;
   // background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  // display: flex;
+  // align-items: center;
+  // justify-content: center;
   backdrop-filter: blur(8px);
 }
 
@@ -94,7 +95,7 @@ tbody td {
   border-radius: 12px;
   box-shadow: 0 0 8px -4px #14171a1f, 0 4px 16px -1px #14171a14;
   @media screen and (max-width: 1600px) {
-    max-width: 500px;
+    max-width: 400px;
   }
 }
 
@@ -106,6 +107,10 @@ tbody td {
   display: flex;
   // align-items: center;
   justify-content: space-between;
+}
+
+.modal-loading {
+  text-align: center;
 }
 
 .close {
@@ -138,7 +143,7 @@ tbody td {
         font-size: 14px;
         border-radius: 24px;
         border: 1px solid gray;
-        svg{
+        svg {
           width: 20px;
           height: 20px;
         }

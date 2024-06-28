@@ -5,3 +5,19 @@
         height: 30px !important;
     }
 }
+
+.tab-success-header{
+    flex-direction: column;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    padding: 32px;
+    background-color: var(--card-color);
+    transform: translate(-50%, -50%);
+    border-radius: 32px;
+    z-index: 99;
+    p {
+        margin: 6px 0 0;
+        font-size: 14px;
+    }
+}

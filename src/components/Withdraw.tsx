@@ -18,6 +18,7 @@ import { IoMdWallet } from 'react-icons/io'
 import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import TabMenu from './TabMenu'
+import SuccessIcon from './SuccessIcon'
 import { formatUnits } from 'viem'
 import Head from 'next/head'
 import { useChainConfig } from '../hooks/useChainConfig'
@@ -31,6 +32,8 @@ const Withdraw: React.FC = () => {
   const [errorInput, setErrorInput] = useState<string>('')
   const [checkMetaMask, setCheckMetaMask] = useState<boolean>(false)
   const [loader, setLoader] = useState<boolean>(false)
+  const [iconLoader, setIconLoader] = useState<boolean>(false)
+  const [iconStatus, setIconStatus] = useState<boolean>(false)
   const [loaded, setLoaded] = useState(false);
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
@@ -160,6 +163,7 @@ const Withdraw: React.FC = () => {
               if (blockNumber !== null) {
                 setLoader(false)
                 setEthValue('')
+                setIconStatus(true)
 
                 // if (isConnected && address) {
                 //   await updateWithdrawHistory(
@@ -177,11 +181,20 @@ const Withdraw: React.FC = () => {
             updateWallet()
           } catch (error) {
             setLoader(false)
+            setIconStatus(false)
+            setIconLoader(true)
+            setTimeout(() => {
+              setIconLoader(false)
+            }, 3000);
             console.log({ error }, 98)
           } finally {
             setLoader(false)
             updateWallet()
             fetchBalance()
+            setIconLoader(true)
+            setTimeout(() => {
+              setIconLoader(false)
+            }, 3000);
           }
         }
       }
@@ -291,6 +304,7 @@ const Withdraw: React.FC = () => {
           <meta name="description" content="Withdraw SwanETH to receive ETH" />
         </Head>
         <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
+          {iconLoader ? (<SuccessIcon parentMessage={iconStatus} />) : (<></>)}
           <TabMenu />
           <section className="deposit_wrap">
             {/* <div className="withdraw_title_wrap">

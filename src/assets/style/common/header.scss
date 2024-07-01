@@ -1,6 +1,7 @@
 .app_header {
-  padding: 12px 32px;
-  border-bottom: 2px solid #5f6064;
+  position: relative;
+  z-index: 1;
+  padding: 6px 32px;
   justify-content: space-between;
   .network-selector-container,
   .page-select-container {
@@ -90,8 +91,8 @@
   }
 
   .logo-svg {
-    width: auto;
-    height: 37px;
+    width: auto !important;
+    height: 30px !important;
   }
   .wallet_profile {
     border-radius: 100px;

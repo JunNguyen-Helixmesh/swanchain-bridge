@@ -1,12 +1,15 @@
 :root {
     // --primary-color: #EDE4C5;
     --primary-color: linear-gradient(90deg, #B37A56 0%, #FBCBA7 32.29%, #C38A79 71.35%, #945B3B 95.31%);
-    --secondary-color: #010001;
+    --secondary-color: rgba(15, 11, 45, 1);
     --button-color: #074870;
-    --light-color: #fff;
+    --light-color: rgba(255, 255, 255, 1);
+    --light-opacity-color: rgba(255, 255, 255, 0.5);
     --dark-color: #000;
-    --text-color: #ebeff9;
-    --card-color: #1e2026;
-    --tab-color: #3a3c48;
+    --text-color: rgba(250, 250, 250, 1);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --card-color: rgba(0, 0, 0, 0.7);
+    --tab-color: #070512;
     --theme-color: #447dff;
+    --grey-color:rgb(161 161 170)
 }

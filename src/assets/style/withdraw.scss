@@ -32,16 +32,24 @@
 .withdraw_bal_sum {
   display: flex;
   align-items: center;
-  padding: 10px 0 0;
+  color: var(--light-color);
   .input_icn {
     margin: 0 9px 0 0;
-    color: #444971;
-    font-weight: 500;
+    font-size: 12px;
+    svg{
+      margin: 0 6px 0 0;
+    }
   }
   p {
     margin-bottom: 0px;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-color);
+    &.green{
+      color: #43b85c;
+      svg{
+        margin: 0 0 0 4px;
+      }
+    }
   }
   .input_title {
     color: var(--dark-color);
@@ -53,7 +61,14 @@
   }
 }
 
+.spacing{
+  height: 1px;
+  margin: 10px 0;
+  background-color: var(--border-color);
+}
+
 .text-danger {
+  font-size: 12px;
   color: red;
 }
 

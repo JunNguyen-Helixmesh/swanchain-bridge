@@ -1,22 +1,33 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import NextImage from 'next/image'
 
 const TabMenu: React.FC = () => {
     const router = useRouter()
     return (
         <>
-            <ul>
-                <li className={router.pathname === "/" || router.pathname === "/deposit" ? "active" : ""}>
-                    <Link href="/deposit">
-                        Deposit
+            <div className="tab-header flex-row">
+                <NextImage
+                    src="/assets/images/logo.png"
+                    alt="SWAN logo"
+                    layout="responsive"
+                    width={86}
+                    height={30}
+                    className="logo-svg"
+                />
+                <div className="flex-row items-center">
+                    <div className={router.pathname === "/" || router.pathname === "/deposit" ? "active rounded-btn" : "rounded-btn"}>
+                        <Link href="/deposit">
+                            Deposit
                     </Link>
-                </li>
-                <li className={router.pathname === "/withdraw" ? "active" : ""}>
-                    <Link href="/withdraw">
-                        Withdraw
+                    </div>
+                    <div className={router.pathname === "/withdraw" ? "active rounded-btn" : "rounded-btn"}>
+                        <Link href="/withdraw">
+                            Withdraw
                     </Link>
-                </li>
-            </ul>
+                    </div>
+                </div>
+            </div>
         </>
     )
 }

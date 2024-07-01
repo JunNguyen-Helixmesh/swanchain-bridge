@@ -1,13 +1,19 @@
 .app_footer {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: calc(100% - 32px);
   padding: 0px 15px;
   font-weight: 500;
   font-size: 12px;
   color: var(--text-color);
+  z-index: 9;
   .footer_text_wrap {
+    width: 120px;
     ul {
       padding: 0px;
       list-style: none;
@@ -26,11 +32,13 @@
     }
   }
   .footer_icn_wrap {
+    width: 120px;
     ul {
       padding: 0px;
       list-style: none;
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       li {
         padding-left: 15px;
         a {
@@ -50,6 +58,27 @@
         &:nth-child(4) a {
           color: #57f287 !important;
         }
+      }
+    }
+  }
+  .page-select-conatainer{
+    .footer_btn{
+      padding: 8px 10px 8px 20px;
+      background-color: rgb(30, 32, 37);
+      font-size: 16px;
+      border: 0;
+      border-radius: 100px;
+      color: var(--light-color);
+      box-shadow: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      &:hover{
+        transform: scale(1.05);
+      }
+      svg{
+        width: 16px;
+        margin: 0 0 0 8px;
+        fill: #a1a1aa;
       }
     }
   }

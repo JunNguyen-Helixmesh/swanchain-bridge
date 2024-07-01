@@ -69,7 +69,11 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         //   { shallow: true },
         // )
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_ROUTE}/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
+          `${
+            isMainnet
+              ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
+              : process.env.NEXT_PUBLIC_API_ROUTE
+          }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
@@ -84,7 +88,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           .reduce((acc: any, chainInfo: any) => {
             const provider = new ethers.providers.JsonRpcProvider(
               chainInfoAsObject[chainInfo.id].rpcUrl,
-              'any',
+              'any'
             )
 
             acc[chainInfo.id] = provider
@@ -111,7 +115,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
               block_number: receipt.blockNumber,
               // receipt: await l2Provider.getTransaction(tx_hash),
             }
-          }),
+          })
         )
 
         // let receipt = await l2Provider.getTransaction(
@@ -164,12 +168,12 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const outputOracleContract = new ethers.Contract(
       L2OutputOracle,
       OUTPUT_ORACLE_ABI,
-      l1Provider,
+      l1Provider
     )
 
     try {
       rowData.latestOutputtedBlockNumber = Number(
-        await outputOracleContract.latestBlockNumber(),
+        await outputOracleContract.latestBlockNumber()
       )
       // console.log(
       //   'Result of the view function:',
@@ -183,7 +187,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       if (rowData.status == 'proven' && rowData.prove_tx_hash) {
         proveTimestamp = await getTimestampFromTxHash(
           l1Provider,
-          rowData.prove_tx_hash,
+          rowData.prove_tx_hash
         )
       }
 
@@ -297,7 +301,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       // })
 
       // console.log(result.data)
-    } catch (error:any) {
+    } catch (error: any) {
       setLoader(false)
       if (
         error.reason ===
@@ -334,7 +338,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
   async function getTimestampFromTxHash(
     provider: any,
-    txHash: string,
+    txHash: string
   ): Promise<number | null> {
     try {
       const txReceipt = await provider.getTransactionReceipt(txHash)
@@ -453,124 +457,126 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
         {showModal && (
           <div className="modal-container" onClick={checkModalClick}>
             <div className="modal">
-              { modalData ? 
-              <div className="modal-content">
-                <div className="modal-content-header">
-                  <h2 className="flex-row">Withdrawal</h2>
-                  <span className="close" onClick={closeModal}>
-                    &times;
-                  </span>
+              {modalData ? (
+                <div className="modal-content">
+                  <div className="modal-content-header">
+                    <h2 className="flex-row">Withdrawal</h2>
+                    <span className="close" onClick={closeModal}>
+                      &times;
+                    </span>
+                  </div>
+                  <div className="modal-amoumt">
+                    <span className="title">Amount to withdraw</span>
+                    <span className="text">{modalData.amount} swanETH</span>
+                  </div>
+                  <div className="withdraw-flow">
+                    <ul>
+                      <li
+                        className="withdraw-step done"
+                        onClick={() => console.log(modalData)}
+                      >
+                        <GrSend size={28} />
+                        Initiate withdraw
+                      </li>
+                      <li className="vertical-dots">
+                        <HiDotsVertical />
+                      </li>
+                      <li
+                        className={
+                          modalData.isButtonDisabled &&
+                          modalData.status == 'initiated'
+                            ? 'withdraw-step'
+                            : 'withdraw-step done'
+                        }
+                      >
+                        <IoMdTime size={28} />
+                        Wait for the published withdraw on L1
+                      </li>
+                      <li className="vertical-dots">
+                        <HiDotsVertical />
+                      </li>
+                      <li
+                        className={
+                          modalData.status == 'proven' ||
+                          modalData.status == 'finalized'
+                            ? 'withdraw-step done'
+                            : 'withdraw-step'
+                        }
+                      >
+                        <LuShield size={28} />
+                        Prove withdrawal
+                      </li>
+                      <li className="vertical-dots">
+                        <HiDotsVertical />
+                      </li>
+                      <li
+                        className={
+                          (modalData.status == 'proven' &&
+                            !modalData.isButtonDisabled) ||
+                          modalData.status == 'finalized'
+                            ? 'withdraw-step done'
+                            : 'withdraw-step'
+                        }
+                      >
+                        <IoMdTime size={28} />
+                        Wait the fault challenge period
+                      </li>
+                      <li className="vertical-dots">
+                        <HiDotsVertical />
+                      </li>
+                      <li
+                        className={
+                          modalData.status == 'finalized'
+                            ? 'withdraw-step done'
+                            : 'withdraw-step'
+                        }
+                      >
+                        <HiDownload size={28} />
+                        Claim withdrawal
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="modal-btn-container">
+                    {chain?.id == modalData.l1ChainInfo.chainId ? (
+                      <button
+                        className={
+                          modalData.isButtonDisabled || loader
+                            ? 'modal-btn disabled'
+                            : 'modal-btn'
+                        }
+                        disabled={modalData.isButtonDisabled}
+                        onClick={() => handleModalButton()}
+                      >
+                        {loader ? (
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        ) : modalData.status == 'initiated' ? (
+                          'Prove withdrawal'
+                        ) : modalData.status == 'finalized' ? (
+                          'Withdrawal claimed'
+                        ) : (
+                          'Claim withdrawal'
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        className={'modal-btn'}
+                        onClick={() =>
+                          switchChain({
+                            chainId: Number(modalData.l1ChainInfo.chainId),
+                          })
+                        }
+                      >
+                        <HiSwitchHorizontal />
+                        Switch to {modalData.l1ChainInfo.name}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="modal-amoumt">
-                  <span className="title">Amount to withdraw</span>
-                  <span className="text">{modalData.amount} swanETH</span>
-                </div>
-                <div className="withdraw-flow">
-                  <ul>
-                    <li
-                      className="withdraw-step done"
-                      onClick={() => console.log(modalData)}
-                    >
-                      <GrSend size={28} />
-                      Initiate withdraw
-                    </li>
-                    <li className="vertical-dots">
-                      <HiDotsVertical />
-                    </li>
-                    <li
-                      className={
-                        modalData.isButtonDisabled &&
-                        modalData.status == 'initiated'
-                          ? 'withdraw-step'
-                          : 'withdraw-step done'
-                      }
-                    >
-                      <IoMdTime size={28} />
-                      Wait for the published withdraw on L1
-                    </li>
-                    <li className="vertical-dots">
-                      <HiDotsVertical />
-                    </li>
-                    <li
-                      className={
-                        modalData.status == 'proven' ||
-                        modalData.status == 'finalized'
-                          ? 'withdraw-step done'
-                          : 'withdraw-step'
-                      }
-                    >
-                      <LuShield size={28} />
-                      Prove withdrawal
-                    </li>
-                    <li className="vertical-dots">
-                      <HiDotsVertical />
-                    </li>
-                    <li
-                      className={
-                        (modalData.status == 'proven' &&
-                          !modalData.isButtonDisabled) ||
-                        modalData.status == 'finalized'
-                          ? 'withdraw-step done'
-                          : 'withdraw-step'
-                      }
-                    >
-                      <IoMdTime size={28} />
-                      Wait the fault challenge period
-                    </li>
-                    <li className="vertical-dots">
-                      <HiDotsVertical />
-                    </li>
-                    <li
-                      className={
-                        modalData.status == 'finalized'
-                          ? 'withdraw-step done'
-                          : 'withdraw-step'
-                      }
-                    >
-                      <HiDownload size={28} />
-                      Claim withdrawal
-                    </li>
-                  </ul>
-                </div>
-                <div className="modal-btn-container">
-                  {chain?.id == modalData.l1ChainInfo.chainId ? (
-                    <button
-                      className={
-                        modalData.isButtonDisabled || loader
-                          ? 'modal-btn disabled'
-                          : 'modal-btn'
-                      }
-                      disabled={modalData.isButtonDisabled}
-                      onClick={() => handleModalButton()}
-                    >
-                      {loader ? (
-                        <Spinner animation="border" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                      ) : modalData.status == 'initiated' ? (
-                        'Prove withdrawal'
-                      ) : modalData.status == 'finalized' ? (
-                        'Withdrawal claimed'
-                      ) : (
-                        'Claim withdrawal'
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      className={'modal-btn'}
-                      onClick={() =>
-                        switchChain({
-                          chainId: Number(modalData.l1ChainInfo.chainId),
-                        })
-                      }
-                    >
-                      <HiSwitchHorizontal />
-                      Switch to {modalData.l1ChainInfo.name}
-                    </button>
-                  )}
-                </div>
-              </div>
-              : <div className="modal-loading">Loading...</div> }
+              ) : (
+                <div className="modal-loading">Loading...</div>
+              )}
             </div>
           </div>
         )}

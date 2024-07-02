@@ -41,7 +41,7 @@ import { MainnetContext } from '../../pages/_app'
 
 const HeaderNew: FunctionComponent = () => {
   const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>(
-    'Copy address to clipboard',
+    'Copy address to clipboard'
   )
   const { address, isConnected } = useAccount()
   const [getNetwork, setNetwork] = useState<string | undefined>()
@@ -69,12 +69,16 @@ const HeaderNew: FunctionComponent = () => {
 
   useEffect(() => {
     if (isConnected) {
-      console.log('Success', { address, chainId: chain ?.id })
+      console.log('Success', { address, chainId: chain?.id })
       setCheckMetaMask(false)
     } else {
       setCheckMetaMask(true)
     }
   }, [isConnected, address, chain])
+
+  useEffect(() => {
+    setIsOpen(false)
+  }, [isMainnet])
   // const { disconnect } = useDisconnect()
   // const handleDisconnect = async () => {
   //   await disconnect()
@@ -116,22 +120,170 @@ const HeaderNew: FunctionComponent = () => {
               className="logo-svg"
             />
           </a>
-          <div className="flex-row items-center">
-            <div onClick={() => setIsMainnet(!isMainnet)} className={isMainnet ? 'rounded-btn' : 'rounded-btn active'}>Testnet</div>
-            <div onClick={() => setIsMainnet(!isMainnet)} className={isMainnet ? 'rounded-btn active' : 'rounded-btn'}>Mainnet</div>
+          {/* <div className="flex-row items-center">
+            <div
+              onClick={() => setIsMainnet(!isMainnet)}
+              className={isMainnet ? 'rounded-btn' : 'rounded-btn active'}
+            >
+              Testnet
+            </div>
+            <div
+              onClick={() => setIsMainnet(!isMainnet)}
+              className={isMainnet ? 'rounded-btn active' : 'rounded-btn'}
+            >
+              Mainnet
+            </div>
+          </div> */}
+
+          <div className="flex-row items-dropdown">
+            <div
+              className="flex-row items-label"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6.85714 5L0 11.8571L6.85714 18.7143V13.5714L13.7143 8.42857H6.85714V5Z"
+                  fill="currentColor"
+                ></path>
+                <path
+                  d="M24 11.8571L17.1429 5V10.1429L10.2857 15.2857H17.1429V18.7143L24 11.8571Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+              {isMainnet ? (
+                <span>Swan</span>
+              ) : (
+                <span>Swan Sepolia Testnet</span>
+              )}
+              <svg
+                className={isOpen ? 'toggled' : ''}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                ></path>
+              </svg>
+            </div>
+            <div className={isOpen ? 'items-abo show' : 'items-abo'}>
+              <div
+                onClick={() => setIsMainnet(!isMainnet)}
+                className={
+                  isMainnet
+                    ? 'rounded-btn flex-row jc active'
+                    : 'rounded-btn flex-row jc'
+                }
+              >
+                <div className="rounded-btn-title flex-row">
+                  <svg
+                    className="icon-left"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6.85714 5L0 11.8571L6.85714 18.7143V13.5714L13.7143 8.42857H6.85714V5Z"
+                      fill="currentColor"
+                    ></path>
+                    <path
+                      d="M24 11.8571L17.1429 5V10.1429L10.2857 15.2857H17.1429V18.7143L24 11.8571Z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                  Swan
+                </div>
+                <svg
+                  width="17"
+                  height="17"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m4.5 12.75 6 6 9-13.5"
+                  ></path>
+                </svg>
+              </div>
+              <div
+                onClick={() => setIsMainnet(!isMainnet)}
+                className={
+                  isMainnet
+                    ? 'rounded-btn flex-row jc'
+                    : 'rounded-btn flex-row jc active'
+                }
+              >
+                <div className="rounded-btn-title flex-row">
+                  <svg
+                    className="icon-left"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6.85714 5L0 11.8571L6.85714 18.7143V13.5714L13.7143 8.42857H6.85714V5Z"
+                      fill="currentColor"
+                    ></path>
+                    <path
+                      d="M24 11.8571L17.1429 5V10.1429L10.2857 15.2857H17.1429V18.7143L24 11.8571Z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                  Swan Sepolia Testnet
+                </div>
+                <svg
+                  width="17"
+                  height="17"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m4.5 12.75 6 6 9-13.5"
+                  ></path>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
         <div className="btn header_btn_wrap">
           {hydrationLoad ? (
             <></>
           ) : (
-              <div className="header-flex">
-                <div className="page-select-conatainer">
-                  <div className="w3m-container">
-                    {/* <w3m-network-button /> */}
-                    <w3m-button balance="hide" size="sm" />
-                  </div>
-                  {/* {!isConnected ? (
+            <div className="header-flex">
+              <div className="page-select-conatainer">
+                <div className="w3m-container">
+                  {/* <w3m-network-button /> */}
+                  <w3m-button balance="hide" size="sm" />
+                </div>
+                {/* {!isConnected ? (
                   <button
                     className="btn header_btn flex-row"
                     onClick={() => {
@@ -145,160 +297,160 @@ const HeaderNew: FunctionComponent = () => {
                     {address?.slice(0, 6)}...{address?.slice(-4)}
                   </button>
                 )} */}
-                  <div>
-                    {showModal && (
-                      <div
-                        style={{
-                          position: 'fixed',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          zIndex: 999,
-                        }}
-                        onClick={() => setShowModal(false)}
-                      />
-                    )}
-                  </div>
-                  <Modal
-                    show={showModal}
-                    onHide={() => setShowModal(false)}
-                    centered
-                    style={{
-                      position: 'fixed',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      zIndex: 1000,
-                    }}
-                  >
+                <div>
+                  {showModal && (
                     <div
                       style={{
-                        backgroundColor: 'white',
-                        borderRadius: '10px',
-                        maxWidth: '500px',
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
                         width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 999,
                       }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div style={{ padding: '20px', color: 'black' }}>
-                        <h2>Install MetaMask</h2>
-                        <p style={{ marginBottom: '20px' }}>
-                          You need to install MetaMask to use this application.
-                          Click the button below to install it.
-                      </p>
-                        <a
-                          href="https://metamask.io/"
-                          target="_blank"
-                          style={{
-                            color: 'white',
-                            backgroundColor: '#447dff',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            textDecoration: 'none',
-                            marginTop: '20px',
-                          }}
-                        >
-                          Install MetaMask
-                      </a>
-                      </div>
-                    </div>
-                  </Modal>
-                  <div>
-                    {isWalletModalOpen && (
-                      <div
-                        style={{
-                          position: 'fixed',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          zIndex: 1000,
-                        }}
-                        onClick={() => setIsWalletModalOpen(false)}
-                      />
-                    )}
-                  </div>
-                  <Modal
-                    show={isWalletModalOpen}
-                    onHide={() => setIsWalletModalOpen(false)}
-                    centered
+                      onClick={() => setShowModal(false)}
+                    />
+                  )}
+                </div>
+                <Modal
+                  show={showModal}
+                  onHide={() => setShowModal(false)}
+                  centered
+                  style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 1000,
+                  }}
+                >
+                  <div
                     style={{
-                      zIndex: 2000,
-                      position: 'fixed',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      backgroundColor: '#333',
-                      color: 'white',
-                      borderRadius: '15px',
-                      width: '80%',
-                      maxWidth: '600px',
-                      height: '60%',
-                      overflow: 'auto',
+                      backgroundColor: 'white',
+                      borderRadius: '10px',
+                      maxWidth: '500px',
+                      width: '100%',
                     }}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Modal.Header>
-                      <Modal.Title style={{ textAlign: 'center' }}>
-                        Select a Supported Wallet
+                    <div style={{ padding: '20px', color: 'black' }}>
+                      <h2>Install MetaMask</h2>
+                      <p style={{ marginBottom: '20px' }}>
+                        You need to install MetaMask to use this application.
+                        Click the button below to install it.
+                      </p>
+                      <a
+                        href="https://metamask.io/"
+                        target="_blank"
+                        style={{
+                          color: 'white',
+                          backgroundColor: '#447dff',
+                          padding: '10px 20px',
+                          borderRadius: '5px',
+                          textDecoration: 'none',
+                          marginTop: '20px',
+                        }}
+                      >
+                        Install MetaMask
+                      </a>
+                    </div>
+                  </div>
+                </Modal>
+                <div>
+                  {isWalletModalOpen && (
+                    <div
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 1000,
+                      }}
+                      onClick={() => setIsWalletModalOpen(false)}
+                    />
+                  )}
+                </div>
+                <Modal
+                  show={isWalletModalOpen}
+                  onHide={() => setIsWalletModalOpen(false)}
+                  centered
+                  style={{
+                    zIndex: 2000,
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: '#333',
+                    color: 'white',
+                    borderRadius: '15px',
+                    width: '80%',
+                    maxWidth: '600px',
+                    height: '60%',
+                    overflow: 'auto',
+                  }}
+                >
+                  <Modal.Header>
+                    <Modal.Title style={{ textAlign: 'center' }}>
+                      Select a Supported Wallet
                     </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
+                  </Modal.Header>
+                  <Modal.Body>
+                    <div
+                      className="wallet-option"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        justifyContent: 'center',
+                        paddingLeft: '20px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => {
+                        if (window.ethereum?.isMetaMask) {
+                          connect({
+                            connector: injected({ target: 'metaMask' }),
+                          })
+                          setIsWalletModalOpen(false)
+                        } else {
+                          setIsWalletModalOpen(false)
+                          setShowModal(true)
+                        }
+                      }}
+                    >
                       <div
-                        className="wallet-option"
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
-                          alignItems: 'flex-start',
+                          alignItems: 'center',
                           justifyContent: 'center',
-                          paddingLeft: '20px',
-                          cursor: 'pointer',
                         }}
-                        onClick={() => {
-                          if (window.ethereum ?.isMetaMask) {
-                            connect({
-                              connector: injected({ target: 'metaMask' }),
-                            })
-                            setIsWalletModalOpen(false)
-                          } else {
-                            setIsWalletModalOpen(false)
-                            setShowModal(true)
-                          }
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.opacity = '0.5'
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.opacity = '1'
                         }}
                       >
-                        <div
+                        <img
+                          src="/assets/images/MetaMask_Fox.png"
+                          alt="MetaMask"
                           style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            width: '50px',
+                            height: '50px',
+                            transition: 'opacity 0.3s ease',
                           }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.opacity = '0.5'
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.opacity = '1'
-                          }}
-                        >
-                          <img
-                            src="/assets/images/MetaMask_Fox.png"
-                            alt="MetaMask"
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              transition: 'opacity 0.3s ease',
-                            }}
-                          />
-                          <p>MetaMask</p>
-                        </div>
+                        />
+                        <p>MetaMask</p>
                       </div>
-                    </Modal.Body>
-                  </Modal>
-                </div>
+                    </div>
+                  </Modal.Body>
+                </Modal>
               </div>
-            )}
+            </div>
+          )}
         </div>
       </header>
     </>

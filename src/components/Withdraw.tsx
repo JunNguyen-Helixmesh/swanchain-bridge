@@ -36,7 +36,7 @@ const Withdraw: React.FC = () => {
   // const [loader, setLoader] = useState<boolean>(false)
   const [iconLoader, setIconLoader] = useState<boolean>(false)
   const [iconStatus, setIconStatus] = useState<boolean>(false)
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false)
   const { address, isConnected } = useAccount()
   const { chain } = useAccount()
   const { chainInfoFromConfig, chainInfoAsObject } = useChainConfig()
@@ -57,7 +57,7 @@ const Withdraw: React.FC = () => {
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
-    status: status
+    status: status,
   } = useWaitForTransactionReceipt({
     hash,
   })
@@ -67,19 +67,14 @@ const Withdraw: React.FC = () => {
     chainId: chainId,
   })
 
-  const balanceShow = chain ?.id
+  const balanceShow = chain?.id
 
   useEffect(() => {
     if (chainInfoAsObject) {
       setL1ChainInfo(chainInfoAsObject[chainInfoFromConfig[0].id])
       setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[1].id])
       setFromChain(chainInfoFromConfig[1].id)
-      if (!isMainnet) {
-        setL2ChainInfo(chainInfoAsObject[chainInfoFromConfig[2].id])
-        setFromChain(chainInfoFromConfig[2].id)
-      }
     }
-
   }, [isMainnet])
 
   useEffect(() => {
@@ -91,7 +86,7 @@ const Withdraw: React.FC = () => {
 
   useEffect(() => {
     if (chainInfoAsObject) {
-      setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain] ?.l1ChainId])
+      setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain]?.l1ChainId])
       setL2ChainInfo(chainInfoAsObject[fromChain])
     }
   }, [fromChain])
@@ -196,7 +191,7 @@ const Withdraw: React.FC = () => {
             setIconLoader(true)
             setTimeout(() => {
               setIconLoader(false)
-            }, 3000);
+            }, 3000)
             console.log({ error }, 98)
           } finally {
             // setLoader(false)
@@ -251,7 +246,7 @@ const Withdraw: React.FC = () => {
           }),
         )
         setSwanBalance(Number(balance))
-      } catch{ }
+      } catch {}
     } else {
       console.error('Ethereum provider is not available')
     }
@@ -294,8 +289,8 @@ const Withdraw: React.FC = () => {
   }, [address])
 
   useEffect(() => {
-    setLoaded(true);
-  }, []);
+    setLoaded(true)
+  }, [])
 
   useEffect(() => {
     setEthValue('')
@@ -305,15 +300,15 @@ const Withdraw: React.FC = () => {
       setIconLoader(true)
       setTimeout(() => {
         setIconLoader(false)
-      }, 3000);
+      }, 3000)
     }
-  }, [isConnected, isConfirmed]);
+  }, [isConnected, isConfirmed])
 
   useEffect(() => {
     if (loaded) {
-      console.log('load complete');
+      console.log('load complete')
     }
-  }, [loaded]);
+  }, [loaded])
 
   if (chainInfoAsObject && l1ChainInfo && l2ChainInfo) {
     return (
@@ -323,7 +318,7 @@ const Withdraw: React.FC = () => {
           <meta name="description" content="Withdraw SwanETH to receive ETH" />
         </Head>
         <div className={loaded ? 'loaded bridge_wrap' : 'bridge_wrap'}>
-          {iconLoader ? (<SuccessIcon parentMessage={iconStatus} />) : (<></>)}
+          {iconLoader ? <SuccessIcon parentMessage={iconStatus} /> : <></>}
           <TabMenu />
           <section className="deposit_wrap">
             {/* <div className="withdraw_title_wrap">
@@ -351,7 +346,7 @@ const Withdraw: React.FC = () => {
                   <select value={chainId} onChange={changeChain}>
                     {chainInfoFromConfig
                       .slice(1)
-                      .filter((chain) => chain.id != 20241133)
+                      // .filter((chain) => chain.id != 20241133)
                       .map((chain) => (
                         <option key={chain.id} value={chain.id}>
                           {chain.name}
@@ -364,17 +359,26 @@ const Withdraw: React.FC = () => {
               </div>
 
               <div className="up flex-row center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="#a1a1aa" d="M224.49 136.49l-72 72a12 12 0 01-17-17L187 140H40a12 12 0 010-24h147l-51.49-51.52a12 12 0 0117-17l72 72a12 12 0 01-.02 17.01z"></path></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 256 256"
+                >
+                  <path
+                    fill="#a1a1aa"
+                    d="M224.49 136.49l-72 72a12 12 0 01-17-17L187 140H40a12 12 0 010-24h147l-51.49-51.52a12 12 0 0117-17l72 72a12 12 0 01-.02 17.01z"
+                  ></path>
+                </svg>
               </div>
 
               <div className="deposit_details flex-row end">
                 <div className="deposit_price_content text-right">
                   <p>To</p>
-                  <h5 className="flex-row">
-                    {l1ChainInfo.name}
-                  </h5>
+                  <h5 className="flex-row">{l1ChainInfo.name}</h5>
                 </div>
-                {l1ChainInfo.name === 'Ethereum' || l1ChainInfo.name === 'Sepolia' ? (
+                {l1ChainInfo.name === 'Ethereum' ||
+                l1ChainInfo.name === 'Sepolia' ? (
                   <NextImage
                     src="/assets/images/network-ethereum.svg"
                     alt="To icn"
@@ -382,18 +386,19 @@ const Withdraw: React.FC = () => {
                     width={30}
                     height={30}
                     className="img_icon"
-                  />) : (
-                    <NextImage
-                      src="/assets/images/swantoken.png"
-                      alt="To icn"
-                      layout="responsive"
-                      width={30}
-                      height={30}
-                      className="img_icon"
-                    />)}
+                  />
+                ) : (
+                  <NextImage
+                    src="/assets/images/swantoken.png"
+                    alt="To icn"
+                    layout="responsive"
+                    width={30}
+                    height={30}
+                    className="img_icon"
+                  />
+                )}
               </div>
             </div>
-
 
             <div className="deposit_price_wrap balance">
               <div className="form-title">Withdraw</div>
@@ -401,7 +406,10 @@ const Withdraw: React.FC = () => {
                 <Form>
                   <div className="deposit_inner_input">
                     <Form.Control
-                      disabled={!isConnected || Number(chain ?.id) !== Number(l2ChainInfo.chainId)}
+                      disabled={
+                        !isConnected ||
+                        Number(chain?.id) !== Number(l2ChainInfo.chainId)
+                      }
                       type="number"
                       name="eth_value"
                       value={ethValue}
@@ -417,7 +425,7 @@ const Withdraw: React.FC = () => {
                         setSendToken(event.target.value)
                       }
                     >
-                      <option>{l2ChainInfo ?.nativeCurrency ?.symbol}</option>
+                      <option>{l2ChainInfo?.nativeCurrency?.symbol}</option>
                     </Form.Select>
                   </div>
                   {/* <div className="input_icn_wrap">
@@ -434,35 +442,91 @@ const Withdraw: React.FC = () => {
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {Number(chain ?.id) == Number(fromChain) && sendToken === 'ETH' && balanceShow !== undefined ? (
+              {Number(chain?.id) == Number(fromChain) &&
+              sendToken === 'ETH' &&
+              balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
-                    {balance || NaN} {l2ChainInfo ?.nativeCurrency ?.symbol} available
+                    {balance || NaN} {l2ChainInfo?.nativeCurrency?.symbol}{' '}
+                    available
                   </p>
                 )
               ) : (
-                  <></>
-                )}
+                <></>
+              )}
             </div>
 
             <div className="deposit_price_wrap">
               <div className="withdraw_bal_sum flex-row jc">
                 <span className="input_icn flex-row">
                   {/* <Ethereum style={{ fontSize: '1.2rem' }} />  */}
-                  <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8138" width="16" height="16"><path d="M512 558.34857177l0-92.69714354L179.81978607 465.65142823A38.60836029 38.60836029 0 0 0 141.21142578 504.25978851l0 15.48042298A38.60836029 38.60836029 0 0 0 179.81978607 558.34857177L512 558.34857177z" fill="#ffffff" p-id="8139"></path><path d="M570.86268615 707.40557862l259.32025911-159.90257264a38.60836029 38.60836029 0 0 0 0.41713714-65.49053192l-259.3202591-164.21298981A38.60836029 38.60836029 0 0 0 512 350.42887878L512 674.54444122a38.60836029 38.60836029 0 0 0 58.86268615 32.90748597z" fill="#ffffff" p-id="8140"></path></svg>
+                  <svg
+                    className="icon"
+                    viewBox="0 0 1024 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="8138"
+                    width="16"
+                    height="16"
+                  >
+                    <path
+                      d="M512 558.34857177l0-92.69714354L179.81978607 465.65142823A38.60836029 38.60836029 0 0 0 141.21142578 504.25978851l0 15.48042298A38.60836029 38.60836029 0 0 0 179.81978607 558.34857177L512 558.34857177z"
+                      fill="#ffffff"
+                      p-id="8139"
+                    ></path>
+                    <path
+                      d="M570.86268615 707.40557862l259.32025911-159.90257264a38.60836029 38.60836029 0 0 0 0.41713714-65.49053192l-259.3202591-164.21298981A38.60836029 38.60836029 0 0 0 512 350.42887878L512 674.54444122a38.60836029 38.60836029 0 0 0 58.86268615 32.90748597z"
+                      fill="#ffffff"
+                      p-id="8140"
+                    ></path>
+                  </svg>
                   To address
-                  </span>
-                {l2ChainInfo && l2ChainInfo.contracts && l2ChainInfo.contracts.l1StandardBridge ? (
-                  <p className='green flex-row'>
-                    {l2ChainInfo.contracts.l1StandardBridge ?.slice(0, 4)}...{l2ChainInfo.contracts.l1StandardBridge ?.slice(-4)}
-                    <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9263" width="14" height="14"><path d="M512.465455 0.116364C230.609455 0.116364 1.210182 229.492364 1.210182 511.371636S230.586182 1022.650182 512.465455 1022.650182s511.278545-229.376 511.278545-511.278546C1023.720727 229.492364 794.344727 0.116364 512.465455 0.116364z m286.091636 413.230545L466.013091 754.222545a42.519273 42.519273 0 0 1-30.254546 12.753455h-0.232727a42.589091 42.589091 0 0 1-30.114909-12.427636l-178.711273-178.827637a42.565818 42.565818 0 0 1 0-60.253091 42.565818 42.565818 0 0 1 60.253091 0l148.363637 148.247273 302.312727-310.062545a42.682182 42.682182 0 0 1 60.253091-0.698182 42.821818 42.821818 0 0 1 0.674909 60.392727z m0 0" p-id="9264" fill="#43b85c"></path></svg>
-                  </p>) : (<p></p>)}
+                </span>
+                {l2ChainInfo &&
+                l2ChainInfo.contracts &&
+                l2ChainInfo.contracts.l1StandardBridge ? (
+                  <p className="green flex-row">
+                    {l2ChainInfo.contracts.l1StandardBridge?.slice(0, 4)}...
+                    {l2ChainInfo.contracts.l1StandardBridge?.slice(-4)}
+                    <svg
+                      className="icon"
+                      viewBox="0 0 1024 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="9263"
+                      width="14"
+                      height="14"
+                    >
+                      <path
+                        d="M512.465455 0.116364C230.609455 0.116364 1.210182 229.492364 1.210182 511.371636S230.586182 1022.650182 512.465455 1022.650182s511.278545-229.376 511.278545-511.278546C1023.720727 229.492364 794.344727 0.116364 512.465455 0.116364z m286.091636 413.230545L466.013091 754.222545a42.519273 42.519273 0 0 1-30.254546 12.753455h-0.232727a42.589091 42.589091 0 0 1-30.114909-12.427636l-178.711273-178.827637a42.565818 42.565818 0 0 1 0-60.253091 42.565818 42.565818 0 0 1 60.253091 0l148.363637 148.247273 302.312727-310.062545a42.682182 42.682182 0 0 1 60.253091-0.698182 42.821818 42.821818 0 0 1 0.674909 60.392727z m0 0"
+                        p-id="9264"
+                        fill="#43b85c"
+                      ></path>
+                    </svg>
+                  </p>
+                ) : (
+                  <p></p>
+                )}
               </div>
               <div className="spacing"></div>
               <div className="withdraw_bal_sum flex-row jc">
                 <span className="input_icn flex-row">
                   {/* <Ethereum style={{ fontSize: '1.2rem' }} />  */}
-                  <svg className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2648" width="16" height="16"><path d="M597.333333 608.085333v89.173334A256 256 0 0 0 256 938.666667H170.666667a341.333333 341.333333 0 0 1 426.666666-330.624zM512 554.666667c-141.44 0-256-114.56-256-256s114.56-256 256-256 256 114.56 256 256-114.56 256-256 256z m0-85.333334c94.293333 0 170.666667-76.373333 170.666667-170.666666s-76.373333-170.666667-170.666667-170.666667-170.666667 76.373333-170.666667 170.666667 76.373333 170.666667 170.666667 170.666666z m316.501333 256h153.002667v85.333334h-153.002667l78.037334 77.994666-60.330667 60.373334L665.173333 768l181.034667-181.034667 60.330667 60.373334L828.501333 725.333333z" p-id="2649" fill="#4177f3"></path></svg>
+                  <svg
+                    className="icon"
+                    viewBox="0 0 1024 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="2648"
+                    width="16"
+                    height="16"
+                  >
+                    <path
+                      d="M597.333333 608.085333v89.173334A256 256 0 0 0 256 938.666667H170.666667a341.333333 341.333333 0 0 1 426.666666-330.624zM512 554.666667c-141.44 0-256-114.56-256-256s114.56-256 256-256 256 114.56 256 256-114.56 256-256 256z m0-85.333334c94.293333 0 170.666667-76.373333 170.666667-170.666666s-76.373333-170.666667-170.666667-170.666667-170.666667 76.373333-170.666667 170.666667 76.373333 170.666667 170.666667 170.666666z m316.501333 256h153.002667v85.333334h-153.002667l78.037334 77.994666-60.330667 60.373334L665.173333 768l181.034667-181.034667 60.330667 60.373334L828.501333 725.333333z"
+                      p-id="2649"
+                      fill="#4177f3"
+                    ></path>
+                  </svg>
                   Receive on {l1ChainInfo.name}
                 </span>
                 <p>
@@ -486,7 +550,7 @@ const Withdraw: React.FC = () => {
                   textAlign: 'center',
                   marginTop: '0px',
                   marginBottom: '12px',
-                  lineHeight: '1.2'
+                  lineHeight: '1.2',
                 }}
               >
                 {`Please ensure you are connected to MetaMask & the ${l2ChainInfo.name} Network`}
@@ -509,44 +573,59 @@ const Withdraw: React.FC = () => {
               ) : !isConnected ? (
                 <w3m-connect-button />
               ) : // : isMainnet ? (
-                  //   <button
-                  //     className="btn deposit_btn flex-row disabled"
-                  //     disabled={true}
-                  //   >
-                  //     Initate Withdrawal
-                  //   </button>
-                  // )
-                  Number(chain ?.id) !== Number(fromChain) ? (
-                    <button
-                      className="btn deposit_btn flex-row"
-                      onClick={() =>
-                        switchChain({
-                          chainId: Number(fromChain),
-                        })
-                      }
-                    >
-                      <HiSwitchHorizontal />
-                      Switch to {l2ChainInfo ?.name}
-                    </button>
-                  ) : checkDisabled ? (
-                    <button className="btn deposit_btn deposit_btn_disabled flex-row" disabled={true}>
-                      Initiate Withdrawal
+              //   <button
+              //     className="btn deposit_btn flex-row disabled"
+              //     disabled={true}
+              //   >
+              //     Initate Withdrawal
+              //   </button>
+              // )
+              Number(chain?.id) !== Number(fromChain) ? (
+                <button
+                  className="btn deposit_btn flex-row"
+                  onClick={() =>
+                    switchChain({
+                      chainId: Number(fromChain),
+                    })
+                  }
+                >
+                  <HiSwitchHorizontal />
+                  Switch to {l2ChainInfo?.name}
                 </button>
+              ) : checkDisabled ? (
+                <button
+                  className="btn deposit_btn deposit_btn_disabled flex-row"
+                  disabled={true}
+                >
+                  Initiate Withdrawal
+                </button>
+              ) : (
+                <button
+                  className={
+                    !isPending &&
+                    !isConfirming &&
+                    ethValue &&
+                    Number(ethValue) > 0
+                      ? 'btn deposit_btn flex-row'
+                      : 'btn deposit_btn deposit_btn_disabled flex-row'
+                  }
+                  onClick={handleWithdraw}
+                  disabled={isPending || isConfirming ? true : false}
+                >
+                  {isConfirming || isPending ? (
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
                   ) : (
-                        <button
-                          className={!isPending && !isConfirming && ethValue && Number(ethValue) > 0 ? "btn deposit_btn flex-row" : "btn deposit_btn deposit_btn_disabled flex-row"}
-                          onClick={handleWithdraw}
-                          disabled={isPending || isConfirming ? true : false}
-                        >
-                          {isConfirming || isPending ? (
-                            <Spinner animation="border" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                          ) : (
-                              <span> {ethValue && Number(ethValue) > 0 ? 'Initiate Withdrawal' : 'Enter an amount'} </span>
-                            )}
-                        </button>
-                      )}
+                    <span>
+                      {' '}
+                      {ethValue && Number(ethValue) > 0
+                        ? 'Initiate Withdrawal'
+                        : 'Enter an amount'}{' '}
+                    </span>
+                  )}
+                </button>
+              )}
               {/* {isMainnet ? (
                 <p
                   style={{

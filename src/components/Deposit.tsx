@@ -12,6 +12,7 @@ import {
   useSendTransaction,
   useWaitForTransactionReceipt,
   useChains,
+  useReadContract,
 } from 'wagmi'
 import TabMenu from './TabMenu'
 import SuccessIcon from './SuccessIcon'
@@ -19,6 +20,7 @@ import { HiSwitchHorizontal } from 'react-icons/hi'
 import NextImage from 'next/image'
 import { formatUnits, Address } from 'viem'
 import { useChainConfig } from '../hooks/useChainConfig'
+import { useEthPrice } from '../hooks/useEthPrice'
 import { MainnetContext } from '@/pages/_app'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
@@ -43,17 +45,20 @@ const Deposit: React.FC = () => {
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState(
-    chainInfoFromConfig[1].id
+    chainInfoFromConfig[1].id,
   )
   const { data: hash, sendTransaction, isPending } = useSendTransaction()
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    })
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash,
+  })
   let balance = useBalance({
     address: address,
     chainId: chainId,
   }).data
+  const ethPrice = useEthPrice(ethValue)
 
   const balanceShow = chain?.id
 
@@ -159,7 +164,7 @@ const Deposit: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       )
 
       // Handle the response
@@ -210,7 +215,7 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     if (chainInfoAsObject) {
       setL1ChainInfo(
-        chainInfoAsObject[chainInfoAsObject[destinationChainId]?.l1ChainId]
+        chainInfoAsObject[chainInfoAsObject[destinationChainId]?.l1ChainId],
       )
       setL2ChainInfo(chainInfoAsObject[destinationChainId])
     }
@@ -347,6 +352,11 @@ const Deposit: React.FC = () => {
                   </div>
                 </Form>
               </div>
+              {ethPrice && Number(ethValue) > 0 ? (
+                <div className="wallet_bal text-left">~ ${ethPrice}</div>
+              ) : (
+                <></>
+              )}
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}

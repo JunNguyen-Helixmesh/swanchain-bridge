@@ -41,7 +41,7 @@ import { MainnetContext } from '../../pages/_app'
 
 const HeaderNew: FunctionComponent = () => {
   const [copyTextSourceCode, setCopyTextSourceCode] = useState<string>(
-    'Copy address to clipboard'
+    'Copy address to clipboard',
   )
   const { address, isConnected } = useAccount()
   const [getNetwork, setNetwork] = useState<string | undefined>()
@@ -157,7 +157,7 @@ const HeaderNew: FunctionComponent = () => {
                 ></path>
               </svg>
               {isMainnet ? (
-                <span>Swan</span>
+                <span>Swan Chain Mainnet</span>
               ) : (
                 <span>Swan Sepolia Testnet</span>
               )}
@@ -206,7 +206,7 @@ const HeaderNew: FunctionComponent = () => {
                       fill="currentColor"
                     ></path>
                   </svg>
-                  Swan
+                  Swan Chain Mainnet
                 </div>
                 <svg
                   width="17"

@@ -73,7 +73,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             isMainnet
               ? process.env.NEXT_PUBLIC_MAINNET_API_ROUTE
               : process.env.NEXT_PUBLIC_API_ROUTE
-          }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`
+          }/withdraw_transactions?wallet_address=${address}&limit=10&offset=${offset}`,
           // `http://localhost:3001/withdraw-history/${address}`,
         ) // Replace '/api/withdrawals' with your API endpoint
         if (!response.ok) {
@@ -88,7 +88,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
           .reduce((acc: any, chainInfo: any) => {
             const provider = new ethers.providers.JsonRpcProvider(
               chainInfoAsObject[chainInfo.id].rpcUrl,
-              'any'
+              'any',
             )
 
             acc[chainInfo.id] = provider
@@ -96,26 +96,30 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
             return acc
           }, {})
 
-        withdrawal_list = await Promise.all(
-          withdrawal_list.map(async (w: any) => {
-            let tx_hash = w.withdraw_tx_hash
-            // w.withdraw_tx_hash.slice(0, 2) == '0x'
-            //   ? w.withdraw_tx_hash
-            //   : `0x${w.withdraw_tx_hash}`
+        console.log(providers)
 
-            let receipt = await providers[w.chain_id].getTransaction(tx_hash)
-            // let block = await providers[w.chain_id].getBlock(
-            //   receipt.blockNumber,
-            // )
-            return {
-              ...w,
-              tx_hash,
-              amount: ethers.utils.formatEther(receipt.value),
-              // timestamp: block.timestamp,
-              block_number: receipt.blockNumber,
-              // receipt: await l2Provider.getTransaction(tx_hash),
-            }
-          })
+        withdrawal_list = await Promise.all(
+          withdrawal_list
+            .filter((w: any) => {console.log(w); return (w.chain_id != 2024)})
+            .map(async (w: any) => {
+              let tx_hash = w.withdraw_tx_hash
+              // w.withdraw_tx_hash.slice(0, 2) == '0x'
+              //   ? w.withdraw_tx_hash
+              //   : `0x${w.withdraw_tx_hash}`
+
+              let receipt = await providers[w.chain_id].getTransaction(tx_hash)
+              // let block = await providers[w.chain_id].getBlock(
+              //   receipt.blockNumber,
+              // )
+              return {
+                ...w,
+                tx_hash,
+                amount: ethers.utils.formatEther(receipt.value),
+                // timestamp: block.timestamp,
+                block_number: receipt.blockNumber,
+                // receipt: await l2Provider.getTransaction(tx_hash),
+              }
+            }),
         )
 
         // let receipt = await l2Provider.getTransaction(
@@ -168,12 +172,12 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
     const outputOracleContract = new ethers.Contract(
       L2OutputOracle,
       OUTPUT_ORACLE_ABI,
-      l1Provider
+      l1Provider,
     )
 
     try {
       rowData.latestOutputtedBlockNumber = Number(
-        await outputOracleContract.latestBlockNumber()
+        await outputOracleContract.latestBlockNumber(),
       )
       // console.log(
       //   'Result of the view function:',
@@ -187,7 +191,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
       if (rowData.status == 'proven' && rowData.prove_tx_hash) {
         proveTimestamp = await getTimestampFromTxHash(
           l1Provider,
-          rowData.prove_tx_hash
+          rowData.prove_tx_hash,
         )
       }
 
@@ -338,7 +342,7 @@ const WithdrawHistory: React.FC = (walletAddress: any) => {
 
   async function getTimestampFromTxHash(
     provider: any,
-    txHash: string
+    txHash: string,
   ): Promise<number | null> {
     try {
       const txReceipt = await provider.getTransactionReceipt(txHash)

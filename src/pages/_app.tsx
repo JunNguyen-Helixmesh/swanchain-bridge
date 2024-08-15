@@ -157,7 +157,7 @@ export const wagmiConfig = defaultWagmiConfig({
     sepolia,
     { ...mainnet, testnet: false },
     SWAN_PROXIMA,
-    SWAN_SATURN,
+    // SWAN_SATURN,
     SWAN_MAINNET,
   ],
   projectId: String(process.env.NEXT_PUBLIC_PRODUCT_ID),

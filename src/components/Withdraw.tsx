@@ -343,18 +343,7 @@ const Withdraw: React.FC = () => {
                 />
                 <div className="deposit_price_content">
                   <p>From</p>
-                  <select value={chainId} onChange={changeChain}>
-                    {chainInfoFromConfig
-                      .slice(1)
-                      // .filter((chain) => chain.id != 20241133)
-                      .map((chain) => (
-                        <option key={chain.id} value={chain.id}>
-                          {chain.name}
-                        </option>
-                      ))}
-                    {/* <option value="2024">Swan Saturn</option> */}
-                    {/* <option value="20241133">Swan Proxima</option> */}
-                  </select>
+                  {chainInfoFromConfig[1].name}
                 </div>
               </div>
 

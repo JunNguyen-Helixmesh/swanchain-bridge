@@ -301,15 +301,9 @@ const Deposit: React.FC = () => {
               <div className="deposit_details flex-row end">
                 <div className="deposit_price_content text-right">
                   <p>To</p>
-                  <select value={destinationChainId} onChange={changeChain}>
-                    {chainInfoFromConfig.slice(1).map((chain) => (
-                      <option key={chain.id} value={chain.id}>
-                        {chain.name}
-                      </option>
-                    ))}
-                    {/* <option value="2024">Swan Saturn</option>
+                  {chainInfoFromConfig[1].name}
+                  {/* <option value="2024">Swan Saturn</option>
                   <option value="20241133">Swan Proxima</option> */}
-                  </select>
                 </div>
                 <NextImage
                   src="/assets/images/swantoken.png"

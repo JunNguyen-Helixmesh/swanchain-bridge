@@ -198,7 +198,7 @@ export const MainnetContext = createContext<any>(null)
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [isMounted, setIsMounted] = useState(false)
-  const [isMainnet, setIsMainnet] = useState<any>(false)
+  const [isMainnet, setIsMainnet] = useState<any>(true)
   const router = useRouter()
   const [boolValue, setBoolValue] = useState(true)
 

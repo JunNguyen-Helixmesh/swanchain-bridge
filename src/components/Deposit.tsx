@@ -122,20 +122,6 @@ const Deposit: React.FC = () => {
               to: L1StandardBridge as Address,
               value: ethers.utils.parseEther(ethValue),
             })
-            // var depositETHEREUM = await crossChainMessenger.depositETH(
-            //   weiValue.toString(),
-            // )
-            // const receiptETH = await depositETHEREUM.wait()
-            // if (receiptETH) {
-            //   console.log(receiptETH)
-            //   setIsDepositSuccessful(true)
-            //   // await callGalxeAPI();
-            //   // setTimeout(fetchBalance, 3000)
-
-            //   if (destinationChainId == '20241133') {
-            //     await callGalxeAPI()
-            //   }
-            // }
           }
         }
       }
@@ -146,32 +132,6 @@ const Deposit: React.FC = () => {
         setIconLoader(false)
       }, 3000)
       console.log({ error }, 98)
-    }
-  }
-
-  const callGalxeAPI = async () => {
-    try {
-      // Define the data to be sent in the request body
-      const postData = {
-        wallet_address: address,
-      }
-
-      // Make the POST request using Axios
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_ROUTE}/galxe/update_credentials`,
-        postData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-
-      // Handle the response
-      console.log(response.data)
-    } catch (error) {
-      // Handle errors
-      console.error('Error:', error)
     }
   }
 

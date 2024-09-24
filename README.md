@@ -1,50 +1,30 @@
-## Orchestrator bridge frontend
+# Orchestrator bridge frontend
 
-TODO: ~~Rewrite & restyling of code from
-https://github.com/nitantchhajed/op-stack-bridge/tree/master~~
+The Standard Bridge allows easy transfer of ETH between Ethereum and Swan Chain, available on Swan Mainnet and Swan Proxima Testnet.
 
-- ~~Figure out why page routing is not working.~~
-- ~~Make adjustments to \_app as wagmiconfig is deprecated~~
-- ~~Fix stretched assets~~
-- Fix wallet login state persisting across routes
-- Fix switch to swan/sepolia button
-- Fix accounts routing
-- Fix metamask button and icon
-- Fix L2 testnet icon
-- Fix justification of header icons
-- Fix size of Wallet address/profile button
-- Fix Popup window for View Deposit/ View Withdrawals/ Disconnect
-- Fix depositing to Racenet instead of Swan
-- Fix NaN ETH display on withdraw route
+## L1 to L2 Transactions (Deposit)
 
-- get wallet address on landing withdraw-history
+Transfers from Ethereum to Swan (L1 to L2) take 1-3 minutes due to the Sequencer waiting for several L1 blocks before confirming the transaction to avoid reorgs.
 
-## Notes
+## L2 to L1 Transactions (Withdraw)
 
-- Create a .env.production file in root directory with the appropriate fields filled in.
+Transfers from Swan to Ethereum (L2 to L1) take 7 days due to the withdrawal challenge period, which ensures security by allowing time to prove the L2 state on L1.
 
-- Rewritten for use of wagmi@2.2.1 and ethers 6.10.1 with TypeScript and NextJS
-- [useSwitchNetwork](0.5.x.wagmi.sh/react/hooks/useSwitchNetwork) is now [useSwitchChain](wagmi.sh/react/api/hooks/useSwitchChain)
-- Types require using TypeScript >=5.0.4.
-- Since TypeScript does not follow semantic versioning it is highly recommended to lock Wagmi and TypeScript versions to specific patch releases and consider the possibility of types being fixed or upgraded between releases
-- tsconfig.json should set strict to true in compilerOptions
-- [ethers v6 uses ethers.JsonRPCProvider instead of ethers.providers.JsonRPCProvider](docs.ethers.org/v6/migrating/)
-- [ethers v6 uses BrowserProvider instead of Web3Provider](docs.ethers.org/migrating/#migrate-providers)
-- [useNetwork](0.5.x.wagmi.sh/react/hooks/useNetwork) depracated for [useAccount](wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-usenetwork-hook)
+The process includes:
 
-Run the following commands to build
+L2 transaction confirmed by the Sequencer (a few seconds).
+The block is proposed to L1 (takes ~12 hours).
+Proof submitted to L1, followed by finalization after the 7-day challenge period.
+Each L2 to L1 transaction involves:
 
-```
-docker build -t orchestrator-bridge-ui .
-docker run -p 3000:3000 orchestrator-bridge-ui
+1. Initiate L2 transaction and confirmation (a few seconds).
+2. Wait for the L2 block proposed to L1 (a few hours).
+3. Submit proof to L1 (can occur anytime after step 2).
+4. Wait for the challenge period (7 days).
+5. Finalize on L1 after the challenge period.
 
-``
-or
+# Challenge Period
 
-```
+The 7-day challenge period ensures the integrity of transactions, allowing time to challenge potentially incorrect results before they are considered final. Swan Chain uses optimistic rollups which rely on this delay to prevent incorrect results from being accepted, as incorrect transactions can be challenged and corrected during this period.
 
-docker pull jameschennbai/orchestratorbridge-ui:platformfix
-
-```
-https://hub.docker.com/layers/jameschennbai/orchestratorbridge-ui/platformfix/images/sha256-68891b8e6861e27402442169a2d638cbafd83376c42749cb62ac8867afe7cbff?context=repo
-```
+In summary, while L1 to L2 transfers are quick (1-3 minutes), L2 to L1 transfers take 7 days to ensure security through a challenge period, making the process costly due to L1 verification steps.

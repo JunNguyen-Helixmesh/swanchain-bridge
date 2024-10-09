@@ -101,6 +101,10 @@ export const SWAN_PROXIMA = {
     l1StandardBridge:
       process.env.NEXT_PUBLIC_PROXIMA_PROXY_OVM_L1STANDARDBRIDGE,
     l2OutputOracle: process.env.NEXT_PUBLIC_L2_PROXIMA_OUTPUTORACLE_PROXY,
+    l1UsdcBridge: process.env.NEXT_PUBLIC_SEPOLIA_USDC_BRIDGE,
+    l2UsdcBridge: process.env.NEXT_PUBLIC_PROXIMA_USDC_BRIDGE,
+    l1Usdc: process.env.NEXT_PUBLIC_SEPOLIA_USDC,
+    l2Usdc: process.env.NEXT_PUBLIC_PROXIMA_USDC,
   },
 }
 

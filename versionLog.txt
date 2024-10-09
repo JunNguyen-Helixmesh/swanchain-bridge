@@ -1,0 +1,19 @@
+0.1.3
+    - hotfix use wagmi sendTransaction
+
+0.1.4
+    - remove hardcoded network info
+    - create custom hook to get network info
+    - support mainnet
+
+0.1.5
+    - combine mainnet and testnet
+
+0.1.6
+    - add toggle between mainnet and testnet in header via context
+
+JUN 27 TODO:
+[x] - Disable deposit button on insufficient balance in the input
+[x] - After clicking deposit, dont clear fields, and disbale button to loading until tx is complete
+[x] - When clicking a row, disable clicks and add loading
+[x] - fix sepolia icon in withdraw tab

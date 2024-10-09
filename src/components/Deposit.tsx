@@ -13,6 +13,7 @@ import {
   useWaitForTransactionReceipt,
   useChains,
   useReadContract,
+  useWriteContract,
 } from 'wagmi'
 import TabMenu from './TabMenu'
 import SuccessIcon from './SuccessIcon'
@@ -22,8 +23,18 @@ import { formatUnits, Address } from 'viem'
 import { useChainConfig } from '../hooks/useChainConfig'
 import { useEthPrice } from '../hooks/useEthPrice'
 import { MainnetContext } from '@/pages/_app'
+import ERC20ABI from './abi/ERC20.json'
+import USDCBridgeABI from './abi/USDCBridge.json'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
+
+const receivingTokens: {
+  ETH: string;
+  USDC: string;
+} = {
+  "ETH": "swanETH",
+  "USDC": "USDC.e"
+}
 
 const Deposit: React.FC = () => {
   const [ethValue, setEthValue] = useState<string>('')
@@ -42,12 +53,20 @@ const Deposit: React.FC = () => {
   const [checkMetaMask, setCheckMetaMask] = useState<string>('')
   const { chains, switchChain } = useSwitchChain()
   const [showModal, setShowModal] = useState(false)
+  const [isApproving, setIsApproving] = useState(false)
   const [isDepositSuccessful, setIsDepositSuccessful] = useState(false)
   const chainId = useChainId()
   const [destinationChainId, setDestinationChainId] = useState(
     chainInfoFromConfig[1].id,
   )
-  const { data: hash, sendTransaction, isPending } = useSendTransaction()
+  const { status, data: writeData, writeContract, isPending: isWriteContractPending } = useWriteContract()
+  const { data: hash, sendTransaction, isPending, } = useSendTransaction()
+  const {
+    isLoading: isWriteContractConfirming,
+    isSuccess: isWriteContractConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash: writeData,
+  })
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
@@ -57,14 +76,22 @@ const Deposit: React.FC = () => {
   let balance = useBalance({
     address: address,
     chainId: chainId,
+    token: sendToken == 'USDC' && l2ChainInfo.contracts?.l1Usdc ? l2ChainInfo.contracts?.l1Usdc as `0x${string}`: undefined
   }).data
   const ethPrice = useEthPrice(ethValue)
+
+  const { data: usdcAllowance } = useReadContract({
+    abi: ERC20ABI,
+    address: sendToken == 'USDC' && l2ChainInfo.contracts?.l1Usdc ? l2ChainInfo.contracts?.l1Usdc as `0x${string}`: undefined,
+    functionName: 'allowance',
+    args: sendToken == 'USDC' && l2ChainInfo.contracts?.l1UsdcBridge ? [address, l2ChainInfo.contracts?.l1UsdcBridge] : []
+  })
 
   const balanceShow = chain?.id
 
   const { isMainnet } = useContext(MainnetContext)
 
-  // console.log(balance)
+  // console.log(isWriteContractConfirmed)
 
   const handleDeposit = async () => {
     try {
@@ -74,54 +101,34 @@ const Deposit: React.FC = () => {
         if (!(parseFloat(ethValue) > 0)) {
           setErrorInput('Invalid Amount Entered!')
         } else {
-          let l1Url = l1ChainInfo.rpcUrl
-          let l2Url = l2ChainInfo.rpcUrl
-          let AddressManager = l2ChainInfo.contracts.addressManager
-          let L1CrossDomainMessenger =
-            l2ChainInfo.contracts.l1CrossDomainMessenger
           let L1StandardBridge = l2ChainInfo.contracts.l1StandardBridge
-          let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
-          let OptimismPortal = l2ChainInfo.contracts.optimismPortal
-
-          const l1Provider = new ethers.providers.Web3Provider(window.ethereum)
-          const l2Provider = new ethers.providers.JsonRpcProvider(l2Url, 'any')
-          const l1Signer = l1Provider.getSigner(address)
-          const l2Signer = l2Provider.getSigner(address)
-          const zeroAddr = '0x'.padEnd(42, '0')
-          const l1Contracts = {
-            StateCommitmentChain: zeroAddr,
-            CanonicalTransactionChain: zeroAddr,
-            BondManager: zeroAddr,
-            AddressManager,
-            L1CrossDomainMessenger,
-            L1StandardBridge,
-            OptimismPortal,
-            L2OutputOracle,
-          }
-
-          const crossChainMessenger = new optimismSDK.CrossChainMessenger({
-            contracts: {
-              l1: l1Contracts,
-            },
-            // bridges: bridges,
-            l1ChainId: Number(l1ChainInfo.chainId),
-            l2ChainId: Number(destinationChainId),
-            l1SignerOrProvider: l1Signer,
-            l2SignerOrProvider: l2Signer,
-            // bedrock: true,
-          })
           if (sendToken === 'ETH') {
-            console.log(sendToken)
-            // const weiValue = parseInt(
-            //   ethers.utils.parseEther(ethValue)._hex,
-            //   16,
-            // )
-            // console.log(account)
-            // console.log(window.ethereum)
             sendTransaction({
               to: L1StandardBridge as Address,
               value: ethers.utils.parseEther(ethValue),
             })
+          }
+          else if (sendToken === 'USDC') {
+            const usdcInWei = ethers.utils.parseUnits(ethValue, 'mwei')
+            if (Number(usdcAllowance) < Number(usdcInWei)) {
+              writeContract({
+                abi: ERC20ABI,
+                address: l2ChainInfo.contracts.l1Usdc,
+                functionName: 'approve',
+                args: [l2ChainInfo.contracts.l1UsdcBridge, usdcInWei],
+                account: address
+              })
+
+              setIsApproving(true)
+            } else {
+              writeContract({
+                abi: USDCBridgeABI,
+                address: l2ChainInfo.contracts.l1UsdcBridge,
+                functionName: 'bridgeERC20',
+                args: [l2ChainInfo.contracts.l1Usdc, l2ChainInfo.contracts.l2Usdc, usdcInWei, 200000, ''],
+                account: address
+              })
+            }
           }
         }
       }
@@ -137,14 +144,14 @@ const Deposit: React.FC = () => {
 
   const [checkDisabled, setCheckDisabled] = useState(false)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (sendToken == 'ETH') {
+    if (sendToken == 'ETH' || sendToken == 'USDC') {
       if (
         balance &&
         Number(formatUnits(balance.value, balance.decimals)) <
           Number(e.target.value)
       ) {
         setCheckDisabled(true)
-        setErrorInput('Insufficient ETH balance.')
+        setErrorInput(`Insufficient ${sendToken} balance.`)
       } else {
         setCheckDisabled(false)
         setErrorInput('')
@@ -156,6 +163,11 @@ const Deposit: React.FC = () => {
   useEffect(() => {
     console.log('Network changed:', chainId, chainId === 11155111)
   }, [chainId])
+
+  useEffect(() => {
+    setEthValue('')
+    setErrorInput('')
+  }, [sendToken])
 
   useEffect(() => {
     if (chainInfoAsObject) {
@@ -178,6 +190,7 @@ const Deposit: React.FC = () => {
         chainInfoAsObject[chainInfoAsObject[destinationChainId]?.l1ChainId],
       )
       setL2ChainInfo(chainInfoAsObject[destinationChainId])
+      setSendToken('ETH')
     }
   }, [destinationChainId])
 
@@ -202,6 +215,21 @@ const Deposit: React.FC = () => {
       console.log('load complete')
     }
   }, [loaded])
+
+
+  useEffect(() => {
+    if (isApproving && isWriteContractConfirmed) {
+      let usdcInWei = ethers.utils.parseUnits(ethValue, 'mwei')
+        writeContract({
+          abi: USDCBridgeABI,
+          address: l2ChainInfo.contracts.l1UsdcBridge,
+          functionName: 'bridgeERC20',
+          args: [l2ChainInfo.contracts.l1Usdc, l2ChainInfo.contracts.l2Usdc, usdcInWei, 200000, ''],
+          account: address
+        })
+      setIsApproving(false)
+    }
+  }, [isWriteContractConfirmed])
 
   const changeChain = (event: any) => {
     const targetChainId = event.target.value
@@ -297,25 +325,26 @@ const Deposit: React.FC = () => {
                       className="select_wrap"
                       onChange={({ target }) => setSendToken(target.value)}
                     >
-                      <option>ETH</option>
+                      <option value="ETH">ETH</option>
+                      {l1ChainInfo.chainId == 11155111 ? (
+                        <option value="USDC">USDC</option>
+                      ) : (
+                        <></>
+                      )}
                       {/* <option value="DAI">DAI</option>
-                          <option value="USDC">USDC</option>
                           <option value="USDT">USDT</option>
                           <option value="wBTC">wBTC</option>  */}
                     </Form.Select>
                   </div>
                 </Form>
               </div>
-              {ethPrice && Number(ethValue) > 0 ? (
-                <div className="wallet_bal text-left">~ ${ethPrice}</div>
-              ) : (
-                <></>
-              )}
+              {Number(ethValue) > 0 && ethPrice && sendToken == 'ETH' ? 
+                  <div className="wallet_bal text-left">~ ${ethPrice}</div>
+               : <></>}
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
               {Number(chain?.id) == Number(l1ChainInfo.chainId) &&
-              sendToken === 'ETH' &&
               balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
@@ -401,7 +430,7 @@ const Deposit: React.FC = () => {
                 </span>
                 <p>
                   {ethValue && address ? ethValue : '-'}{' '}
-                  {l2ChainInfo?.nativeCurrency?.symbol || 'ETH'}
+                  {receivingTokens[sendToken as 'ETH' | 'USDC']}
                 </p>
               </div>
             </div>
@@ -483,11 +512,11 @@ const Deposit: React.FC = () => {
                       : 'btn deposit_btn deposit_btn_disabled flex-row'
                   }
                   onClick={handleDeposit}
-                  disabled={isPending || isConfirming ? true : false}
+                  disabled={isPending || isConfirming || isWriteContractConfirming || isWriteContractPending ? true : false}
                 >
-                  {isConfirming || isPending ? (
+                  {isConfirming || isPending  || isWriteContractConfirming || isWriteContractPending? (
                     <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
+                      <span className="visually-hidden btn deposit_btn_disabled">Loading...</span>
                     </Spinner>
                   ) : (
                     <span>

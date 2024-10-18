@@ -269,8 +269,15 @@ const Deposit: React.FC = () => {
       setTimeout(() => {
         setIconLoader(false)
       }, 3000)
+    } else if (isWriteContractConfirmed && !isApproving) {
+      console.log('isWriteContractConfirmed:', isWriteContractConfirmed)
+      setIconStatus(true)
+      setIconLoader(true)
+      setTimeout(() => {
+        setIconLoader(false)
+      }, 3000)
     }
-  }, [isConnected, isConfirmed])
+  }, [isConnected, isConfirmed, isWriteContractConfirmed])
 
   useEffect(() => {
     if (loaded) {
@@ -414,7 +421,7 @@ const Deposit: React.FC = () => {
                       {l1ChainInfo.chainId == 11155111 ? (
                         <>
                           <option value="USDC">USDC</option>
-                          <option value="tSWAN">tSWAN</option>
+                          {/* <option value="tSWAN">tSWAN</option> */}
                         </>
                       ) : (
                         <></>
@@ -596,6 +603,8 @@ const Deposit: React.FC = () => {
                   className={
                     !isPending &&
                     !isConfirming &&
+                    !isWriteContractPending &&
+                    !isWriteContractConfirming &&
                     ethValue &&
                     Number(ethValue) > 0
                       ? 'btn deposit_btn flex-row'

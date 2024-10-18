@@ -14,6 +14,8 @@ import {
   useChainId,
   useSendTransaction,
   useWaitForTransactionReceipt,
+  useReadContract,
+  useWriteContract,
 } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { IoMdWallet } from 'react-icons/io'
@@ -25,8 +27,29 @@ import { formatUnits, Address } from 'viem'
 import Head from 'next/head'
 import { useChainConfig } from '../hooks/useChainConfig'
 import { MainnetContext } from '@/pages/_app'
+import ERC20ABI from './abi/ERC20.json'
+import USDCBridgeABI from './abi/USDCBridge.json'
 const optimismSDK = require('@eth-optimism/sdk')
 const ethers = require('ethers')
+
+const getTokenAddress = (token: string, l2ChainInfo: any) => {
+  if (token == 'USDC.e' && l2ChainInfo) {
+    return l2ChainInfo.contracts.l2Usdc
+  } else if (token == 'tSWAN') {
+    return l2ChainInfo.contracts.l2SwanToken
+  }
+  return undefined
+}
+
+const receivingTokens: {
+  swanETH: string
+  'USDC.e': string
+  tSWAN: string
+} = {
+  swanETH: 'ETH',
+  'USDC.e': 'USDC',
+  tSWAN: 'tSWAN',
+}
 
 const Withdraw: React.FC = () => {
   const [ethValue, setEthValue] = useState<string>('')
@@ -48,23 +71,58 @@ const Withdraw: React.FC = () => {
   const { chains, switchChain } = useSwitchChain()
   const [showModal, setShowModal] = useState(false)
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+  const [isApproving, setIsApproving] = useState(false)
   const chainId = useChainId()
-  const [balance, setBalance] = useState<string>('')
+  // const [balance, setBalance] = useState<string>('')
   const [fromChain, setFromChain] = useState(chainInfoFromConfig[1].id)
   const { isMainnet } = useContext(MainnetContext)
 
+  const {
+    status,
+    data: writeData,
+    writeContract,
+    isPending: isWriteContractPending,
+    failureReason,
+  } = useWriteContract()
   const { data: hash, sendTransaction, isPending } = useSendTransaction()
+  const {
+    isLoading: isWriteContractConfirming,
+    isSuccess: isWriteContractConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash: writeData,
+  })
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
-    status: status,
   } = useWaitForTransactionReceipt({
     hash,
   })
 
-  const { data } = useBalance({
+  // const { data } = useBalance({
+  //   address: address,
+  //   chainId: chainId,
+  // })
+
+  let balance = useBalance({
     address: address,
     chainId: chainId,
+    token:
+      sendToken && l2ChainInfo?.contracts
+        ? getTokenAddress(sendToken, l2ChainInfo)
+        : undefined,
+  }).data
+
+  const { data: tokenAllowance } = useReadContract({
+    abi: ERC20ABI,
+    address:
+      sendToken && l2ChainInfo?.contracts
+        ? getTokenAddress(sendToken, l2ChainInfo)
+        : undefined,
+    functionName: 'allowance',
+    args:
+      sendToken == 'USDC.e' && l2ChainInfo?.contracts?.l2UsdcBridge
+        ? [address, l2ChainInfo?.contracts?.l2UsdcBridge]
+        : [address, l2ChainInfo?.contracts?.l2StandardBridge],
   })
 
   const balanceShow = chain?.id
@@ -89,7 +147,30 @@ const Withdraw: React.FC = () => {
       setL1ChainInfo(chainInfoAsObject[chainInfoAsObject[fromChain]?.l1ChainId])
       setL2ChainInfo(chainInfoAsObject[fromChain])
     }
+    setSendToken('swanETH')
   }, [fromChain])
+
+  useEffect(() => {
+    if (isApproving && isWriteContractConfirmed) {
+      if (sendToken == 'USDC.e') {
+        let usdcInWei = ethers.utils.parseUnits(ethValue, 'mwei')
+        writeContract({
+          abi: USDCBridgeABI,
+          address: l2ChainInfo.contracts.l2UsdcBridge,
+          functionName: 'bridgeERC20',
+          args: [
+            l2ChainInfo.contracts.l2Usdc,
+            l2ChainInfo.contracts.l1Usdc,
+            usdcInWei,
+            200000,
+            '',
+          ],
+          account: address,
+        })
+        setIsApproving(false)
+      }
+    }
+  }, [isWriteContractConfirmed])
 
   const handleWithdraw = async () => {
     try {
@@ -100,88 +181,42 @@ const Withdraw: React.FC = () => {
           setErrorInput('Invalid Amount Entered!')
         } else {
           setErrorInput('')
-          let l1Url = l1ChainInfo.rpcUrl
-          let l2Url = l2ChainInfo.rpcUrl
-          let AddressManager = l2ChainInfo.contracts.addressManager
-          let L1CrossDomainMessenger =
-            l2ChainInfo.contracts.l1CrossDomainMessenger
-          let L1StandardBridge = l2ChainInfo.contracts.l1StandardBridge
-          let L2OutputOracle = l2ChainInfo.contracts.l2OutputOracle
-          let OptimismPortal = l2ChainInfo.contracts.optimismPortal
           let L2StandardBridge = l2ChainInfo.contracts.l2Bridge
-
-          // const bridges = {
-          //   Standard: {
-          //     l1Bridge: l1Contracts.L1StandardBridge,
-          //     l2Bridge: '0x4200000000000000000000000000000000000010',
-          //     Adapter: optimismSDK.StandardBridgeAdapter,
-          //   },
-          //   ETH: {
-          //     l1Bridge: l1Contracts.L1StandardBridge,
-          //     l2Bridge: '0x4200000000000000000000000000000000000010',
-          //     Adapter: optimismSDK.ETHBridgeAdapter,
-          //   },
-          // }
-          const l1Provider = new ethers.providers.JsonRpcProvider(l1Url, 'any')
-          const l2Provider = new ethers.providers.Web3Provider(window.ethereum)
-          const l1Signer = l1Provider.getSigner(address)
-          const l2Signer = l2Provider.getSigner(address)
-          const zeroAddr = '0x'.padEnd(42, '0')
-          const l1Contracts = {
-            StateCommitmentChain: zeroAddr,
-            CanonicalTransactionChain: zeroAddr,
-            BondManager: zeroAddr,
-            AddressManager,
-            L1CrossDomainMessenger,
-            L1StandardBridge,
-            OptimismPortal,
-            L2OutputOracle,
-          }
-          const crossChainMessenger = new optimismSDK.CrossChainMessenger({
-            contracts: {
-              l1: l1Contracts,
-            },
-            // bridges: bridges,
-            l1ChainId: Number(l1ChainInfo.chainId),
-            l2ChainId: Number(fromChain),
-            l1SignerOrProvider: l1Signer,
-            l2SignerOrProvider: l2Signer,
-            // bedrock: true,
-          })
           //-------------------------------------------------------- SEND TOKEN VALUE -----------------------------------------------------------------
 
           try {
-            if (sendToken == 'ETH') {
+            if (sendToken == 'swanETH') {
               sendTransaction({
                 to: L2StandardBridge as Address,
                 value: ethers.utils.parseEther(ethValue),
               })
-              // const weiValue = parseInt(
-              //   ethers.utils.parseEther(ethValue)._hex,
-              //   16,
-              // )
-              // setLoader(true)
-              // const response = await crossChainMessenger.withdrawETH(
-              //   weiValue.toString(),
-              // )
-              // await response.wait()
+            } else if (sendToken === 'USDC.e') {
+              const usdcInWei = ethers.utils.parseUnits(ethValue, 'mwei')
+              if (Number(tokenAllowance) < Number(usdcInWei)) {
+                writeContract({
+                  abi: ERC20ABI,
+                  address: l2ChainInfo.contracts.l2Usdc,
+                  functionName: 'approve',
+                  args: [l2ChainInfo.contracts.l2UsdcBridge, usdcInWei],
+                  account: address,
+                })
 
-              // console.log('withdraw response:', response)
-
-              // const crossChainMessage = await crossChainMessenger.toCrossChainMessage(
-              //   response,
-              // )
-
-              // console.log('crosschain message:', crossChainMessage)
-              // const transactionHash = crossChainMessage.transactionHash
-              // const blockNumber = crossChainMessage.blockNumber
-
-              // if (blockNumber !== null) {
-              //   setLoader(false)
-              //   setEthValue('')
-
-              //   setTimeout(fetchBalance, 3000)
-              // }
+                setIsApproving(true)
+              } else {
+                writeContract({
+                  abi: USDCBridgeABI,
+                  address: l2ChainInfo.contracts.l2UsdcBridge,
+                  functionName: 'bridgeERC20',
+                  args: [
+                    l2ChainInfo.contracts.l2Usdc,
+                    l2ChainInfo.contracts.l1Usdc,
+                    usdcInWei,
+                    200000,
+                    '',
+                  ],
+                  account: address,
+                })
+              }
             }
             //-------------------------------------------------------- SEND TOKEN VALUE END-----------------------------------------------------------------
             // updateWallet()
@@ -195,8 +230,6 @@ const Withdraw: React.FC = () => {
             console.log({ error }, 98)
           } finally {
             // setLoader(false)
-            // updateWallet()
-            // fetchBalance()
           }
         }
       }
@@ -209,13 +242,14 @@ const Withdraw: React.FC = () => {
   const [checkDisabled, setCheckDisabled] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (sendToken == 'ETH') {
+    if (sendToken) {
       if (
-        data &&
-        Number(formatUnits(data.value, data.decimals)) < Number(e.target.value)
+        balance &&
+        Number(formatUnits(balance.value, balance.decimals)) <
+          Number(e.target.value)
       ) {
         setCheckDisabled(true)
-        setErrorInput('Insufficient ETH balance.')
+        setErrorInput(`Insufficient ${sendToken} balance.`)
       } else {
         setCheckDisabled(false)
         setErrorInput('')
@@ -236,57 +270,65 @@ const Withdraw: React.FC = () => {
     return balance
   }
   // ============= Get and update balance =========================
-  const updateWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const balance = formatBalance(
-          await window.ethereum.request({
-            method: 'eth_getBalance',
-            params: [address, 'latest'],
-          }),
-        )
-        setSwanBalance(Number(balance))
-      } catch {}
-    } else {
-      console.error('Ethereum provider is not available')
-    }
-  }
-  const fetchBalance = async () => {
-    if (address) {
-      const web3 = new Web3(window.ethereum)
-      const balance = await web3.eth.getBalance(address)
-      const balanceInEther = web3.utils.fromWei(balance, 'ether')
-      const formattedBalance = parseFloat(balanceInEther).toFixed(6)
-      setBalance(formattedBalance)
-    }
-  }
+  // const updateWallet = async () => {
+  //   if (typeof window.ethereum !== 'undefined') {
+  //     try {
+  //       const balance = formatBalance(
+  //         await window.ethereum.request({
+  //           method: 'eth_getBalance',
+  //           params: [address, 'latest'],
+  //         }),
+  //       )
+  //       setSwanBalance(Number(balance))
+  //     } catch {}
+  //   } else {
+  //     console.error('Ethereum provider is not available')
+  //   }
+  // }
+  // const fetchBalance = async () => {
+  //   if (address) {
+  //     const web3 = new Web3(window.ethereum)
+  //     const balance = await web3.eth.getBalance(address)
+  //     const balanceInEther = web3.utils.fromWei(balance, 'ether')
+  //     const formattedBalance = parseFloat(balanceInEther).toFixed(6)
+  //     setBalance(formattedBalance)
+  //   }
+  // }
+  // useEffect(() => {
+  //   const ethereum = window.ethereum
+
+  //   if (ethereum && ethereum.on && ethereum.removeListener) {
+  //     const handleChainChanged = async () => {
+  //       await fetchBalance()
+  //     }
+
+  //     ethereum.on('chainChanged', handleChainChanged)
+
+  //     return () => {
+  //       ethereum.removeListener('chainChanged', handleChainChanged)
+  //     }
+  //   }
+  // }, [fetchBalance])
+
+  // useEffect(() => {
+  //   updateWallet()
+  // }, [balance])
+
   useEffect(() => {
-    const ethereum = window.ethereum
-
-    if (ethereum && ethereum.on && ethereum.removeListener) {
-      const handleChainChanged = async () => {
-        await fetchBalance()
-      }
-
-      ethereum.on('chainChanged', handleChainChanged)
-
-      return () => {
-        ethereum.removeListener('chainChanged', handleChainChanged)
-      }
-    }
-  }, [fetchBalance])
-
-  useEffect(() => {
-    updateWallet()
-  }, [data])
-
+    console.log('reason', failureReason)
+  }, [failureReason])
   useEffect(() => {
     console.log('Network changed:', chainId)
   }, [chainId])
 
   useEffect(() => {
-    fetchBalance()
-  }, [address])
+    setEthValue('')
+    setErrorInput('')
+  }, [sendToken])
+
+  // useEffect(() => {
+  //   fetchBalance()
+  // }, [address])
 
   useEffect(() => {
     setLoaded(true)
@@ -301,8 +343,15 @@ const Withdraw: React.FC = () => {
       setTimeout(() => {
         setIconLoader(false)
       }, 3000)
+    } else if (isWriteContractConfirmed && !isApproving) {
+      console.log('isWriteContractConfirmed:', isWriteContractConfirmed)
+      setIconStatus(true)
+      setIconLoader(true)
+      setTimeout(() => {
+        setIconLoader(false)
+      }, 3000)
     }
-  }, [isConnected, isConfirmed])
+  }, [isConnected, isConfirmed, isWriteContractConfirmed])
 
   useEffect(() => {
     if (loaded) {
@@ -414,7 +463,16 @@ const Withdraw: React.FC = () => {
                         setSendToken(event.target.value)
                       }
                     >
-                      <option>{l2ChainInfo?.nativeCurrency?.symbol}</option>
+                      {/* <option>{l2ChainInfo?.nativeCurrency?.symbol}</option> */}
+                      <option value="swanETH">swanETH</option>
+                      {l1ChainInfo.chainId == 11155111 ? (
+                        <>
+                          <option value="USDC.e">USDC.e</option>
+                          {/* <option value="tSWAN">tSWAN</option> */}
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </Form.Select>
                   </div>
                   {/* <div className="input_icn_wrap">
@@ -431,13 +489,11 @@ const Withdraw: React.FC = () => {
               {errorInput && (
                 <small className="text-danger">{errorInput}</small>
               )}
-              {Number(chain?.id) == Number(fromChain) &&
-              sendToken === 'ETH' &&
+              {Number(chain?.id) == Number(l2ChainInfo.chainId) &&
               balanceShow !== undefined ? (
                 address && (
                   <p className="wallet_bal text-right mt-2">
-                    {balance || NaN} {l2ChainInfo?.nativeCurrency?.symbol}{' '}
-                    available
+                    {balance?.formatted} {balance?.symbol} available
                   </p>
                 )
               ) : (
@@ -519,7 +575,8 @@ const Withdraw: React.FC = () => {
                   Receive on {l1ChainInfo.name}
                 </span>
                 <p>
-                  {ethValue && address ? ethValue : '-'} {sendToken}
+                  {ethValue && address ? ethValue : '-'}{' '}
+                  {receivingTokens[sendToken as 'swanETH' | 'USDC.e' | 'tSWAN']}
                 </p>
                 {/* <span className='input_title'>ETH</span> */}
               </div>
@@ -593,15 +650,27 @@ const Withdraw: React.FC = () => {
                   className={
                     !isPending &&
                     !isConfirming &&
+                    !isWriteContractPending &&
+                    !isWriteContractConfirming &&
                     ethValue &&
                     Number(ethValue) > 0
                       ? 'btn deposit_btn flex-row'
                       : 'btn deposit_btn deposit_btn_disabled flex-row'
                   }
                   onClick={handleWithdraw}
-                  disabled={isPending || isConfirming ? true : false}
+                  disabled={
+                    isPending ||
+                    isConfirming ||
+                    isWriteContractPending ||
+                    isWriteContractConfirming
+                      ? true
+                      : false
+                  }
                 >
-                  {isConfirming || isPending ? (
+                  {isConfirming ||
+                  isPending ||
+                  isWriteContractPending ||
+                  isWriteContractConfirming ? (
                     <Spinner animation="border" role="status">
                       <span className="visually-hidden">Loading...</span>
                     </Spinner>

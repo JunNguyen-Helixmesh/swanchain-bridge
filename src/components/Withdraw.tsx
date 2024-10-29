@@ -168,6 +168,22 @@ const Withdraw: React.FC = () => {
           account: address,
         })
         setIsApproving(false)
+      } else if (sendToken == 'tSWAN') {
+        let swanInWei = ethers.utils.parseEther(ethValue)
+        writeContract({
+          abi: USDCBridgeABI,
+          address: l2ChainInfo.contracts.l1StandardBridge,
+          functionName: 'bridgeERC20',
+          args: [
+            l2ChainInfo.contracts.l2SwanToken,
+            l2ChainInfo.contracts.l1SwanToken,
+            swanInWei,
+            200000,
+            '',
+          ],
+          account: address,
+        })
+        setIsApproving(false)
       }
     }
   }, [isWriteContractConfirmed])
@@ -211,6 +227,33 @@ const Withdraw: React.FC = () => {
                     l2ChainInfo.contracts.l2Usdc,
                     l2ChainInfo.contracts.l1Usdc,
                     usdcInWei,
+                    200000,
+                    '',
+                  ],
+                  account: address,
+                })
+              }
+            } else if (sendToken == 'tSWAN') {
+              const swanInWei = ethers.utils.parseEther(ethValue)
+              if (Number(tokenAllowance) < Number(swanInWei)) {
+                writeContract({
+                  abi: ERC20ABI,
+                  address: l2ChainInfo.contracts.l2SwanToken,
+                  functionName: 'approve',
+                  args: [l2ChainInfo.contracts.l2StandardBridge, swanInWei],
+                  account: address,
+                })
+
+                setIsApproving(true)
+              } else {
+                writeContract({
+                  abi: USDCBridgeABI,
+                  address: l2ChainInfo.contracts.l2StandardBridge,
+                  functionName: 'bridgeERC20',
+                  args: [
+                    l2ChainInfo.contracts.l2SwanToken,
+                    l2ChainInfo.contracts.l1SwanToken,
+                    swanInWei,
                     200000,
                     '',
                   ],
@@ -468,7 +511,7 @@ const Withdraw: React.FC = () => {
                       {l1ChainInfo.chainId == 11155111 ? (
                         <>
                           <option value="USDC.e">USDC.e</option>
-                          {/* <option value="tSWAN">tSWAN</option> */}
+                          <option value="tSWAN">tSWAN</option>
                         </>
                       ) : (
                         <></>

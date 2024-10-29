@@ -421,7 +421,7 @@ const Deposit: React.FC = () => {
                       {l1ChainInfo.chainId == 11155111 ? (
                         <>
                           <option value="USDC">USDC</option>
-                          {/* <option value="tSWAN">tSWAN</option> */}
+                          <option value="tSWAN">tSWAN</option>
                         </>
                       ) : (
                         <></>
